@@ -13,7 +13,7 @@ function fetchHar(har) {
 };
 
 function constructRequest(har) {
-  const requestObj;
+  let requestObj = null;
 
   if (har.headers.length > 0) {
     requestObj = { method: har.method, headers: { [har.headers[0].name] : har.headers[0].value }, body: har.postData.text }

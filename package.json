@@ -1,0 +1,27 @@
+{
+  "name": "fetch-har",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha index.test.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/readmeio/fetch-har.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/readmeio/fetch-har/issues"
+  },
+  "homepage": "https://github.com/readmeio/fetch-har#readme",
+  "dependencies": {
+    "chai": "^4.1.2",
+    "mocha": "^3.5.3",
+    "nock": "^9.0.21",
+    "node-fetch": "^1.7.3",
+    "whatwg-fetch": "^2.0.3",
+    "xmlhttprequest": "^1.8.0"
+  }
+}

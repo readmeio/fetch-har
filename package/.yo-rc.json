@@ -1,0 +1,9 @@
+{
+  "generator-npm-module": {
+    "promptValues": {
+      "authorName": "uppal101",
+      "fullName": "Sanjeet",
+      "emailAddress": "sanjeet.uppal92@gmail.com"
+    }
+  }
+}

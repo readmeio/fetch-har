@@ -4,7 +4,11 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "mocha index.test.js"
+    "test": "mocha index.test.js",
+    "lint": "eslint -f unix . --ext js --ext jsx",
+    "inspect": "jsinspect",
+    "prettier": "prettier --list-different \"./**/**.{js,jsx}\"",
+    "pretest": "npm run lint && npm run inspect && npm run prettier"
   },
   "repository": {
     "type": "git",
@@ -18,9 +22,12 @@
   "homepage": "https://github.com/readmeio/fetch-har#readme",
   "dependencies": {
     "chai": "^4.1.2",
+    "eslint": "^4.7.2",
+    "jsinspect": "^0.12.7",
     "mocha": "^3.5.3",
     "nock": "^9.0.21",
     "node-fetch": "^1.7.3",
+    "prettier": "^1.7.2",
     "whatwg-fetch": "^2.0.3",
     "xmlhttprequest": "^1.8.0"
   }

@@ -8,7 +8,9 @@ const { constructRequest } = require ('./index.js');
 const har = {
   "headers": [{
     "name": "Authorization",
-    "value": "Bearer api-key"
+    "value": "Bearer api-key",
+    "Content-Type": "application/json"
+
   }],
   "queryString": [],
   "postData": {

@@ -1,2 +1,4 @@
 node_modules
 coverage
+.yo-rc.json
+.nyc_output

@@ -1,42 +1,31 @@
-function fetchHar(har) {
-  console.log(fetch(constructRequest(har)));
-  return fetch(constructRequest(har));
-  // .then((res) => {
-  //   return res
-  // })
-  // .then((json) => {
-  //   return (json)
-  // })
-  // .catch((err) => {
-  //   console.log(err)
-  // })
-}
-
 function constructRequest(har) {
-  let requestObj = {
-    method: har.method,
-    body: har.postData.text,
+  const harRequest = har.entries[0].request[0];
+  const requestObj = {
+    method: harRequest.method,
+    body: harRequest.postData.text,
   };
 
-  if (har.headers.length) {
+  if (harRequest.headers.length) {
     requestObj.headers = {};
-    har.headers.forEach(header => {
+    harRequest.headers.forEach(header => {
       requestObj.headers[header.name] = header.value;
     });
   }
 
-  if (har.queryString.length) {
-    har.url = har.url + '?';
-    let str2;
-    har.queryString.forEach((query, i) => {
-      str2 = har.queryString[i].name + '=' + har.queryString[i].value;
+  if (harRequest.queryString.length) {
+    harRequest.url = `${harRequest.url}?`;
+    let query;
+    harRequest.queryString.forEach((ele, i) => {
+      query = `${harRequest.queryString[i].name}=${harRequest.queryString[i].value}`;
     });
-    har.url.concat(str2);
-    return har.url;
+    harRequest.url = harRequest.url.concat(query);
   }
-
-  return new Request(har.url, requestObj);
+  return new Request(harRequest.url, requestObj);
 }
 
-module.exports = fetchHar;
+function fetchRequest(har) {
+  return fetch(constructRequest(har));
+}
+
+module.exports = fetchRequest;
 module.exports.constructRequest = constructRequest;

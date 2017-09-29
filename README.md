@@ -56,31 +56,17 @@ const harToHTTP = {
 
 ### `function constructRequest(har)`
 
-- `har` is a [har](https://en.wikipedia.org/wiki/.har) file format. It usually has more 
+- `har` is a [har](https://en.wikipedia.org/wiki/.har) file format.  
 
 The object returned is a [Request](https://developer.mozilla.org/en-US/docs/Web/API/Request) object.
 This function is mainly exported for testing purposes but could be useful if you want to construct
 a request but do not want to execute it right away.
 
-<!-- - `method` - type of HTTP method - [docs](#method)
-- `redirect` - allows for redirection from an old URL to a new one - [docs](#redirect)
-- `headers` - will contain what content type and if an authorization type is required for endpoint - [docs](#headers)
-- `url` - full url that fetch should request from - [docs](#url)
-<!-- - `follow` - an array of the `@secret` comment types - [docs](#secret) -->
-- `compress` - boolean that tells server to reduce content before transmitting - [docs](#compress)
-- `counter` - an object of all the possible errors from this action - [docs](#errors)
-- `agent` - information about the operating system and browser - [docs](#agent)
-- `body` - an object of the request body - [docs](#body)
-<!-- - `bodyUsed` - an object of all the possible errors from this action - [docs](#bodyUsed) -->
-<!-- - `size` - an object describing the return type - [docs](#size) -->
-- `timeout` - number to wait if response is not fully received to abort request - [docs](#timeout)
-- `_raw` - array of raw data to sent with request - [docs](#raw)
-- `_abort` - boolean value whether to abort request or not - [docs](#abort)
-- `protocol` - type of hyper text transfer protocol - [docs](#protocol)
-- `hostname` - the domain of the url - [docs](#hostname)
-- `port` - an object describing the return type - [docs](#port)
-- `path` - endpoint that fetch needs to hit - [docs](#path)
-- `auth` - an object describing the return type - [docs](#auth) -->
+### `function fetchRequest(har)`
+
+- `har` is a [har](https://en.wikipedia.org/wiki/.har) file format.  
+
+Utilizes constructRequest function to format har into a request object and then returns a promise from node-fetch.
 
 ## Credits
 [Sanjeet](https://github.com/uppal101/)

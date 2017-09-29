@@ -1,5 +1,5 @@
 function constructRequest(har) {
-  const harRequest = har.entries[0].request[0];
+  const harRequest = har.entries[0].request;
   const requestObj = {
     method: harRequest.method,
     body: harRequest.postData.text,
@@ -23,9 +23,9 @@ function constructRequest(har) {
   return new Request(harRequest.url, requestObj);
 }
 
-function fetchRequest(har) {
+function fetchHar(har) {
   return fetch(constructRequest(har));
 }
 
-module.exports = fetchRequest;
+module.exports = fetchHar;
 module.exports.constructRequest = constructRequest;

@@ -1,4 +1,5 @@
 # fetch-har
+[![CircleCI](https://circleci.com/gh/readmeio/fetch-har.svg?style=svg)](https://circleci.com/gh/readmeio/fetch-har)
 
 Make a [fetch](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API) request from a HAR file
 

@@ -1,14 +1,15 @@
 {
   "name": "fetch-har",
   "version": "1.0.0",
-  "description": "converts har objects to request objects",
+  "description": "Make a fetch request from a HAR file",
   "main": "index.js",
   "scripts": {
     "test": "nyc --reporter=html --reporter=text mocha index.test.js",
     "lint": "eslint -f unix . --ext js",
     "inspect": "jsinspect",
     "prettier": "prettier --list-different \"./**.js\"",
-    "pretest": "npm run lint && npm run inspect && npm run prettier"
+    "pretest": "npm run lint && npm run inspect && npm run prettier",
+    "posttest": "nyc report --reporter=text-summary && nyc check-coverage --statements 100 --branches 100 --functions 100 --lines 100"
   },
   "publishConfig": {
     "registry": "http://registry.npmjs.org"
@@ -35,8 +36,6 @@
     "nock": "^9.0.21",
     "node-fetch": "^1.7.3",
     "nyc": "^11.2.1",
-    "prettier": "^1.7.2",
-    "whatwg-fetch": "^2.0.3",
-    "xmlhttprequest": "^1.8.0"
+    "prettier": "^1.7.2"
   }
 }

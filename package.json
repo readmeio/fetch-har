@@ -33,7 +33,7 @@
     "eslint-plugin-jsx-a11y": "^6.0.2",
     "jsinspect": "^0.12.7",
     "mocha": "^3.5.3",
-    "nock": "^9.0.21",
+    "nock": "^11.7.0",
     "node-fetch": "^1.7.3",
     "nyc": "^11.2.1",
     "prettier": "^1.7.2"

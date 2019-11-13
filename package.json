@@ -34,7 +34,7 @@
     "jsinspect": "^0.12.7",
     "mocha": "^3.5.3",
     "nock": "^9.0.21",
-    "node-fetch": "^1.7.3",
+    "node-fetch": "^2.6.0",
     "nyc": "^11.2.1",
     "prettier": "^1.7.2"
   }

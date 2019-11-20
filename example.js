@@ -20,7 +20,10 @@ const har = {
               value: 'application/json',
             },
           ],
-          queryString: [{ name: 'a', value: 1 }, { name: 'b', value: 2 }],
+          queryString: [
+            { name: 'a', value: 1 },
+            { name: 'b', value: 2 },
+          ],
           postData: {
             text: '{"id":8,"category":{"id":6,"name":"name"},"name":"name"}',
           },

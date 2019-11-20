@@ -1,5 +1,5 @@
 # fetch-har
-[![CircleCI](https://circleci.com/gh/readmeio/fetch-har.svg?style=svg)](https://circleci.com/gh/readmeio/fetch-har)
+[![Build](https://github.com/readmeio/fetch-har/workflows/Node%20CI/badge.svg)](https://github.com/readmeio/fetch-har)
 
 Make a [fetch](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API) request from a HAR file
 
@@ -53,14 +53,14 @@ fetchHar(har)
 
 ### `fetchHar(har) => Promise`
 
-- `har` is a [har](https://en.wikipedia.org/wiki/.har) file format.  
+- `har` is a [har](https://en.wikipedia.org/wiki/.har) file format.
 
 Performs a fetch request from a given HAR file. HAR files can be used to list lots of requests
 but we only use the first from the `log.entries` array.
 
 ### `fetchHar.constructRequest(har) => Request`
 
-- `har` is a [har](https://en.wikipedia.org/wiki/.har) file format.  
+- `har` is a [har](https://en.wikipedia.org/wiki/.har) file format.
 
 We also export a 2nd function which is used to construct a [Request](https://developer.mozilla.org/en-US/docs/Web/API/Request) object
 from your HAR.

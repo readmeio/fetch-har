@@ -1,9 +1,10 @@
 {
-  "extends": ["airbnb-base", "prettier"],
+  "extends": ["@readme/eslint-config"],
+  "root": true,
   "rules": {
     "arrow-body-style": 0
   },
-   "env": {
+  "env": {
     "browser": true
   }
 }

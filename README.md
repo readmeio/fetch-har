@@ -58,7 +58,7 @@ fetchHar(har)
 
 Performs a fetch request from a given HAR file. HAR files can be used to list lots of requests but we only use the first from the `log.entries` array.
 
-### `fetchHar.constructRequest(har, userAgebt) => Request`
+### `fetchHar.constructRequest(har, userAgent) => Request`
 
 - `har` is a [har](https://en.wikipedia.org/wiki/.har) file format.
 - `userAgent` is an optional user agent string to let you declare where the request is coming from.

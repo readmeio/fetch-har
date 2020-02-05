@@ -51,19 +51,20 @@ fetchHar(har)
   .then(console.log);
 ```
 
-### `fetchHar(har) => Promise`
+### `fetchHar(har, userAgent) => Promise`
 
 - `har` is a [har](https://en.wikipedia.org/wiki/.har) file format.
+- `userAgent` is an optional user agent string to let you declare where the request is coming from.
 
-Performs a fetch request from a given HAR file. HAR files can be used to list lots of requests
-but we only use the first from the `log.entries` array.
+Performs a fetch request from a given HAR file. HAR files can be used to list lots of requests but we only use the first from the `log.entries` array.
 
-### `fetchHar.constructRequest(har) => Request`
+### `fetchHar.constructRequest(har, userAgebt) => Request`
 
 - `har` is a [har](https://en.wikipedia.org/wiki/.har) file format.
+- `userAgent` is an optional user agent string to let you declare where the request is coming from.
 
-We also export a 2nd function which is used to construct a [Request](https://developer.mozilla.org/en-US/docs/Web/API/Request) object
-from your HAR.
+We also export a 2nd function which is used to construct a [Request](https://developer.mozilla.org/en-US/docs/Web/API/Request) object from your HAR.
+
 This function is mainly exported for testing purposes but could be useful if you want to construct
 a request but do not want to execute it right away.
 

@@ -1,4 +1,4 @@
-function constructRequest(har) {
+function constructRequest(har, userAgent = false) {
   if (!har) throw new Error('Missing har file');
   if (!har.log || !har.log.entries || !har.log.entries.length)
     throw new Error('Missing log.entries array');
@@ -9,6 +9,7 @@ function constructRequest(har) {
   const options = {
     method: request.method,
     body: request.postData.text,
+    headers: {},
   };
 
   if (request.headers.length) {
@@ -26,11 +27,15 @@ function constructRequest(har) {
     querystring = `?${query}`;
   }
 
+  if (userAgent) {
+    options.headers['User-Agent'] = userAgent;
+  }
+
   return new Request(`${url}${querystring}`, options);
 }
 
-function fetchHar(har) {
-  return fetch(constructRequest(har));
+function fetchHar(har, userAgent) {
+  return fetch(constructRequest(har, userAgent));
 }
 
 module.exports = fetchHar;

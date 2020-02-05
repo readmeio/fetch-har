@@ -1,7 +1,6 @@
 function constructRequest(har, userAgent = false) {
   if (!har) throw new Error('Missing har file');
-  if (!har.log || !har.log.entries || !har.log.entries.length)
-    throw new Error('Missing log.entries array');
+  if (!har.log || !har.log.entries || !har.log.entries.length) throw new Error('Missing log.entries array');
 
   const { request } = har.log.entries[0];
   const { url } = request;

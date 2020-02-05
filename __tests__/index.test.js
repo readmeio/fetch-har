@@ -44,9 +44,7 @@ describe('construct request', () => {
     expect(request.method).toBe('PUT');
     expect(request.headers.get('authorization')).toBe('Bearer api-key');
     expect(request.headers.get('content-type')).toBe('application/json');
-    expect(request.body.toString()).toBe(
-      '{"id":8,"category":{"id":6,"name":"name"},"name":"name"}',
-    );
+    expect(request.body.toString()).toBe('{"id":8,"category":{"id":6,"name":"name"},"name":"name"}');
   });
 
   it('should include a User-Agent header if one is supplied', () => {

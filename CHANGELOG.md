@@ -1,3 +1,11 @@
+## <small>2.2.1 (2020-02-09)</small>
+
+* docs: adding a changelog (#35) ([2a21f8f](https://github.com/readmeio/fetch-har/commit/2a21f8f)), closes [#35](https://github.com/readmeio/fetch-har/issues/35)
+* fix: using the Request Headers API instead of a plain object (#34) ([032d787](https://github.com/readmeio/fetch-har/commit/032d787)), closes [#34](https://github.com/readmeio/fetch-har/issues/34)
+* chore(deps-dev): Bump @readme/eslint-config from 1.10.0 to 1.11.0 (#32) ([753532c](https://github.com/readmeio/fetch-har/commit/753532c)), closes [#32](https://github.com/readmeio/fetch-har/issues/32)
+
+
+
 ## 2.2.0 (2020-02-05)
 
 * build: 2.2.0 release ([fab41e2](https://github.com/readmeio/fetch-har/commit/fab41e2))

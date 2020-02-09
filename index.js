@@ -5,20 +5,15 @@ function constructRequest(har, userAgent = false) {
   const { request } = har.log.entries[0];
   const { url } = request;
   let querystring = '';
+
+  const headers = new Headers();
   const options = {
     method: request.method,
     body: request.postData.text,
-    headers: {},
   };
 
   if (request.headers.length) {
-    options.headers = request.headers
-      .map(header => {
-        return { [header.name]: header.value };
-      })
-      .reduce((headers, next) => {
-        return Object.assign(headers, next);
-      }, {});
+    options.headers = request.headers.map(header => headers.append(header.name, header.value));
   }
 
   if (request.queryString.length) {
@@ -27,8 +22,10 @@ function constructRequest(har, userAgent = false) {
   }
 
   if (userAgent) {
-    options.headers['User-Agent'] = userAgent;
+    headers.append('User-Agent', userAgent);
   }
+
+  options.headers = headers;
 
   return new Request(`${url}${querystring}`, options);
 }

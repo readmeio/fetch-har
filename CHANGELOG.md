@@ -1,3 +1,11 @@
+## 2.3.0 (2020-02-12)
+
+* chore(deps-dev): Bump @readme/eslint-config from 1.11.0 to 1.12.0 (#37) ([f43954a](https://github.com/readmeio/fetch-har/commit/f43954a)), closes [#37](https://github.com/readmeio/fetch-har/issues/37)
+* chore(deps-dev): Bump nock from 11.7.2 to 11.8.2 (#36) ([8934f2a](https://github.com/readmeio/fetch-har/commit/8934f2a)), closes [#36](https://github.com/readmeio/fetch-har/issues/36)
+* feat: dropping node 8 support (#38) ([f5f7614](https://github.com/readmeio/fetch-har/commit/f5f7614)), closes [#38](https://github.com/readmeio/fetch-har/issues/38)
+
+
+
 ## <small>2.2.1 (2020-02-09)</small>
 
 * docs: adding a changelog (#35) ([2a21f8f](https://github.com/readmeio/fetch-har/commit/2a21f8f)), closes [#35](https://github.com/readmeio/fetch-har/issues/35)

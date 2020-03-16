@@ -1,5 +1,5 @@
 /* eslint-disable import/no-extraneous-dependencies, no-console */
-const fetchHar = require('./');
+const fetchHar = require('.');
 
 // If executing from an environment without `fetch`, you'll need to polyfill
 global.fetch = require('node-fetch');

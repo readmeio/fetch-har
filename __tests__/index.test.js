@@ -3,8 +3,8 @@ global.fetch = require('node-fetch');
 global.Request = fetch.Request;
 
 const nock = require('nock');
-const fetchHar = require('../');
-const { constructRequest } = require('../');
+const fetchHar = require('..');
+const { constructRequest } = require('..');
 
 describe('construct request', () => {
   const har = {

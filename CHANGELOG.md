@@ -1,3 +1,15 @@
+## <small>2.3.1 (2020-03-16)</small>
+
+* chore(deps-dev): Bump @readme/eslint-config from 1.12.0 to 1.13.0 (#41) ([7893787](https://github.com/readmeio/fetch-har/commit/7893787)), closes [#41](https://github.com/readmeio/fetch-har/issues/41)
+* chore(deps-dev): Bump @readme/eslint-config from 1.13.0 to 1.14.0 (#43) ([f5fbbee](https://github.com/readmeio/fetch-har/commit/f5fbbee)), closes [#43](https://github.com/readmeio/fetch-har/issues/43)
+* chore(deps-dev): Bump @readme/eslint-config from 1.14.0 to 1.15.0 (#45) ([5794f2c](https://github.com/readmeio/fetch-har/commit/5794f2c)), closes [#45](https://github.com/readmeio/fetch-har/issues/45)
+* chore(deps-dev): Bump nock from 11.8.2 to 12.0.0 (#39) ([2e80f9c](https://github.com/readmeio/fetch-har/commit/2e80f9c)), closes [#39](https://github.com/readmeio/fetch-har/issues/39)
+* chore(deps-dev): Bump nock from 12.0.0 to 12.0.1 (#40) ([77dfb91](https://github.com/readmeio/fetch-har/commit/77dfb91)), closes [#40](https://github.com/readmeio/fetch-har/issues/40)
+* chore(deps-dev): Bump nock from 12.0.1 to 12.0.2 (#42) ([bf2df29](https://github.com/readmeio/fetch-har/commit/bf2df29)), closes [#42](https://github.com/readmeio/fetch-har/issues/42)
+* chore(deps): [Security] Bump acorn from 6.4.0 to 6.4.1 (#44) ([c22e7e1](https://github.com/readmeio/fetch-har/commit/c22e7e1)), closes [#44](https://github.com/readmeio/fetch-har/issues/44)
+
+
+
 ## 2.3.0 (2020-02-12)
 
 * chore(deps-dev): Bump @readme/eslint-config from 1.11.0 to 1.12.0 (#37) ([f43954a](https://github.com/readmeio/fetch-har/commit/f43954a)), closes [#37](https://github.com/readmeio/fetch-har/issues/37)

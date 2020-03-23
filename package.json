@@ -28,7 +28,7 @@
   },
   "homepage": "https://github.com/readmeio/fetch-har#readme",
   "devDependencies": {
-    "@readme/eslint-config": "^1.3.1",
+    "@readme/eslint-config": "^2.0.0",
     "conventional-changelog-cli": "^2.0.31",
     "eslint": "^6.6.0",
     "jest": "^25.1.0",

@@ -80,9 +80,7 @@ describe('fetch har', () => {
   });
 
   it('should make a request', async () => {
-    const mock = nock('http://petstore.swagger.io')
-      .post('/v2/store/order', 'test')
-      .reply(200);
+    const mock = nock('http://petstore.swagger.io').post('/v2/store/order', 'test').reply(200);
 
     await fetchHar(har, 'test-app/1.0');
     mock.done();

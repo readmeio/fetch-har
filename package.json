@@ -31,7 +31,7 @@
     "@readme/eslint-config": "^2.0.0",
     "conventional-changelog-cli": "^2.0.31",
     "eslint": "^6.6.0",
-    "jest": "^25.1.0",
+    "jest": "^26.0.1",
     "jsinspect": "^0.12.7",
     "nock": "^12.0.0",
     "node-fetch": "^2.6.0",

@@ -1,3 +1,28 @@
+## <small>2.3.2 (2020-06-03)</small>
+
+* ci: create Dependabot config file (#64) ([77ddb6d](https://github.com/readmeio/fetch-har/commit/77ddb6d)), closes [#64](https://github.com/readmeio/fetch-har/issues/64)
+* ci: running tests against node 14 ([ec6a169](https://github.com/readmeio/fetch-har/commit/ec6a169))
+* chore(deps-dev): Bump @readme/eslint-config from 1.15.0 to 2.0.0 (#47) ([b8ef838](https://github.com/readmeio/fetch-har/commit/b8ef838)), closes [#47](https://github.com/readmeio/fetch-har/issues/47)
+* chore(deps-dev): Bump @readme/eslint-config from 2.0.0 to 2.0.2 (#49) ([4d7ec2c](https://github.com/readmeio/fetch-har/commit/4d7ec2c)), closes [#49](https://github.com/readmeio/fetch-har/issues/49)
+* chore(deps-dev): Bump @readme/eslint-config from 2.0.2 to 2.0.3 (#53) ([8ef6d19](https://github.com/readmeio/fetch-har/commit/8ef6d19)), closes [#53](https://github.com/readmeio/fetch-har/issues/53)
+* chore(deps-dev): Bump @readme/eslint-config from 2.0.3 to 2.0.4 (#57) ([1705a0b](https://github.com/readmeio/fetch-har/commit/1705a0b)), closes [#57](https://github.com/readmeio/fetch-har/issues/57)
+* chore(deps-dev): Bump @readme/eslint-config from 2.0.4 to 2.0.6 (#59) ([17a2153](https://github.com/readmeio/fetch-har/commit/17a2153)), closes [#59](https://github.com/readmeio/fetch-har/issues/59)
+* chore(deps-dev): Bump @readme/eslint-config from 2.0.6 to 2.2.0 (#62) ([ad9e36a](https://github.com/readmeio/fetch-har/commit/ad9e36a)), closes [#62](https://github.com/readmeio/fetch-har/issues/62)
+* chore(deps-dev): Bump conventional-changelog-cli from 2.0.31 to 2.0.34 (#61) ([d904355](https://github.com/readmeio/fetch-har/commit/d904355)), closes [#61](https://github.com/readmeio/fetch-har/issues/61)
+* chore(deps-dev): Bump jest from 25.1.0 to 25.2.4 (#48) ([a99300f](https://github.com/readmeio/fetch-har/commit/a99300f)), closes [#48](https://github.com/readmeio/fetch-har/issues/48)
+* chore(deps-dev): Bump jest from 25.2.4 to 25.2.7 (#52) ([50cfdee](https://github.com/readmeio/fetch-har/commit/50cfdee)), closes [#52](https://github.com/readmeio/fetch-har/issues/52)
+* chore(deps-dev): Bump jest from 25.2.7 to 25.3.0 (#55) ([5644b45](https://github.com/readmeio/fetch-har/commit/5644b45)), closes [#55](https://github.com/readmeio/fetch-har/issues/55)
+* chore(deps-dev): Bump jest from 25.3.0 to 25.4.0 (#56) ([3984fd2](https://github.com/readmeio/fetch-har/commit/3984fd2)), closes [#56](https://github.com/readmeio/fetch-har/issues/56)
+* chore(deps-dev): Bump jest from 25.4.0 to 25.5.4 (#60) ([e85e3f1](https://github.com/readmeio/fetch-har/commit/e85e3f1)), closes [#60](https://github.com/readmeio/fetch-har/issues/60)
+* chore(deps-dev): Bump jest from 25.5.4 to 26.0.1 (#63) ([59d7415](https://github.com/readmeio/fetch-har/commit/59d7415)), closes [#63](https://github.com/readmeio/fetch-har/issues/63)
+* chore(deps-dev): Bump nock from 12.0.2 to 12.0.3 (#46) ([3a0024e](https://github.com/readmeio/fetch-har/commit/3a0024e)), closes [#46](https://github.com/readmeio/fetch-har/issues/46)
+* chore(deps-dev): Bump prettier from 2.0.1 to 2.0.2 (#50) ([80829d9](https://github.com/readmeio/fetch-har/commit/80829d9)), closes [#50](https://github.com/readmeio/fetch-har/issues/50)
+* chore(deps-dev): Bump prettier from 2.0.2 to 2.0.3 (#51) ([54c334e](https://github.com/readmeio/fetch-har/commit/54c334e)), closes [#51](https://github.com/readmeio/fetch-har/issues/51)
+* chore(deps-dev): Bump prettier from 2.0.3 to 2.0.4 (#54) ([dd9321c](https://github.com/readmeio/fetch-har/commit/dd9321c)), closes [#54](https://github.com/readmeio/fetch-har/issues/54)
+* chore(deps-dev): Bump prettier from 2.0.4 to 2.0.5 (#58) ([1777e20](https://github.com/readmeio/fetch-har/commit/1777e20)), closes [#58](https://github.com/readmeio/fetch-har/issues/58)
+
+
+
 ## <small>2.3.1 (2020-03-16)</small>
 
 * chore(deps-dev): Bump @readme/eslint-config from 1.12.0 to 1.13.0 (#41) ([7893787](https://github.com/readmeio/fetch-har/commit/7893787)), closes [#41](https://github.com/readmeio/fetch-har/issues/41)

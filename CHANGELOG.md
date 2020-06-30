@@ -1,3 +1,14 @@
+## 3.0.0 (2020-06-30)
+
+* docs: updating docs to include the Headers polyfill ([13e04db](https://github.com/readmeio/fetch-har/commit/13e04db))
+* fix: improper handling of application/x-www-form-urlencoded (#67) ([4aeb684](https://github.com/readmeio/fetch-har/commit/4aeb684)), closes [#67](https://github.com/readmeio/fetch-har/issues/67)
+* build(deps-dev): bump jest from 26.0.1 to 26.1.0 (#66) ([2f0a086](https://github.com/readmeio/fetch-har/commit/2f0a086)), closes [#66](https://github.com/readmeio/fetch-har/issues/66)
+* build(deps-dev): bump nock from 12.0.3 to 13.0.0 (#65) ([29a3520](https://github.com/readmeio/fetch-har/commit/29a3520)), closes [#65](https://github.com/readmeio/fetch-har/issues/65)
+* chore: adding an npmignore file ([be27844](https://github.com/readmeio/fetch-har/commit/be27844))
+* ci: updating the label that dependabot uses ([1ba88f0](https://github.com/readmeio/fetch-har/commit/1ba88f0))
+
+
+
 ## <small>2.3.2 (2020-06-03)</small>
 
 * ci: create Dependabot config file (#64) ([77ddb6d](https://github.com/readmeio/fetch-har/commit/77ddb6d)), closes [#64](https://github.com/readmeio/fetch-har/issues/64)

@@ -17,6 +17,7 @@ const fetchHar = require('fetch-har');
 
 // If executing from an environment without `fetch`, you'll need to polyfill
 global.fetch = require('node-fetch');
+global.Headers = require('node-fetch').Headers;
 global.Request = require('node-fetch').Request;
 
 const har = {
@@ -36,6 +37,7 @@ const har = {
           ],
           queryString: [{ name: 'a', value: 1 }, { name: 'b', value: 2 }],
           postData: {
+            mimeType: 'application/json',
             text: '{"id":8,"category":{"id":6,"name":"name"},"name":"name"}',
           },
           method: 'POST',

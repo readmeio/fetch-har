@@ -1,5 +1,5 @@
 function constructRequest(har, userAgent = false) {
-  if (!har) throw new Error('Missing har file');
+  if (!har) throw new Error('Missing HAR file');
   if (!har.log || !har.log.entries || !har.log.entries.length) throw new Error('Missing log.entries array');
 
   const { request } = har.log.entries[0];
@@ -9,8 +9,26 @@ function constructRequest(har, userAgent = false) {
   const headers = new Headers();
   const options = {
     method: request.method,
-    body: request.postData.text,
   };
+
+  if ('postData' in request) {
+    if ('params' in request.postData) {
+      const formBody = {};
+      request.postData.params.map(param => {
+        try {
+          formBody[param.name] = JSON.parse(param.value);
+        } catch (e) {
+          formBody[param.name] = param.value;
+        }
+
+        return true;
+      });
+
+      options.body = JSON.stringify(formBody);
+    } else {
+      options.body = request.postData.text;
+    }
+  }
 
   if (request.headers.length) {
     options.headers = request.headers.map(header => headers.append(header.name, header.value));

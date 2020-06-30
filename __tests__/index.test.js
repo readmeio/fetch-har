@@ -27,6 +27,7 @@ describe('construct request', () => {
               { name: 'b', value: 2 },
             ],
             postData: {
+              mimeType: 'application/json',
               text: '{"id":8,"category":{"id":6,"name":"name"},"name":"name"}',
             },
             method: 'PUT',
@@ -52,6 +53,51 @@ describe('construct request', () => {
 
     expect(request.headers.get('user-agent')).toBe('test-user-agent/1.0');
   });
+
+  it('should be able to handle application/x-www-form-urlencoded payloads', () => {
+    const harWithPostDataParams = {
+      log: {
+        entries: [
+          {
+            request: {
+              headers: [
+                {
+                  name: 'Authorization',
+                  value: 'Bearer api-key',
+                },
+                {
+                  name: 'Content-Type',
+                  value: 'application/json',
+                },
+              ],
+              queryString: [
+                { name: 'a', value: 1 },
+                { name: 'b', value: 2 },
+              ],
+              postData: {
+                mimeType: 'application/x-www-form-urlencoded',
+                params: [
+                  { name: 'id', value: 8 },
+                  { name: 'category', value: JSON.stringify({ id: 6, name: 'name' }) },
+                  { name: 'name', value: 'name' },
+                ],
+              },
+              method: 'PUT',
+              url: 'http://petstore.swagger.io/v2/pet',
+            },
+          },
+        ],
+      },
+    };
+
+    const request = constructRequest(harWithPostDataParams);
+
+    expect(request.url).toBe('http://petstore.swagger.io/v2/pet?a=1&b=2');
+    expect(request.method).toBe('PUT');
+    expect(request.headers.get('authorization')).toBe('Bearer api-key');
+    expect(request.headers.get('content-type')).toBe('application/json');
+    expect(request.body.toString()).toBe('{"id":8,"category":{"id":6,"name":"name"},"name":"name"}');
+  });
 });
 
 describe('fetch har', () => {
@@ -74,7 +120,7 @@ describe('fetch har', () => {
   };
 
   it('should throw if it looks like you are missing a valid har file', () => {
-    expect(fetchHar).toThrow('Missing har file');
+    expect(fetchHar).toThrow('Missing HAR file');
     expect(fetchHar.bind(null, { log: {} })).toThrow('Missing log.entries array');
     expect(fetchHar.bind(null, { log: { entries: [] } })).toThrow('Missing log.entries array');
   });

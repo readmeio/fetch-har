@@ -11,27 +11,41 @@ function constructRequest(har, userAgent = false) {
     method: request.method,
   };
 
+  if (request.headers.length) {
+    options.headers = request.headers.map(header => headers.append(header.name, header.value));
+  }
+
   if ('postData' in request) {
     if ('params' in request.postData) {
-      const formBody = {};
-      request.postData.params.map(param => {
-        try {
-          formBody[param.name] = JSON.parse(param.value);
-        } catch (e) {
-          formBody[param.name] = param.value;
-        }
+      if ('mimeType' in request.postData && request.postData.mimeType === 'application/x-www-form-urlencoded') {
+        // Since the content we're handling here is to be encoded as application/x-www-form-urlencoded, this should
+        // override any other Content-Type headers that are present in the HAR. This is how Postman handles this case
+        // when building code snippets!
+        //
+        // https://github.com/github/fetch/issues/263#issuecomment-209530977
+        headers.set('Content-Type', request.postData.mimeType);
 
-        return true;
-      });
+        const encodedParams = new URLSearchParams();
+        request.postData.params.map(param => encodedParams.set(param.name, param.value));
 
-      options.body = JSON.stringify(formBody);
+        options.body = encodedParams;
+      } else {
+        const formBody = {};
+        request.postData.params.map(param => {
+          try {
+            formBody[param.name] = JSON.parse(param.value);
+          } catch (e) {
+            formBody[param.name] = param.value;
+          }
+
+          return true;
+        });
+
+        options.body = JSON.stringify(formBody);
+      }
     } else {
       options.body = request.postData.text;
     }
-  }
-
-  if (request.headers.length) {
-    options.headers = request.headers.map(header => headers.append(header.name, header.value));
   }
 
   if (request.queryString.length) {

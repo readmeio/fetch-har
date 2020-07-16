@@ -95,8 +95,12 @@ describe('construct request', () => {
     expect(request.url).toBe('http://petstore.swagger.io/v2/pet?a=1&b=2');
     expect(request.method).toBe('PUT');
     expect(request.headers.get('authorization')).toBe('Bearer api-key');
-    expect(request.headers.get('content-type')).toBe('application/json');
-    expect(request.body.toString()).toBe('{"id":8,"category":{"id":6,"name":"name"},"name":"name"}');
+
+    // Though we have a Content-Type header set to application/json, since the post data is to be
+    // treated as application/x-www-form-urlencoded, that needs to be the only Content-Type header
+    // present. This is how Postman handles this case!
+    expect(request.headers.get('content-type')).toBe('application/x-www-form-urlencoded');
+    expect(request.body.toString()).toBe('id=8&category=%7B%22id%22%3A6%2C%22name%22%3A%22name%22%7D&name=name');
   });
 });
 

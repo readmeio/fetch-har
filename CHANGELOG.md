@@ -1,3 +1,10 @@
+## <small>3.0.1 (2020-07-16)</small>
+
+* fix: improved handling of application/x-www-form-urlencoded postData (#69) ([07b875b](https://github.com/readmeio/fetch-har/commit/07b875b)), closes [#69](https://github.com/readmeio/fetch-har/issues/69)
+* build(deps-dev): bump nock from 13.0.0 to 13.0.2 (#68) ([20c0c8f](https://github.com/readmeio/fetch-har/commit/20c0c8f)), closes [#68](https://github.com/readmeio/fetch-har/issues/68)
+
+
+
 ## 3.0.0 (2020-06-30)
 
 * docs: updating docs to include the Headers polyfill ([13e04db](https://github.com/readmeio/fetch-har/commit/13e04db))

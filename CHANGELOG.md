@@ -1,3 +1,9 @@
+## <small>3.0.2 (2020-07-16)</small>
+
+* build(deps): bump lodash from 4.17.15 to 4.17.19 (#70) ([ce0e9dd](https://github.com/readmeio/fetch-har/commit/ce0e9dd)), closes [#70](https://github.com/readmeio/fetch-har/issues/70)
+
+
+
 ## <small>3.0.1 (2020-07-16)</small>
 
 * fix: improved handling of application/x-www-form-urlencoded postData (#69) ([07b875b](https://github.com/readmeio/fetch-har/commit/07b875b)), closes [#69](https://github.com/readmeio/fetch-har/issues/69)

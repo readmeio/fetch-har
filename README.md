@@ -1,5 +1,5 @@
 # fetch-har
-[![Build](https://github.com/readmeio/fetch-har/workflows/Node%20CI/badge.svg)](https://github.com/readmeio/fetch-har)
+[![Build](https://github.com/readmeio/fetch-har/workflows/CI/badge.svg)](https://github.com/readmeio/fetch-har)
 
 Make a [fetch](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API) request from a HAR file
 
@@ -15,7 +15,7 @@ npm install --save fetch-har
 ```js
 const fetchHar = require('fetch-har');
 
-// If executing from an environment without `fetch`, you'll need to polyfill
+// If executing from an environment without `fetch`, you'll need to polyfill.
 global.fetch = require('node-fetch');
 global.Headers = require('node-fetch').Headers;
 global.Request = require('node-fetch').Request;
@@ -65,14 +65,6 @@ Performs a fetch request from a given HAR file. HAR files can be used to list lo
 - `har` is a [har](https://en.wikipedia.org/wiki/.har) file format.
 - `userAgent` is an optional user agent string to let you declare where the request is coming from.
 
-We also export a 2nd function which is used to construct a [Request](https://developer.mozilla.org/en-US/docs/Web/API/Request) object from your HAR.
+We also export a second function which is used to construct a [Request](https://developer.mozilla.org/en-US/docs/Web/API/Request) object from your HAR.
 
-This function is mainly exported for testing purposes but could be useful if you want to construct
-a request but do not want to execute it right away.
-
-## Credits
-[Sanjeet](https://github.com/uppal101/)
-
-## License
-
-ISC
+This function is mainly exported for testing purposes but could be useful if you want to construct a request but do not want to execute it right away.

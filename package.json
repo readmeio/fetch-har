@@ -28,14 +28,14 @@
   },
   "homepage": "https://github.com/readmeio/fetch-har#readme",
   "devDependencies": {
-    "@readme/eslint-config": "^2.0.0",
+    "@readme/eslint-config": "^3.4.1",
     "conventional-changelog-cli": "^2.0.31",
-    "eslint": "^6.6.0",
+    "eslint": "^7.6.0",
     "jest": "^26.0.1",
     "jsinspect": "^0.12.7",
     "nock": "^13.0.0",
     "node-fetch": "^2.6.0",
-    "prettier": "^2.0.1"
+    "prettier": "^2.0.5"
   },
   "prettier": "@readme/eslint-config/prettier"
 }

@@ -31,16 +31,10 @@ describe('#constructRequest', () => {
     // https://pptr.dev/#?product=Puppeteer&version=v5.2.1&show=api-pageevaluatepagefunction-args
     await page.evaluate(() => {
       window.parseRequest = async req => {
-        const headers = {};
-        // eslint-disable-next-line no-restricted-syntax
-        for (const header of req.headers.entries()) {
-          headers[header[0]] = header[1];
-        }
-
         return {
           url: req.url,
           method: req.method,
-          headers,
+          headers: Object.fromEntries(req.headers.entries()),
           credentials: req.credentials,
           cookies: document.cookie,
           body: (await req.text()).replace(/\r\n/g, '\n'),

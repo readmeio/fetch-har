@@ -1,5 +1,5 @@
 # fetch-har
-[![Build](https://github.com/readmeio/fetch-har/workflows/CI/badge.svg)](https://github.com/readmeio/fetch-har)
+[![CI](https://github.com/readmeio/fetch-har/workflows/CI/badge.svg)](https://github.com/readmeio/fetch-har)
 
 Make a [fetch](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API) request from a HAR file
 
@@ -19,6 +19,7 @@ const fetchHar = require('fetch-har');
 global.fetch = require('node-fetch');
 global.Headers = require('node-fetch').Headers;
 global.Request = require('node-fetch').Request;
+global.FormData = require('form-data');
 
 const har = {
   log: {

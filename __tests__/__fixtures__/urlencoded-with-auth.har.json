@@ -1,0 +1,34 @@
+{
+  "log": {
+    "entries": [
+      {
+        "request": {
+          "headers": [
+            {
+              "name": "Authorization",
+              "value": "Bearer api-key"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "queryString": [
+            { "name": "a", "value": 1 },
+            { "name": "b", "value": 2 }
+          ],
+          "postData": {
+            "mimeType": "application/x-www-form-urlencoded",
+            "params": [
+              { "name": "id", "value": 8 },
+              { "name": "category", "value": "{\"id\":6,\"name\":\"name\"}" },
+              { "name": "name", "value": "name" }
+            ]
+          },
+          "method": "PUT",
+          "url": "http://petstore.swagger.io/v2/pet"
+        }
+      }
+    ]
+  }
+}

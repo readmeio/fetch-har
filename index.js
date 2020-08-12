@@ -1,3 +1,4 @@
+/* eslint-disable no-case-declarations */
 function constructRequest(har, userAgent = false) {
   if (!har) throw new Error('Missing HAR file');
   if (!har.log || !har.log.entries || !har.log.entries.length) throw new Error('Missing log.entries array');
@@ -11,44 +12,119 @@ function constructRequest(har, userAgent = false) {
     method: request.method,
   };
 
-  if (request.headers.length) {
-    options.headers = request.headers.map(header => headers.append(header.name, header.value));
+  if ('headers' in request && request.headers.length) {
+    request.headers.forEach(header => headers.append(header.name, header.value));
+  }
+
+  if ('cookies' in request && request.cookies.length) {
+    // As the browser fetch API can't set custom cookies for requests, they instead need to be defined on the document
+    // and passed into the request via `credentials: include`. Since this is a browser-specific quirk, that should only
+    // happen in browsers!
+    if (typeof window !== 'undefined' && typeof document !== 'undefined') {
+      request.cookies.forEach(cookie => {
+        document.cookie = `${encodeURIComponent(cookie.name)}=${encodeURIComponent(cookie.value)}`;
+      });
+
+      options.credentials = 'include';
+    } else {
+      headers.append(
+        'cookie',
+        request.cookies
+          .map(cookie => `${encodeURIComponent(cookie.name)}=${encodeURIComponent(cookie.value)}`)
+          .join('; ')
+      );
+    }
   }
 
   if ('postData' in request) {
     if ('params' in request.postData) {
-      if ('mimeType' in request.postData && request.postData.mimeType === 'application/x-www-form-urlencoded') {
-        // Since the content we're handling here is to be encoded as application/x-www-form-urlencoded, this should
-        // override any other Content-Type headers that are present in the HAR. This is how Postman handles this case
-        // when building code snippets!
-        //
-        // https://github.com/github/fetch/issues/263#issuecomment-209530977
-        headers.set('Content-Type', request.postData.mimeType);
+      if (!('mimeType' in request.postData)) {
+        request.postData.mimeType = 'application/octet-stream';
+      }
 
-        const encodedParams = new URLSearchParams();
-        request.postData.params.map(param => encodedParams.set(param.name, param.value));
+      switch (request.postData.mimeType) {
+        case 'application/x-www-form-urlencoded':
+          // Since the content we're handling here is to be encoded as `application/x-www-form-urlencoded`, this should
+          // override any other Content-Type headers that are present in the HAR. This is how Postman handles this case
+          // when building code snippets!
+          //
+          // https://github.com/github/fetch/issues/263#issuecomment-209530977
+          headers.set('Content-Type', request.postData.mimeType);
 
-        options.body = encodedParams;
-      } else {
-        const formBody = {};
-        request.postData.params.map(param => {
-          try {
-            formBody[param.name] = JSON.parse(param.value);
-          } catch (e) {
-            formBody[param.name] = param.value;
-          }
+          const encodedParams = new URLSearchParams();
+          request.postData.params.forEach(param => encodedParams.set(param.name, param.value));
 
-          return true;
-        });
+          options.body = encodedParams.toString();
+          break;
 
-        options.body = JSON.stringify(formBody);
+        case 'multipart/form-data':
+          headers.set('Content-Type', request.postData.mimeType);
+
+          // The `form-data` NPM module returns one of two things: a native `FormData` API, or its own polyfill. Since
+          // the polyfill does not support the full API of the native FormData object, when this you load `form-data`
+          // within a browser environment you'll have two major differences in API:
+          //
+          //  * The `.append()` API in `form-data` requires that the third argument is an object containing various,
+          //    undocumented, options. In the browser, `.append()`'s third argument should only be present when the
+          //    second is a `Blob` or `USVString`, and when it is present, it should be a filename string.
+          //  * `form-data` does not expose an `.entries()` API, so the only way to retrieve data out of it for
+          //    construction of boundary-separated payload content is to use its `.pipe()` API. Since the browser
+          //    doesn't have this API, you'll be unable to retrieve data out of it.
+          //
+          // Now since the native `FormData` API is iterable, and has the `.entries()` iterator, we can easily detect
+          // what version of the FormData API we have access to by looking for this and constructing a simple wrapper
+          // to disconnect some of this logic so you can work against a single, consistent API.
+          //
+          // Having to do this isn't fun, but it's the only way you can write code to work with `multipart/form-data`
+          // content under a server and browser.
+          const form = new FormData();
+          const isNativeFormData = typeof form[Symbol.iterator] === 'function';
+
+          request.postData.params.forEach(param => {
+            if ('fileName' in param && !('value' in param)) {
+              throw new Error(
+                "The supplied HAR has a postData parameter with `fileName`, but no `value` content. Since this library doesn't have access to the filesystem, it can't fetch that file."
+              );
+            }
+
+            if (isNativeFormData) {
+              if ('fileName' in param) {
+                const paramBlob = new Blob([param.value], { type: param.contentType || null });
+                form.append(param.name, paramBlob, param.fileName);
+              } else {
+                form.append(param.name, param.value);
+              }
+            } else {
+              form.append(param.name, param.value || '', {
+                filename: param.fileName || null,
+                contentType: param.contentType || null,
+              });
+            }
+          });
+
+          options.body = form;
+          break;
+
+        default:
+          const formBody = {};
+          request.postData.params.map(param => {
+            try {
+              formBody[param.name] = JSON.parse(param.value);
+            } catch (e) {
+              formBody[param.name] = param.value;
+            }
+
+            return true;
+          });
+
+          options.body = JSON.stringify(formBody);
       }
     } else {
       options.body = request.postData.text;
     }
   }
 
-  if (request.queryString.length) {
+  if ('queryString' in request && request.queryString.length) {
     const query = request.queryString.map(q => `${q.name}=${q.value}`).join('&');
     querystring = `?${query}`;
   }

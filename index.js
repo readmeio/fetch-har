@@ -69,8 +69,8 @@ function constructRequest(har, userAgent = false) {
           }
 
           // The `form-data` NPM module returns one of two things: a native `FormData` API, or its own polyfill. Since
-          // the polyfill does not support the full API of the native FormData object, when this you load `form-data`
-          // within a browser environment you'll have two major differences in API:
+          // the polyfill does not support the full API of the native FormData object, when you load `form-data` within
+          // a browser environment you'll have two major differences in API:
           //
           //  * The `.append()` API in `form-data` requires that the third argument is an object containing various,
           //    undocumented, options. In the browser, `.append()`'s third argument should only be present when the

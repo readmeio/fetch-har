@@ -58,7 +58,15 @@ function constructRequest(har, userAgent = false) {
           break;
 
         case 'multipart/form-data':
-          headers.set('Content-Type', request.postData.mimeType);
+          // If there's a Content-Type header set remove it. We're doing this because when we pass the form data object
+          // into `fetch` that'll set a proper `Content-Type` header for this request that also includes the boundary
+          // used on the content.
+          //
+          // If we don't do this, then consumers won't be able to parse out the payload because they won't know what
+          // the boundary to split on it.
+          if (headers.has('Content-Type')) {
+            headers.delete('Content-Type');
+          }
 
           // The `form-data` NPM module returns one of two things: a native `FormData` API, or its own polyfill. Since
           // the polyfill does not support the full API of the native FormData object, when this you load `form-data`

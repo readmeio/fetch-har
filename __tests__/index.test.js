@@ -8,48 +8,101 @@ const fetchHar = require('..');
 const { constructRequest } = require('..');
 const harExamples = require('har-examples');
 const jsonWithAuthHar = require('./__fixtures__/json-with-auth.har.json');
-const urlEncodednWithAuthHar = require('./__fixtures__/urlencoded-with-auth.har.json');
+const urlEncodedWithAuthHar = require('./__fixtures__/urlencoded-with-auth.har.json');
 
 describe('#fetch', () => {
-  const har = {
-    log: {
-      entries: [
-        {
-          request: {
-            headers: [],
-            queryString: [],
-            postData: {
-              text: 'test',
-            },
-            method: 'POST',
-            url: 'http://petstore.swagger.io/v2/store/order',
-          },
-        },
-      ],
-    },
-  };
-
   it('should throw if it looks like you are missing a valid har file', () => {
     expect(fetchHar).toThrow('Missing HAR file');
     expect(fetchHar.bind(null, { log: {} })).toThrow('Missing log.entries array');
     expect(fetchHar.bind(null, { log: { entries: [] } })).toThrow('Missing log.entries array');
   });
 
-  it('should make a request', async () => {
-    const mock = nock('http://petstore.swagger.io').post('/v2/store/order', 'test').reply(200);
-
-    await fetchHar(har, 'test-app/1.0');
+  it('should make a request with a custom user agent if specified', async () => {
+    const mock = nock('http://mockbin.com').matchHeader('user-agent', 'test-app/1.0').get('/har').reply(200);
+    await fetchHar(harExamples.short, 'test-app/1.0');
     mock.done();
   });
 
-  it('should make a request with a custom user agent if specified', async () => {
-    const mock = nock('http://petstore.swagger.io')
-      .matchHeader('user-agent', 'test-app/1.0')
-      .post('/v2/store/order', 'test')
-      .reply(200);
+  describe('Content types', () => {
+    it('should be able to handle `application/x-www-form-urlencoded` payloads', async () => {
+      const mock = nock('http://petstore.swagger.io')
+        .matchHeader('content-type', 'application/x-www-form-urlencoded')
+        .put('/v2/pet')
+        .query({ a: 1, b: 2 })
+        .reply(200, function (uri, body) {
+          expect(this.req.headers.authorization).toStrictEqual(['Bearer api-key']);
+          expect(body).toBe('id=8&category=%7B%22id%22%3A6%2C%22name%22%3A%22name%22%7D&name=name');
+        });
 
-    await fetchHar(har, 'test-app/1.0');
-    mock.done();
+      await fetchHar(urlEncodedWithAuthHar);
+      mock.done();
+    });
+
+    it('should be able to handle full payloads', async () => {
+      const mock = nock('http://mockbin.com')
+        .matchHeader('content-type', 'application/x-www-form-urlencoded')
+        .post('/har')
+        .query(true)
+        .reply(200, function (uri, body) {
+          expect(this.req.path).toBe('/har?key=value?foo=bar&foo=baz&baz=abc');
+          expect(this.req.headers.accept).toStrictEqual(['application/json']);
+          expect(this.req.headers.cookie).toStrictEqual(['foo=bar; bar=baz']);
+          expect(body).toBe('foo=bar');
+        });
+
+      await fetchHar(harExamples.full);
+      mock.done();
+    });
+
+    describe('multipart/form-data', () => {
+      it("should be able to handle a `multipart/form-data` payload that's a standard object", async () => {
+        const mock = nock('http://mockbin.com')
+          .post('/har')
+          .reply(200, function (uri, body) {
+            expect(this.req.headers['content-type'][0]).toContain('multipart/form-data');
+            expect(this.req.headers['content-type'][0]).toContain('boundary=--------------------------');
+
+            expect(body.replace(/\r\n/g, '\n')).toContain(`Content-Disposition: form-data; name="foo"
+
+bar`);
+          });
+
+        await fetchHar(harExamples['multipart-form-data']);
+        mock.done();
+      });
+
+      it('should be able to handle a `multipart/form-data` payload with a file', async () => {
+        const mock = nock('http://mockbin.com')
+          .post('/har')
+          .reply(200, function (uri, body) {
+            expect(this.req.headers['content-type'][0]).toContain('multipart/form-data');
+            expect(this.req.headers['content-type'][0]).toContain('boundary=--------------------------');
+
+            expect(
+              body.replace(/\r\n/g, '\n')
+            ).toContain(`Content-Disposition: form-data; name="foo"; filename="hello.txt"
+Content-Type: text/plain
+
+Hello World`);
+          });
+
+        await fetchHar(harExamples['multipart-data']);
+        mock.done();
+      });
+    });
+
+    it('should be able to handle `text/plain` payloads', async () => {
+      const mock = nock('http://mockbin.com')
+        .matchHeader('content-type', 'text/plain')
+        .post('/har')
+        .query(true)
+        .reply(200, function (uri, body) {
+          expect(body).toBe('Hello World');
+        });
+
+      await fetchHar(harExamples['text-plain']);
+      mock.done();
+    });
   });
 });
 
@@ -70,9 +123,9 @@ describe('#constructRequest', () => {
     expect(request.headers.get('user-agent')).toBe('test-user-agent/1.0');
   });
 
-  describe('Content type use cases', () => {
+  describe('Content types', () => {
     it('should be able to handle `application/x-www-form-urlencoded` payloads', () => {
-      const request = constructRequest(urlEncodednWithAuthHar);
+      const request = constructRequest(urlEncodedWithAuthHar);
 
       expect(request.url).toBe('http://petstore.swagger.io/v2/pet?a=1&b=2');
       expect(request.method).toBe('PUT');
@@ -85,7 +138,7 @@ describe('#constructRequest', () => {
       expect(request.body.toString()).toBe('id=8&category=%7B%22id%22%3A6%2C%22name%22%3A%22name%22%7D&name=name');
     });
 
-    it('should be able to handle `full` payloads', () => {
+    it('should be able to handle full payloads', () => {
       const request = constructRequest(harExamples.full);
 
       expect(request.url).toBe('http://mockbin.com/har?key=value?foo=bar&foo=baz&baz=abc');
@@ -113,6 +166,11 @@ describe('#constructRequest', () => {
       it("should be able to handle a `multipart/form-data` payload that's a standard object", () => {
         const request = constructRequest(harExamples['multipart-form-data']);
 
+        expect(request.url).toBe('http://mockbin.com/har');
+        expect(request.method).toBe('POST');
+        expect(request.headers.get('content-type')).toContain('multipart/form-data');
+        expect(request.headers.get('content-type')).toContain('boundary=-------------------------');
+
         expect(request.body).toBeInstanceOf(FormData);
         expect(request.body.getBuffer().toString().replace(/\r\n/g, '\n'))
           .toContain(`Content-Disposition: form-data; name="foo"
@@ -125,10 +183,10 @@ bar`);
 
         expect(request.url).toBe('http://mockbin.com/har');
         expect(request.method).toBe('POST');
-        expect(request.headers.get('content-type')).toBe('multipart/form-data');
+        expect(request.headers.get('content-type')).toContain('multipart/form-data');
+        expect(request.headers.get('content-type')).toContain('boundary=-------------------------');
 
         expect(request.body).toBeInstanceOf(FormData);
-
         expect(request.body.getBuffer().toString().replace(/\r\n/g, '\n'))
           .toContain(`Content-Disposition: form-data; name="foo"; filename="hello.txt"
 Content-Type: text/plain

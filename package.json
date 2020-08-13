@@ -22,7 +22,6 @@
     "type": "git",
     "url": "git@github.com:readmeio/fetch-har.git"
   },
-  "author": "Sanjeet <sanjeet.uppal92@gmail.com>",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/readmeio/fetch-har/issues"

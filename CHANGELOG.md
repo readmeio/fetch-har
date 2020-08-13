@@ -1,3 +1,17 @@
+## 4.0.0 (2020-08-13)
+
+* docs: updating the license ([934d7c0](https://github.com/readmeio/fetch-har/commit/934d7c0))
+* feat: multipart/form-data support in node and browser environments (#77) ([187040c](https://github.com/readmeio/fetch-har/commit/187040c)), closes [#77](https://github.com/readmeio/fetch-har/issues/77)
+* ci: ci workflow cleanup ([6adc306](https://github.com/readmeio/fetch-har/commit/6adc306))
+* ci: enabling codeql (#76) ([923556f](https://github.com/readmeio/fetch-har/commit/923556f)), closes [#76](https://github.com/readmeio/fetch-har/issues/76)
+* ci: minor fixes to our dependabot workflow ([07f7d03](https://github.com/readmeio/fetch-har/commit/07f7d03))
+* chore(deps-dev): upgrading eslint, prettier, and @readme/eslint-config (#75) ([b456b17](https://github.com/readmeio/fetch-har/commit/b456b17)), closes [#75](https://github.com/readmeio/fetch-har/issues/75)
+* chore(deps): bump actions/checkout from v1 to v2.3.2 (#73) ([20c757e](https://github.com/readmeio/fetch-har/commit/20c757e)), closes [#73](https://github.com/readmeio/fetch-har/issues/73)
+* build(deps-dev): bump jest from 26.1.0 to 26.2.2 (#71) ([159f19a](https://github.com/readmeio/fetch-har/commit/159f19a)), closes [#71](https://github.com/readmeio/fetch-har/issues/71)
+* build(deps-dev): bump nock from 13.0.2 to 13.0.3 (#72) ([c9c8721](https://github.com/readmeio/fetch-har/commit/c9c8721)), closes [#72](https://github.com/readmeio/fetch-har/issues/72)
+
+
+
 ## <small>3.0.2 (2020-07-16)</small>
 
 * build(deps): bump lodash from 4.17.15 to 4.17.19 (#70) ([ce0e9dd](https://github.com/readmeio/fetch-har/commit/ce0e9dd)), closes [#70](https://github.com/readmeio/fetch-har/issues/70)

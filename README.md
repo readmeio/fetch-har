@@ -1,7 +1,7 @@
 # fetch-har
 [![CI](https://github.com/readmeio/fetch-har/workflows/CI/badge.svg)](https://github.com/readmeio/fetch-har)
 
-Make a [fetch](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API) request from a HAR file
+Make a [fetch](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API) request from a HAR file.
 
 [![](https://d3vv6lp55qjaqc.cloudfront.net/items/1M3C3j0I0s0j3T362344/Untitled-2.png)](https://readme.io)
 

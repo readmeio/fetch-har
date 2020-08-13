@@ -1,6 +1,7 @@
 {
   "extends": ["@readme/eslint-config/testing"],
   "rules": {
+    "compat/compat": "off",
     "jest/expect-expect": [
       "warn",
       {

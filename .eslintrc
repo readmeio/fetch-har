@@ -1,10 +1,20 @@
 {
-  "extends": ["@readme/eslint-config"],
+  "extends": [
+    "@readme/eslint-config",
+    "plugin:compat/recommended"
+  ],
   "root": true,
   "rules": {
     "arrow-body-style": 0
   },
   "env": {
     "browser": true
+  },
+  "settings": {
+    "polyfills": [
+      "fetch",
+      "Headers",
+      "Request"
+    ]
   }
 }

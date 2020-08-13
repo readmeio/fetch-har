@@ -5,6 +5,7 @@ const fetchHar = require('.');
 global.fetch = require('node-fetch');
 global.Headers = require('node-fetch').Headers;
 global.Request = require('node-fetch').Request;
+global.FormData = require('form-data');
 
 const har = {
   log: {

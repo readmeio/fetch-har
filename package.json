@@ -27,6 +27,9 @@
     "url": "https://github.com/readmeio/fetch-har/issues"
   },
   "homepage": "https://github.com/readmeio/fetch-har#readme",
+  "dependencies": {
+    "parse-data-url": "^2.0.0"
+  },
   "devDependencies": {
     "@readme/eslint-config": "^3.4.1",
     "body-parser": "^1.19.0",
@@ -36,7 +39,7 @@
     "eslint-plugin-compat": "^3.8.0",
     "express": "^4.17.1",
     "form-data": "^3.0.0",
-    "har-examples": "^1.0.5",
+    "har-examples": "^1.0.6",
     "jest": "^26.0.1",
     "jest-puppeteer": "^4.4.0",
     "jsinspect": "^0.12.7",

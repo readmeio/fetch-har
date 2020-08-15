@@ -158,9 +158,9 @@ describe('#fetch', () => {
         expect(req.files[0].originalname).toBe('owlbert.png');
         expect(req.files[0].mimetype).toBe('image/png');
 
-        // There's some encoding issues happening between the Puppeteer and our test server layer that's adding some
-        // extra characters in some line breaks. Since it's difficult to sort out what exactly is going on there,
-        // checking just the first 20 characters of both images to see if they match there should be okay!
+        // There's some encoding issues happening between the Puppeteer and test server layer that's adding some extra
+        // characters in some line breaks. Since it's difficult to sort out what exactly is going on there, checking
+        // just the first 20 characters of both images to see if they match there should be okay!
         expect(Buffer.from(req.files[0].buffer).toString().substring(0, 20)).toBe(owlbert.substring(0, 20));
       });
     });

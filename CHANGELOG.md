@@ -1,3 +1,16 @@
+## <small>4.0.1 (2020-08-17)</small>
+
+* fix: decoding file data urls before making a web request (#79) ([f73fb2e](https://github.com/readmeio/fetch-har/commit/f73fb2e)), closes [#79](https://github.com/readmeio/fetch-har/issues/79)
+* chore(deps-dev): bump conventional-changelog-cli from 2.0.34 to 2.1.0 (#84) ([23d3b3f](https://github.com/readmeio/fetch-har/commit/23d3b3f)), closes [#84](https://github.com/readmeio/fetch-har/issues/84)
+* chore(deps-dev): bump eslint from 7.6.0 to 7.7.0 (#82) ([42a1969](https://github.com/readmeio/fetch-har/commit/42a1969)), closes [#82](https://github.com/readmeio/fetch-har/issues/82)
+* chore(deps-dev): bump har-examples from 1.0.5 to 1.0.6 (#83) ([970a355](https://github.com/readmeio/fetch-har/commit/970a355)), closes [#83](https://github.com/readmeio/fetch-har/issues/83)
+* chore(deps-dev): bump jest from 26.2.2 to 26.4.0 (#81) ([9aaf0f4](https://github.com/readmeio/fetch-har/commit/9aaf0f4)), closes [#81](https://github.com/readmeio/fetch-har/issues/81)
+* chore(deps-dev): bump nock from 13.0.3 to 13.0.4 (#80) ([6d21ac2](https://github.com/readmeio/fetch-har/commit/6d21ac2)), closes [#80](https://github.com/readmeio/fetch-har/issues/80)
+* ci: adding in browser compat checks into eslint (#78) ([44a577e](https://github.com/readmeio/fetch-har/commit/44a577e)), closes [#78](https://github.com/readmeio/fetch-har/issues/78)
+* docs: cleaning up some code comments ([ddf9fe5](https://github.com/readmeio/fetch-har/commit/ddf9fe5))
+
+
+
 ## 4.0.0 (2020-08-13)
 
 * docs: updating the license ([934d7c0](https://github.com/readmeio/fetch-har/commit/934d7c0))

@@ -1,4 +1,6 @@
 /* eslint-disable no-case-declarations */
+const parseDataUrl = require('parse-data-url');
+
 function constructRequest(har, userAgent = false) {
   if (!har) throw new Error('Missing HAR file');
   if (!har.log || !har.log.entries || !har.log.entries.length) throw new Error('Missing log.entries array');
@@ -93,6 +95,16 @@ function constructRequest(har, userAgent = false) {
               throw new Error(
                 "The supplied HAR has a postData parameter with `fileName`, but no `value` content. Since this library doesn't have access to the filesystem, it can't fetch that file."
               );
+            }
+
+            // If the incoming parameter is a file, and that files value is a data URL, we should decode that and set
+            // the contents of the value in the HAR to the actual contents of the file.
+            if ('fileName' in param) {
+              const parsed = parseDataUrl(param.value);
+              if (parsed) {
+                // eslint-disable-next-line no-param-reassign
+                param.value = parsed.toBuffer().toString();
+              }
             }
 
             if (isNativeFormData) {

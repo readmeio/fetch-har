@@ -1,3 +1,16 @@
+## <small>4.0.2 (2020-09-09)</small>
+
+* test: adding tests to ensure data urls with files and parentheses work (#92) ([2472710](https://github.com/readmeio/fetch-har/commit/2472710)), closes [#92](https://github.com/readmeio/fetch-har/issues/92)
+* chore(deps-dev): bump @readme/eslint-config from 3.4.1 to 3.4.2 (#86) ([2bee835](https://github.com/readmeio/fetch-har/commit/2bee835)), closes [#86](https://github.com/readmeio/fetch-har/issues/86)
+* chore(deps-dev): bump eslint from 7.7.0 to 7.8.1 (#89) ([e5e45f7](https://github.com/readmeio/fetch-har/commit/e5e45f7)), closes [#89](https://github.com/readmeio/fetch-har/issues/89)
+* chore(deps-dev): bump jest from 26.4.0 to 26.4.2 (#85) ([b871d59](https://github.com/readmeio/fetch-har/commit/b871d59)), closes [#85](https://github.com/readmeio/fetch-har/issues/85)
+* chore(deps-dev): bump node-fetch from 2.6.0 to 2.6.1 (#90) ([77eb700](https://github.com/readmeio/fetch-har/commit/77eb700)), closes [#90](https://github.com/readmeio/fetch-har/issues/90)
+* chore(deps-dev): bump prettier from 2.0.5 to 2.1.1 (#87) ([4101e13](https://github.com/readmeio/fetch-har/commit/4101e13)), closes [#87](https://github.com/readmeio/fetch-har/issues/87)
+* chore(deps): bump bl from 4.0.2 to 4.0.3 (#88) ([0255dbd](https://github.com/readmeio/fetch-har/commit/0255dbd)), closes [#88](https://github.com/readmeio/fetch-har/issues/88)
+* chore(deps): bump parse-data-url from 2.0.0 to 3.0.0 (#91) ([62b1b9c](https://github.com/readmeio/fetch-har/commit/62b1b9c)), closes [#91](https://github.com/readmeio/fetch-har/issues/91)
+
+
+
 ## <small>4.0.1 (2020-08-17)</small>
 
 * fix: decoding file data urls before making a web request (#79) ([f73fb2e](https://github.com/readmeio/fetch-har/commit/f73fb2e)), closes [#79](https://github.com/readmeio/fetch-har/issues/79)

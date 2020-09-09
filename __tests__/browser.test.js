@@ -10,6 +10,17 @@ beforeAll(async () => {
   await page.exposeFunction('har_jsonWithAuthHar', () => jsonWithAuthHar);
   await page.exposeFunction('har_multipartData', () => harExamples['multipart-data']);
   await page.exposeFunction('har_multipartData_DataUrl', () => harExamples['multipart-data-dataurl']);
+  await page.exposeFunction('har_multipartData_DataUrl_withParentheses', () => {
+    const har = harExamples['multipart-data-dataurl'];
+    har.log.entries[0].request.postData.params[0].fileName = 'owlbert (1).png';
+    har.log.entries[0].request.postData.params[0].value = har.log.entries[0].request.postData.params[0].value.replace(
+      'name=owlbert.png;',
+      `name=${encodeURIComponent('owlbert (1).png')};`
+    );
+
+    return har;
+  });
+
   await page.exposeFunction('har_multipartFile', () => harExamples['multipart-file']);
   await page.exposeFunction('har_multipartFormData', () => harExamples['multipart-form-data']);
   await page.exposeFunction('har_textPlain', () => harExamples['text-plain']);
@@ -139,29 +150,56 @@ describe('#fetch', () => {
         expect(Buffer.from(req.files[0].buffer).toString()).toBe('Hello World');
       });
 
-      it('should be able to handle a `multipart/form-data` payload with a base64-encoded data URL file', async () => {
-        const owlbert = await fs.readFile(path.join(__dirname, '__fixtures__', 'owlbert.png')).then(img => {
-          return img.toString();
+      describe('base64-encoded data URLs', () => {
+        let owlbert;
+
+        beforeAll(async () => {
+          owlbert = await fs.readFile(path.join(__dirname, '__fixtures__', 'owlbert.png')).then(img => {
+            return img.toString();
+          });
         });
 
-        const req = await page.evaluate(async () => {
-          const har = debugHar(await window.har_multipartData_DataUrl());
-          return fetchHar(har).then(res => res.json());
+        it('should be able to handle a `multipart/form-data` payload with a base64-encoded data URL file', async () => {
+          const req = await page.evaluate(async () => {
+            const har = debugHar(await window.har_multipartData_DataUrl());
+            return fetchHar(har).then(res => res.json());
+          });
+
+          expect(req.method).toBe('POST');
+          expect(req.headers['content-type']).toContain('multipart/form-data');
+          expect(req.headers['content-type']).toContain('boundary=----WebKitFormBoundary');
+
+          expect(req.files).toHaveLength(1);
+          expect(req.files[0].fieldname).toBe('foo');
+          expect(req.files[0].originalname).toBe('owlbert.png');
+          expect(req.files[0].mimetype).toBe('image/png');
+
+          // There's some encoding issues happening between the Puppeteer and test server layer that's adding some extra
+          // characters in some line breaks. Since it's difficult to sort out what exactly is going on there, checking
+          // just the first 20 characters of both images to see if they match there should be okay!
+          expect(Buffer.from(req.files[0].buffer).toString().substring(0, 20)).toBe(owlbert.substring(0, 20));
         });
 
-        expect(req.method).toBe('POST');
-        expect(req.headers['content-type']).toContain('multipart/form-data');
-        expect(req.headers['content-type']).toContain('boundary=----WebKitFormBoundary');
+        it('should be able to handle a `multipart/form-data` payload with a base64-encoded data URL filename that contains parentheses', async () => {
+          const req = await page.evaluate(async () => {
+            const har = debugHar(await window.har_multipartData_DataUrl_withParentheses());
+            return fetchHar(har).then(res => res.json());
+          });
 
-        expect(req.files).toHaveLength(1);
-        expect(req.files[0].fieldname).toBe('foo');
-        expect(req.files[0].originalname).toBe('owlbert.png');
-        expect(req.files[0].mimetype).toBe('image/png');
+          expect(req.method).toBe('POST');
+          expect(req.headers['content-type']).toContain('multipart/form-data');
+          expect(req.headers['content-type']).toContain('boundary=----WebKitFormBoundary');
 
-        // There's some encoding issues happening between the Puppeteer and test server layer that's adding some extra
-        // characters in some line breaks. Since it's difficult to sort out what exactly is going on there, checking
-        // just the first 20 characters of both images to see if they match there should be okay!
-        expect(Buffer.from(req.files[0].buffer).toString().substring(0, 20)).toBe(owlbert.substring(0, 20));
+          expect(req.files).toHaveLength(1);
+          expect(req.files[0].fieldname).toBe('foo');
+          expect(req.files[0].originalname).toBe('owlbert (1).png');
+          expect(req.files[0].mimetype).toBe('image/png');
+
+          // There's some encoding issues happening between the Puppeteer and test server layer that's adding some extra
+          // characters in some line breaks. Since it's difficult to sort out what exactly is going on there, checking
+          // just the first 20 characters of both images to see if they match there should be okay!
+          expect(Buffer.from(req.files[0].buffer).toString().substring(0, 20)).toBe(owlbert.substring(0, 20));
+        });
       });
     });
 

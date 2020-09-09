@@ -92,28 +92,57 @@ Hello World`);
         mock.done();
       });
 
-      it('should be able to handle a `multipart/form-data` payload with a base64-encoded data URL file', async () => {
-        const owlbert = await fs.readFile(path.join(__dirname, '__fixtures__', 'owlbert.png')).then(img => {
-          return img.toString();
+      describe('base64-encoded data URLs', () => {
+        let owlbert;
+
+        beforeAll(async () => {
+          owlbert = await fs.readFile(path.join(__dirname, '__fixtures__', 'owlbert.png')).then(img => {
+            return img.toString();
+          });
         });
 
-        const mock = nock('http://mockbin.com')
-          .post('/har')
-          .reply(200, function (uri, body) {
-            expect(this.req.headers['content-type'][0]).toContain('multipart/form-data');
-            expect(this.req.headers['content-type'][0]).toContain('boundary=--------------------------');
+        it('should be able to handle a `multipart/form-data` payload with a base64-encoded data URL file', async () => {
+          const mock = nock('http://mockbin.com')
+            .post('/har')
+            .reply(200, function (uri, body) {
+              expect(this.req.headers['content-type'][0]).toContain('multipart/form-data');
+              expect(this.req.headers['content-type'][0]).toContain('boundary=--------------------------');
 
-            expect(
-              body.replace(/\r\n/g, '\n')
-            ).toContain(`Content-Disposition: form-data; name="foo"; filename="owlbert.png"
-Content-Type: image/png`);
+              expect(body).toContain('Content-Disposition: form-data; name="foo"; filename="owlbert.png"');
+              expect(body).toContain('Content-Type: image/png');
 
-            // The rest of the body should be the raw image not the data URL that was in the HAR.
-            expect(body).toContain(owlbert);
-          });
+              // The rest of the body should be the raw image not the data URL that was in the HAR.
+              expect(body).toContain(owlbert);
+            });
 
-        await fetchHar(harExamples['multipart-data-dataurl']);
-        mock.done();
+          await fetchHar(harExamples['multipart-data-dataurl']);
+          mock.done();
+        });
+
+        it('should be able to handle a `multipart/form-data` payload with a base64-encoded data URL filename that contains parentheses', async () => {
+          const har = harExamples['multipart-data-dataurl'];
+          har.log.entries[0].request.postData.params[0].fileName = 'owlbert (1).png';
+          har.log.entries[0].request.postData.params[0].value = har.log.entries[0].request.postData.params[0].value.replace(
+            'name=owlbert.png;',
+            `name=${encodeURIComponent('owlbert (1).png')};`
+          );
+
+          const mock = nock('http://mockbin.com')
+            .post('/har')
+            .reply(200, function (uri, body) {
+              expect(this.req.headers['content-type'][0]).toContain('multipart/form-data');
+              expect(this.req.headers['content-type'][0]).toContain('boundary=--------------------------');
+
+              expect(body).toContain('Content-Disposition: form-data; name="foo"; filename="owlbert (1).png"');
+              expect(body).toContain('Content-Type: image/png');
+
+              // The rest of the body should be the raw image not the data URL that was in the HAR.
+              expect(body).toContain(owlbert);
+            });
+
+          await fetchHar(har);
+          mock.done();
+        });
       });
     });
 

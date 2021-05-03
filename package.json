@@ -32,7 +32,7 @@
     "parse-data-url": "^3.0.0"
   },
   "devDependencies": {
-    "@readme/eslint-config": "^4.0.0",
+    "@readme/eslint-config": "^5.0.3",
     "body-parser": "^1.19.0",
     "conventional-changelog-cli": "^2.0.31",
     "cookie-parser": "^1.4.5",
@@ -48,7 +48,7 @@
     "nock": "^13.0.0",
     "node-fetch": "^2.6.0",
     "prettier": "^2.0.5",
-    "puppeteer": "^5.2.1",
+    "puppeteer": "^8.0.0",
     "webpack": "^4.44.1",
     "webpack-dev-middleware": "^4.0.0"
   },

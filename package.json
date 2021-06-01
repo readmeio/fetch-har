@@ -13,7 +13,7 @@
     "prettier": "prettier --list-different --write \"./**.js\"",
     "release": "conventional-changelog -i CHANGELOG.md -s",
     "serve": "node __tests__/server.js",
-    "test": "jest --runInBand --coverage"
+    "test": "jest --coverage"
   },
   "publishConfig": {
     "registry": "http://registry.npmjs.org"

@@ -122,10 +122,11 @@ Hello World`);
         it('should be able to handle a `multipart/form-data` payload with a base64-encoded data URL filename that contains parentheses', async () => {
           const har = harExamples['multipart-data-dataurl'];
           har.log.entries[0].request.postData.params[0].fileName = 'owlbert (1).png';
-          har.log.entries[0].request.postData.params[0].value = har.log.entries[0].request.postData.params[0].value.replace(
-            'name=owlbert.png;',
-            `name=${encodeURIComponent('owlbert (1).png')};`
-          );
+          har.log.entries[0].request.postData.params[0].value =
+            har.log.entries[0].request.postData.params[0].value.replace(
+              'name=owlbert.png;',
+              `name=${encodeURIComponent('owlbert (1).png')};`
+            );
 
           const mock = nock('http://mockbin.com')
             .post('/har')

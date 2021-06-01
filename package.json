@@ -28,7 +28,7 @@
   },
   "homepage": "https://github.com/readmeio/fetch-har#readme",
   "dependencies": {
-    "parse-data-url": "^3.0.0"
+    "parse-data-url": "^4.0.1"
   },
   "devDependencies": {
     "@readme/eslint-config": "^5.0.3",

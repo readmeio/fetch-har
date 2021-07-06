@@ -25,5 +25,8 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Install latest Puppeteer browser
+        run: node node_modules/puppeteer/install.js
+
       - name: Run tests
         run: npm test

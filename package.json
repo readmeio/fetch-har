@@ -7,9 +7,8 @@
     "node": ">=10"
   },
   "scripts": {
-    "inspect": "jsinspect",
     "lint": "eslint .",
-    "pretest": "npm run lint && npm run prettier && npm run inspect",
+    "pretest": "npm run lint",
     "prettier": "prettier --list-different --write \"./**.js\"",
     "release": "conventional-changelog -i CHANGELOG.md -s",
     "serve": "node __tests__/server.js",
@@ -42,7 +41,6 @@
     "har-examples": "^1.0.6",
     "jest": "^27.0.3",
     "jest-puppeteer": "^5.0.3",
-    "jsinspect": "^0.12.7",
     "multer": "^1.4.2",
     "nock": "^13.0.0",
     "node-fetch": "^2.6.0",

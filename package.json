@@ -4,7 +4,7 @@
   "description": "Make a fetch request from a HAR file",
   "main": "index.js",
   "engines": {
-    "node": ">=10"
+    "node": "^12 || ^14 || ^16"
   },
   "scripts": {
     "lint": "eslint .",

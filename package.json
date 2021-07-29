@@ -4,7 +4,7 @@
   "description": "Make a fetch request from a HAR file",
   "main": "index.js",
   "engines": {
-    "node": ">=10"
+    "node": "^12 || ^14 || ^16"
   },
   "scripts": {
     "lint": "eslint .",
@@ -30,24 +30,23 @@
     "parse-data-url": "^4.0.1"
   },
   "devDependencies": {
-    "@readme/eslint-config": "^5.0.3",
+    "@readme/eslint-config": "^6.0.0",
     "body-parser": "^1.19.0",
     "conventional-changelog-cli": "^2.0.31",
     "cookie-parser": "^1.4.5",
-    "eslint": "^7.6.0",
-    "eslint-plugin-compat": "^3.8.0",
+    "eslint": "^7.31.0",
+    "eslint-plugin-compat": "^3.11.1",
     "express": "^4.17.1",
     "form-data": "^4.0.0",
-    "har-examples": "^1.0.6",
+    "har-examples": "^2.0.1",
     "jest": "^27.0.3",
-    "jest-puppeteer": "^5.0.3",
+    "jest-puppeteer": "^5.0.4",
     "multer": "^1.4.2",
-    "nock": "^13.0.0",
+    "nock": "^13.1.1",
     "node-fetch": "^2.6.0",
-    "prettier": "^2.0.5",
-    "puppeteer": "^9.0.0",
-    "webpack": "^4.44.1",
-    "webpack-dev-middleware": "^4.0.0"
+    "prettier": "^2.3.2",
+    "webpack": "^5.47.1",
+    "webpack-dev-middleware": "^5.0.0"
   },
   "browserslist": [
     "last 2 versions"

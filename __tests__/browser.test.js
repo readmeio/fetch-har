@@ -263,7 +263,7 @@ describe('#constructRequest', () => {
         return serializeRequest(constructRequest(await window.har_full()));
       });
 
-      expect(req.url).toBe('http://mockbin.com/har?key=value?foo=bar&foo=baz&baz=abc');
+      expect(req.url).toBe('https://httpbin.org/post?key=value?foo=bar&foo=baz&baz=abc');
       expect(req.method).toBe('POST');
 
       expect(req.headers.accept).toBe('application/json');
@@ -281,7 +281,7 @@ describe('#constructRequest', () => {
           return serializeRequest(constructRequest(await window.har_multipartFormData()));
         });
 
-        expect(req.url).toBe('http://mockbin.com/har');
+        expect(req.url).toBe('https://httpbin.org/post');
         expect(req.method).toBe('POST');
         expect(req.headers['content-type']).toContain('multipart/form-data');
         expect(req.headers['content-type']).toContain('boundary=----WebKitFormBoundary');
@@ -297,7 +297,7 @@ bar`);
           return serializeRequest(constructRequest(await window.har_multipartData()));
         });
 
-        expect(req.url).toBe('http://mockbin.com/har');
+        expect(req.url).toBe('https://httpbin.org/post');
         expect(req.method).toBe('POST');
         expect(req.headers['content-type']).toContain('multipart/form-data');
         expect(req.headers['content-type']).toContain('boundary=----WebKitFormBoundary');
@@ -332,7 +332,7 @@ Hello World`);
         return serializeRequest(constructRequest(await window.har_textPlain()));
       });
 
-      expect(req.url).toBe('http://mockbin.com/har');
+      expect(req.url).toBe('https://httpbin.org/post');
       expect(req.method).toBe('POST');
       expect(req.headers['content-type']).toBe('text/plain');
       expect(req.body).toBe('Hello World');

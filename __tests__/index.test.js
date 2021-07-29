@@ -20,7 +20,7 @@ describe('#fetch', () => {
   });
 
   it('should make a request with a custom user agent if specified', async () => {
-    const mock = nock('http://mockbin.com').matchHeader('user-agent', 'test-app/1.0').get('/har').reply(200);
+    const mock = nock('https://httpbin.org').matchHeader('user-agent', 'test-app/1.0').get('/get').reply(200);
     await fetchHar(harExamples.short, 'test-app/1.0');
     mock.done();
   });
@@ -41,12 +41,12 @@ describe('#fetch', () => {
     });
 
     it('should be able to handle full payloads', async () => {
-      const mock = nock('http://mockbin.com')
+      const mock = nock('https://httpbin.org')
         .matchHeader('content-type', 'application/x-www-form-urlencoded')
-        .post('/har')
+        .post('/post')
         .query(true)
         .reply(200, function (uri, body) {
-          expect(this.req.path).toBe('/har?key=value?foo=bar&foo=baz&baz=abc');
+          expect(this.req.path).toBe('/post?key=value?foo=bar&foo=baz&baz=abc');
           expect(this.req.headers.accept).toStrictEqual(['application/json']);
           expect(this.req.headers.cookie).toStrictEqual(['foo=bar; bar=baz']);
           expect(body).toBe('foo=bar');
@@ -58,8 +58,8 @@ describe('#fetch', () => {
 
     describe('multipart/form-data', () => {
       it("should be able to handle a `multipart/form-data` payload that's a standard object", async () => {
-        const mock = nock('http://mockbin.com')
-          .post('/har')
+        const mock = nock('https://httpbin.org')
+          .post('/post')
           .reply(200, function (uri, body) {
             expect(this.req.headers['content-type'][0]).toContain('multipart/form-data');
             expect(this.req.headers['content-type'][0]).toContain('boundary=--------------------------');
@@ -74,8 +74,8 @@ bar`);
       });
 
       it('should be able to handle a `multipart/form-data` payload with a file', async () => {
-        const mock = nock('http://mockbin.com')
-          .post('/har')
+        const mock = nock('https://httpbin.org')
+          .post('/post')
           .reply(200, function (uri, body) {
             expect(this.req.headers['content-type'][0]).toContain('multipart/form-data');
             expect(this.req.headers['content-type'][0]).toContain('boundary=--------------------------');
@@ -102,8 +102,8 @@ Hello World`);
         });
 
         it('should be able to handle a `multipart/form-data` payload with a base64-encoded data URL file', async () => {
-          const mock = nock('http://mockbin.com')
-            .post('/har')
+          const mock = nock('https://httpbin.org')
+            .post('/post')
             .reply(200, function (uri, body) {
               expect(this.req.headers['content-type'][0]).toContain('multipart/form-data');
               expect(this.req.headers['content-type'][0]).toContain('boundary=--------------------------');
@@ -128,8 +128,8 @@ Hello World`);
               `name=${encodeURIComponent('owlbert (1).png')};`
             );
 
-          const mock = nock('http://mockbin.com')
-            .post('/har')
+          const mock = nock('https://httpbin.org')
+            .post('/post')
             .reply(200, function (uri, body) {
               expect(this.req.headers['content-type'][0]).toContain('multipart/form-data');
               expect(this.req.headers['content-type'][0]).toContain('boundary=--------------------------');
@@ -148,9 +148,9 @@ Hello World`);
     });
 
     it('should be able to handle `text/plain` payloads', async () => {
-      const mock = nock('http://mockbin.com')
+      const mock = nock('https://httpbin.org')
         .matchHeader('content-type', 'text/plain')
-        .post('/har')
+        .post('/post')
         .query(true)
         .reply(200, function (uri, body) {
           expect(body).toBe('Hello World');
@@ -197,7 +197,7 @@ describe('#constructRequest', () => {
     it('should be able to handle full payloads', () => {
       const request = constructRequest(harExamples.full);
 
-      expect(request.url).toBe('http://mockbin.com/har?key=value?foo=bar&foo=baz&baz=abc');
+      expect(request.url).toBe('https://httpbin.org/post?key=value?foo=bar&foo=baz&baz=abc');
       expect(request.method).toBe('POST');
 
       expect(request.headers.get('accept')).toBe('application/json');
@@ -210,8 +210,8 @@ describe('#constructRequest', () => {
     it('should be able to handle payloads with cookies', () => {
       const request = constructRequest(harExamples.cookies);
 
-      expect(request.url).toBe('http://mockbin.com/har');
-      expect(request.method).toBe('POST');
+      expect(request.url).toBe('https://httpbin.org/cookies');
+      expect(request.method).toBe('GET');
       expect(request.headers.get('cookie')).toBe('foo=bar; bar=baz');
 
       // Wasn't supplied with the HAR so it shouldn't be present.
@@ -222,7 +222,7 @@ describe('#constructRequest', () => {
       it("should be able to handle a `multipart/form-data` payload that's a standard object", () => {
         const request = constructRequest(harExamples['multipart-form-data']);
 
-        expect(request.url).toBe('http://mockbin.com/har');
+        expect(request.url).toBe('https://httpbin.org/post');
         expect(request.method).toBe('POST');
         expect(request.headers.get('content-type')).toContain('multipart/form-data');
         expect(request.headers.get('content-type')).toContain('boundary=-------------------------');
@@ -237,7 +237,7 @@ bar`);
       it('should be able to handle a `multipart/form-data` payload with a file', () => {
         const request = constructRequest(harExamples['multipart-data']);
 
-        expect(request.url).toBe('http://mockbin.com/har');
+        expect(request.url).toBe('https://httpbin.org/post');
         expect(request.method).toBe('POST');
         expect(request.headers.get('content-type')).toContain('multipart/form-data');
         expect(request.headers.get('content-type')).toContain('boundary=-------------------------');
@@ -260,7 +260,7 @@ Hello World`);
     it('should be able to handle `text/plain` payloads', () => {
       const request = constructRequest(harExamples['text-plain']);
 
-      expect(request.url).toBe('http://mockbin.com/har');
+      expect(request.url).toBe('https://httpbin.org/post');
       expect(request.method).toBe('POST');
       expect(request.headers.get('content-type')).toBe('text/plain');
       expect(request.body.toString()).toBe('Hello World');

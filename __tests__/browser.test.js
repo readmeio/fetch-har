@@ -2,12 +2,12 @@
 const fs = require('fs').promises;
 const path = require('path');
 const harExamples = require('har-examples');
-const jsonWithAuthHar = require('./__fixtures__/json-with-auth.har.json');
-const urlEncodedWithAuthHar = require('./__fixtures__/urlencoded-with-auth.har.json');
+const jsonWithAuthHAR = require('./__fixtures__/json-with-auth.har.json');
+const urlEncodedWithAuthHAR = require('./__fixtures__/urlencoded-with-auth.har.json');
 
 beforeAll(async () => {
   await page.exposeFunction('har_full', () => harExamples.full);
-  await page.exposeFunction('har_jsonWithAuthHar', () => jsonWithAuthHar);
+  await page.exposeFunction('har_jsonWithAuthHar', () => jsonWithAuthHAR);
   await page.exposeFunction('har_multipartData', () => harExamples['multipart-data']);
   await page.exposeFunction('har_multipartData_DataUrl', () => harExamples['multipart-data-dataurl']);
   await page.exposeFunction('har_multipartData_DataUrl_withParentheses', () => {
@@ -24,7 +24,7 @@ beforeAll(async () => {
   await page.exposeFunction('har_multipartFile', () => harExamples['multipart-file']);
   await page.exposeFunction('har_multipartFormData', () => harExamples['multipart-form-data']);
   await page.exposeFunction('har_textPlain', () => harExamples['text-plain']);
-  await page.exposeFunction('har_urlEncodedWithAuthHar', () => urlEncodedWithAuthHar);
+  await page.exposeFunction('har_urlEncodedWithAuthHar', () => urlEncodedWithAuthHAR);
 });
 
 beforeEach(async () => {

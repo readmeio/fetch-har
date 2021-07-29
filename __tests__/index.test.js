@@ -9,12 +9,13 @@ const nock = require('nock');
 const fetchHar = require('..');
 const { constructRequest } = require('..');
 const harExamples = require('har-examples');
-const jsonWithAuthHar = require('./__fixtures__/json-with-auth.har.json');
-const urlEncodedWithAuthHar = require('./__fixtures__/urlencoded-with-auth.har.json');
+const invalidHeadersHAR = require('./__fixtures__/invalid-headers.har.json');
+const jsonWithAuthHAR = require('./__fixtures__/json-with-auth.har.json');
+const urlEncodedWithAuthHAR = require('./__fixtures__/urlencoded-with-auth.har.json');
 
 describe('#fetch', () => {
-  it('should throw if it looks like you are missing a valid har file', () => {
-    expect(fetchHar).toThrow('Missing HAR file');
+  it('should throw if it looks like you are missing a valid HAR definition', () => {
+    expect(fetchHar).toThrow('Missing HAR definition');
     expect(fetchHar.bind(null, { log: {} })).toThrow('Missing log.entries array');
     expect(fetchHar.bind(null, { log: { entries: [] } })).toThrow('Missing log.entries array');
   });
@@ -22,6 +23,19 @@ describe('#fetch', () => {
   it('should make a request with a custom user agent if specified', async () => {
     const mock = nock('https://httpbin.org').matchHeader('user-agent', 'test-app/1.0').get('/get').reply(200);
     await fetchHar(harExamples.short, 'test-app/1.0');
+    mock.done();
+  });
+
+  it('should catch and toss invalid headers present in a HAR', async () => {
+    const mock = nock('https://httpbin.org')
+      .post('/post')
+      .reply(function () {
+        expect(this.req.headers['x-api-key']).toStrictEqual(['asdf1234']);
+        expect(this.req.headers['x-api-key (invalid)']).toBeUndefined();
+        return [200];
+      });
+
+    await fetchHar(invalidHeadersHAR);
     mock.done();
   });
 
@@ -36,7 +50,7 @@ describe('#fetch', () => {
           expect(body).toBe('id=8&category=%7B%22id%22%3A6%2C%22name%22%3A%22name%22%7D&name=name');
         });
 
-      await fetchHar(urlEncodedWithAuthHar);
+      await fetchHar(urlEncodedWithAuthHAR);
       mock.done();
     });
 
@@ -164,7 +178,7 @@ Hello World`);
 
 describe('#constructRequest', () => {
   it('should convert HAR object to a HTTP request object', () => {
-    const request = constructRequest(jsonWithAuthHar);
+    const request = constructRequest(jsonWithAuthHAR);
 
     expect(request.url).toBe('http://petstore.swagger.io/v2/pet?a=1&b=2');
     expect(request.method).toBe('PUT');
@@ -174,14 +188,14 @@ describe('#constructRequest', () => {
   });
 
   it('should include a `User-Agent` header if one is supplied', () => {
-    const request = constructRequest(jsonWithAuthHar, 'test-user-agent/1.0');
+    const request = constructRequest(jsonWithAuthHAR, 'test-user-agent/1.0');
 
     expect(request.headers.get('user-agent')).toBe('test-user-agent/1.0');
   });
 
   describe('Content types', () => {
     it('should be able to handle `application/x-www-form-urlencoded` payloads', () => {
-      const request = constructRequest(urlEncodedWithAuthHar);
+      const request = constructRequest(urlEncodedWithAuthHAR);
 
       expect(request.url).toBe('http://petstore.swagger.io/v2/pet?a=1&b=2');
       expect(request.method).toBe('PUT');

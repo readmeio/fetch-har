@@ -1,3 +1,27 @@
+## 5.0.0 (2021-07-29)
+
+> ⚠️ This is a breaking release! `fetch-har` no longer supports Node 10.
+
+* fix: catch and toss errors from illegal header names in HARs (#192) ([d88308a](https://github.com/readmeio/fetch-har/commit/d88308a)), closes [#192](https://github.com/readmeio/fetch-har/issues/192)
+* chore: stop running jest in band ([adbbf14](https://github.com/readmeio/fetch-har/commit/adbbf14))
+* chore(deps-dev): bump eslint from 7.26.0 to 7.29.0 ([#175](https://github.com/readmeio/fetch-har/issues/175), [#186](https://github.com/readmeio/fetch-har/issues/186))
+* chore(deps-dev): bump jest from 26.6.3 to 27.0.6 ([#179](https://github.com/readmeio/fetch-har/issues/179), [#187](https://github.com/readmeio/fetch-har/issues/187))
+* chore(deps-dev): bump jest-puppeteer from 5.0.3 to 5.0.4 (#181) ([6059be7](https://github.com/readmeio/fetch-har/commit/6059be7)), closes [#181](https://github.com/readmeio/fetch-har/issues/181)
+* chore(deps-dev): bump nock from 13.0.11 to 13.1.0 (#177) ([4f33779](https://github.com/readmeio/fetch-har/commit/4f33779)), closes [#177](https://github.com/readmeio/fetch-har/issues/177)
+* chore(deps-dev): bump prettier from 2.2.1 to 2.3.2 ([#176](https://github.com/readmeio/fetch-har/issues/176), [#184](https://github.com/readmeio/fetch-har/issues/184))
+* chore(deps-dev): bump puppeteer from 9.0.0 to 9.1.1 (#178) ([db457eb](https://github.com/readmeio/fetch-har/commit/db457eb)), closes [#178](https://github.com/readmeio/fetch-har/issues/178)
+* chore(deps-dev): bump webpack-dev-middleware from 4.0.2 to 4.3.0 (#180) ([66e48c5](https://github.com/readmeio/fetch-har/commit/66e48c5)), closes [#180](https://github.com/readmeio/fetch-har/issues/180)
+* chore(deps-dev): removing jsinspect as a dev dependency ([27972c1](https://github.com/readmeio/fetch-har/commit/27972c1))
+* chore(deps): bump actions/setup-node from 2.1.5 to 2.3.0 ([#183](https://github.com/readmeio/fetch-har/issues/183), [#191](https://github.com/readmeio/fetch-har/issues/191))
+* chore(deps): bump browserslist from 4.16.0 to 4.16.6 (#172) ([e57ccdf](https://github.com/readmeio/fetch-har/commit/e57ccdf)), closes [#172](https://github.com/readmeio/fetch-har/issues/172)
+* chore(deps): bump hosted-git-info from 2.8.5 to 2.8.9 (#171) ([1d9ac60](https://github.com/readmeio/fetch-har/commit/1d9ac60)), closes [#171](https://github.com/readmeio/fetch-har/issues/171)
+* chore(deps): bump parse-data-url from 3.0.0 to 4.0.1 (#174) ([bf274d4](https://github.com/readmeio/fetch-har/commit/bf274d4)), closes [#174](https://github.com/readmeio/fetch-har/issues/174)
+* chore(deps): bump ws from 7.3.1 to 7.4.6 (#173) ([a4c4f68](https://github.com/readmeio/fetch-har/commit/a4c4f68)), closes [#173](https://github.com/readmeio/fetch-har/issues/173)
+* feat: dropping support for node 10 (#190) ([078b9d3](https://github.com/readmeio/fetch-har/commit/078b9d3)), closes [#190](https://github.com/readmeio/fetch-har/issues/190)
+* ci: upgrading the codeql workflow to the latest way its configured ([8bcc042](https://github.com/readmeio/fetch-har/commit/8bcc042))
+
+
+
 ## <small>4.0.3 (2021-05-10)</small>
 
 * chore(deps-dev): bump @readme/eslint-config from 3.4.2 to 3.4.3 (#93) ([b8757c9](https://github.com/readmeio/fetch-har/commit/b8757c9)), closes [#93](https://github.com/readmeio/fetch-har/issues/93)

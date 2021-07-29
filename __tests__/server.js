@@ -10,11 +10,17 @@ const multer = require('multer');
 // https://github.com/czycha/example-jest-puppeteer-express-webpack
 const compiler = webpack({
   entry: './index.js',
+  mode: 'production',
   output: {
     filename: 'index.min.js',
     library: 'fetchHar',
   },
-  mode: 'production',
+  plugins: [
+    // https://github.com/webpack/changelog-v5/issues/10#issuecomment-615877593
+    new webpack.ProvidePlugin({
+      Buffer: ['buffer', 'Buffer'],
+    }),
+  ],
 });
 
 const port = 4444;

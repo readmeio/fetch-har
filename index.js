@@ -2,7 +2,7 @@
 const parseDataUrl = require('parse-data-url');
 
 function constructRequest(har, userAgent = false) {
-  if (!har) throw new Error('Missing HAR file');
+  if (!har) throw new Error('Missing HAR definition');
   if (!har.log || !har.log.entries || !har.log.entries.length) throw new Error('Missing log.entries array');
 
   const { request } = har.log.entries[0];
@@ -15,7 +15,16 @@ function constructRequest(har, userAgent = false) {
   };
 
   if ('headers' in request && request.headers.length) {
-    request.headers.forEach(header => headers.append(header.name, header.value));
+    // eslint-disable-next-line consistent-return
+    request.headers.forEach(header => {
+      try {
+        return headers.append(header.name, header.value);
+      } catch (err) {
+        // `Headers.append()` will throw errors if the header name is not a legal HTTP header name, like
+        // `X-API-KEY (Header)`. If that happens instead of tossing the error back out, we should silently just ignore
+        // it.
+      }
+    });
   }
 
   if ('cookies' in request && request.cookies.length) {

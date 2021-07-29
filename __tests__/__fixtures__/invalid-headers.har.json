@@ -1,0 +1,35 @@
+{
+  "log": {
+    "entries": [
+      {
+        "startedDateTime": "2021-07-29T23:22:48.684Z",
+        "time": 88,
+        "request": {
+          "method": "POST",
+          "url": "https://httpbin.org/post",
+          "httpVersion": "HTTP/1.1",
+          "headers": [
+            {
+              "name": "accept",
+              "value": "application/json"
+            },
+            {
+              "name": "content-type",
+              "value": "application/json"
+            },
+            {
+              "name": "X-API-KEY",
+              "value": "asdf1234"
+            },
+            {
+              "name": "X-API-KEY (Invalid)",
+              "value": "1234asdf"
+            }
+          ],
+          "bodySize": -1,
+          "headersSize": -1
+        }
+      }
+    ]
+  }
+}

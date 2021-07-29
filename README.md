@@ -1,7 +1,7 @@
 # fetch-har
 [![CI](https://github.com/readmeio/fetch-har/workflows/CI/badge.svg)](https://github.com/readmeio/fetch-har)
 
-Make a [fetch](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API) request from a HAR file.
+Make a [fetch](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API) request from a HAR definition.
 
 [![](https://d3vv6lp55qjaqc.cloudfront.net/items/1M3C3j0I0s0j3T362344/Untitled-2.png)](https://readme.io)
 
@@ -59,7 +59,7 @@ fetchHar(har)
 - `har` is a [har](https://en.wikipedia.org/wiki/.har) file format.
 - `userAgent` is an optional user agent string to let you declare where the request is coming from.
 
-Performs a fetch request from a given HAR file. HAR files can be used to list lots of requests but we only use the first from the `log.entries` array.
+Performs a fetch request from a given HAR definition. HAR definitions can be used to list lots of requests but we only use the first from the `log.entries` array.
 
 ### `fetchHar.constructRequest(har, userAgent) => Request`
 

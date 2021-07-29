@@ -1,7 +1,7 @@
 {
   "name": "fetch-har",
   "version": "4.0.3",
-  "description": "Make a fetch request from a HAR file",
+  "description": "Make a fetch request from a HAR definition",
   "main": "index.js",
   "engines": {
     "node": "^12 || ^14 || ^16"

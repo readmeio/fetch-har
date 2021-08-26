@@ -1,6 +1,6 @@
 {
   "name": "fetch-har",
-  "version": "5.0.0",
+  "version": "5.0.1",
   "description": "Make a fetch request from a HAR definition",
   "main": "index.js",
   "engines": {

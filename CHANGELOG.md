@@ -1,3 +1,16 @@
+## <small>5.0.1 (2021-08-26)</small>
+
+* chore: running npm audit ([b2410ad](https://github.com/readmeio/fetch-har/commit/b2410ad))
+* chore(deps-dev): bump eslint from 7.31.0 to 7.32.0 (#193) ([9249a8f](https://github.com/readmeio/fetch-har/commit/9249a8f)), closes [#193](https://github.com/readmeio/fetch-har/issues/193)
+* chore(deps-dev): bump eslint-plugin-compat from 3.11.1 to 3.13.0 (#196) ([90df2de](https://github.com/readmeio/fetch-har/commit/90df2de)), closes [#196](https://github.com/readmeio/fetch-har/issues/196)
+* chore(deps-dev): bump multer from 1.4.2 to 1.4.3 (#195) ([d3da3e9](https://github.com/readmeio/fetch-har/commit/d3da3e9)), closes [#195](https://github.com/readmeio/fetch-har/issues/195)
+* chore(deps-dev): bump nock from 13.1.1 to 13.1.3 (#197) ([888078c](https://github.com/readmeio/fetch-har/commit/888078c)), closes [#197](https://github.com/readmeio/fetch-har/issues/197)
+* chore(deps-dev): bump webpack from 5.47.1 to 5.51.1 (#198) ([55835c2](https://github.com/readmeio/fetch-har/commit/55835c2)), closes [#198](https://github.com/readmeio/fetch-har/issues/198)
+* chore(deps): bump actions/setup-node from 2.3.0 to 2.4.0 (#194) ([e8ca591](https://github.com/readmeio/fetch-har/commit/e8ca591)), closes [#194](https://github.com/readmeio/fetch-har/issues/194)
+* ci: updating the dependabot label ([77aebdc](https://github.com/readmeio/fetch-har/commit/77aebdc))
+
+
+
 ## 5.0.0 (2021-07-29)
 
 > ⚠️ This is a breaking release! `fetch-har` no longer supports Node 10.

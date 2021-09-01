@@ -1,3 +1,12 @@
+## <small>5.0.2 (2021-09-01)</small>
+
+* chore(deps-dev): bump @readme/eslint-config from 6.0.0 to 6.1.0 (#201) ([0332ae8](https://github.com/readmeio/fetch-har/commit/0332ae8)), closes [#201](https://github.com/readmeio/fetch-har/issues/201)
+* chore(deps-dev): bump jest from 27.0.6 to 27.1.0 (#199) ([72c68fd](https://github.com/readmeio/fetch-har/commit/72c68fd)), closes [#199](https://github.com/readmeio/fetch-har/issues/199)
+* chore(deps): removing conventional-changelog-cli in favor of using npx ([3751b64](https://github.com/readmeio/fetch-har/commit/3751b64))
+* ci: ignoring node-fetch after v3 because its now an esm package ([cdd1f95](https://github.com/readmeio/fetch-har/commit/cdd1f95))
+
+
+
 ## <small>5.0.1 (2021-08-26)</small>
 
 * chore: running npm audit ([b2410ad](https://github.com/readmeio/fetch-har/commit/b2410ad))

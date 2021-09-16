@@ -1,3 +1,12 @@
+## <small>5.0.3 (2021-09-16)</small>
+
+* ci: updating codeql to run tests against main ([f3afd13](https://github.com/readmeio/fetch-har/commit/f3afd13))
+* chore(deps-dev): bumping dev deps ([e33cc1d](https://github.com/readmeio/fetch-har/commit/e33cc1d))
+* docs: adding a pr template ([8d5ed6a](https://github.com/readmeio/fetch-har/commit/8d5ed6a))
+* docs: adding a security policy ([898df5c](https://github.com/readmeio/fetch-har/commit/898df5c))
+
+
+
 ## <small>5.0.2 (2021-09-01)</small>
 
 * chore(deps-dev): bump @readme/eslint-config from 6.0.0 to 6.1.0 (#201) ([0332ae8](https://github.com/readmeio/fetch-har/commit/0332ae8)), closes [#201](https://github.com/readmeio/fetch-har/issues/201)

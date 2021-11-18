@@ -320,7 +320,7 @@ Hello World`);
           // This test can't be written in an `expect(() => { page.evaluate() }) form because Puppetter throws "Target
           // closed" errors in that context instead of our actual error.
           //
-          // eslint-disable-next-line jest/no-try-expect, jest/no-conditional-expect
+          // eslint-disable-next-line jest/no-conditional-expect
           expect(e.message).toMatch(/doesn't have access to the filesystem/);
         }
       });

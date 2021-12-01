@@ -1,3 +1,33 @@
+## <small>5.0.4 (2021-12-01)</small>
+
+* chore(deps-dev): bump @readme/eslint-config from 7.1.1 to 7.2.2 (#211) ([1081874](https://github.com/readmeio/fetch-har/commit/1081874)), closes [#211](https://github.com/readmeio/fetch-har/issues/211)
+* chore(deps-dev): bump cookie-parser from 1.4.5 to 1.4.6 (#219) ([41d8c60](https://github.com/readmeio/fetch-har/commit/41d8c60)), closes [#219](https://github.com/readmeio/fetch-har/issues/219)
+* chore(deps-dev): bump eslint from 8.2.0 to 8.3.0 (#215) ([ab0e294](https://github.com/readmeio/fetch-har/commit/ab0e294)), closes [#215](https://github.com/readmeio/fetch-har/issues/215)
+* chore(deps-dev): bump har-examples from 2.0.1 to 2.0.2 (#204) ([87b1742](https://github.com/readmeio/fetch-har/commit/87b1742)), closes [#204](https://github.com/readmeio/fetch-har/issues/204)
+* chore(deps-dev): bump jest from 27.2.0 to 27.2.4 (#205) ([37446e8](https://github.com/readmeio/fetch-har/commit/37446e8)), closes [#205](https://github.com/readmeio/fetch-har/issues/205)
+* chore(deps-dev): bump jest from 27.2.4 to 27.3.1 (#212) ([bc85194](https://github.com/readmeio/fetch-har/commit/bc85194)), closes [#212](https://github.com/readmeio/fetch-har/issues/212)
+* chore(deps-dev): bump jest from 27.3.1 to 27.4.2 (#221) ([8c9dafd](https://github.com/readmeio/fetch-har/commit/8c9dafd)), closes [#221](https://github.com/readmeio/fetch-har/issues/221)
+* chore(deps-dev): bump jest-puppeteer from 5.0.4 to 6.0.0 (#207) ([11ccb44](https://github.com/readmeio/fetch-har/commit/11ccb44)), closes [#207](https://github.com/readmeio/fetch-har/issues/207)
+* chore(deps-dev): bump jest-puppeteer from 6.0.0 to 6.0.2 (#222) ([d17d217](https://github.com/readmeio/fetch-har/commit/d17d217)), closes [#222](https://github.com/readmeio/fetch-har/issues/222)
+* chore(deps-dev): bump nock from 13.1.3 to 13.1.4 (#209) ([4f81357](https://github.com/readmeio/fetch-har/commit/4f81357)), closes [#209](https://github.com/readmeio/fetch-har/issues/209)
+* chore(deps-dev): bump nock from 13.1.4 to 13.2.1 (#224) ([fefd729](https://github.com/readmeio/fetch-har/commit/fefd729)), closes [#224](https://github.com/readmeio/fetch-har/issues/224)
+* chore(deps-dev): bump node-fetch from 2.6.1 to 2.6.5 (#208) ([eadd607](https://github.com/readmeio/fetch-har/commit/eadd607)), closes [#208](https://github.com/readmeio/fetch-har/issues/208)
+* chore(deps-dev): bump node-fetch from 2.6.5 to 2.6.6 (#214) ([6bfe538](https://github.com/readmeio/fetch-har/commit/6bfe538)), closes [#214](https://github.com/readmeio/fetch-har/issues/214)
+* chore(deps-dev): bump prettier from 2.4.1 to 2.5.0 (#216) ([dee54f6](https://github.com/readmeio/fetch-har/commit/dee54f6)), closes [#216](https://github.com/readmeio/fetch-har/issues/216)
+* chore(deps-dev): bump webpack from 5.53.0 to 5.55.1 (#202) ([427332e](https://github.com/readmeio/fetch-har/commit/427332e)), closes [#202](https://github.com/readmeio/fetch-har/issues/202)
+* chore(deps-dev): bump webpack from 5.55.1 to 5.61.0 (#213) ([8276f5f](https://github.com/readmeio/fetch-har/commit/8276f5f)), closes [#213](https://github.com/readmeio/fetch-har/issues/213)
+* chore(deps-dev): bump webpack from 5.61.0 to 5.64.4 (#220) ([0dcfb6c](https://github.com/readmeio/fetch-har/commit/0dcfb6c)), closes [#220](https://github.com/readmeio/fetch-har/issues/220)
+* chore(deps-dev): bump webpack-dev-middleware from 5.1.0 to 5.2.1 (#206) ([94f0ad2](https://github.com/readmeio/fetch-har/commit/94f0ad2)), closes [#206](https://github.com/readmeio/fetch-har/issues/206)
+* chore(deps-dev): bump webpack-dev-middleware from 5.2.1 to 5.2.2 (#223) ([90c0501](https://github.com/readmeio/fetch-har/commit/90c0501)), closes [#223](https://github.com/readmeio/fetch-har/issues/223)
+* chore(deps-dev): upgrading eslint to v8 ([f06d433](https://github.com/readmeio/fetch-har/commit/f06d433))
+* chore(deps): bump actions/checkout from 2.3.4 to 2.3.5 (#210) ([5360ba9](https://github.com/readmeio/fetch-har/commit/5360ba9)), closes [#210](https://github.com/readmeio/fetch-har/issues/210)
+* chore(deps): bump actions/checkout from 2.3.5 to 2.4.0 (#217) ([0e46da0](https://github.com/readmeio/fetch-har/commit/0e46da0)), closes [#217](https://github.com/readmeio/fetch-har/issues/217)
+* chore(deps): bump actions/setup-node from 2.4.0 to 2.4.1 (#203) ([e6a4529](https://github.com/readmeio/fetch-har/commit/e6a4529)), closes [#203](https://github.com/readmeio/fetch-har/issues/203)
+* chore(deps): bump actions/setup-node from 2.4.1 to 2.5.0 (#218) ([e2cab24](https://github.com/readmeio/fetch-har/commit/e2cab24)), closes [#218](https://github.com/readmeio/fetch-har/issues/218)
+* docs: adding a code of conduct ([cbc9fa0](https://github.com/readmeio/fetch-har/commit/cbc9fa0))
+
+
+
 ## <small>5.0.3 (2021-09-16)</small>
 
 * ci: updating codeql to run tests against main ([f3afd13](https://github.com/readmeio/fetch-har/commit/f3afd13))

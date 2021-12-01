@@ -14,9 +14,6 @@
     "serve": "node __tests__/server.js",
     "test": "jest --coverage"
   },
-  "publishConfig": {
-    "registry": "http://registry.npmjs.org"
-  },
   "repository": {
     "type": "git",
     "url": "git@github.com:readmeio/fetch-har.git"

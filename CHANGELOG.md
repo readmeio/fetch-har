@@ -1,3 +1,20 @@
+## <small>5.0.5 (2022-01-03)</small>
+
+* chore: removing the publishConfig from the package file ([05df1e7](https://github.com/readmeio/fetch-har/commit/05df1e7))
+* chore(deps-dev): bump @readme/eslint-config from 8.0.2 to 8.1.1 (#235) ([f10d1dd](https://github.com/readmeio/fetch-har/commit/f10d1dd)), closes [#235](https://github.com/readmeio/fetch-har/issues/235)
+* chore(deps-dev): bump body-parser from 1.19.0 to 1.19.1 (#225) ([a42b49d](https://github.com/readmeio/fetch-har/commit/a42b49d)), closes [#225](https://github.com/readmeio/fetch-har/issues/225)
+* chore(deps-dev): bump eslint from 8.3.0 to 8.6.0 (#228) ([e592606](https://github.com/readmeio/fetch-har/commit/e592606)), closes [#228](https://github.com/readmeio/fetch-har/issues/228)
+* chore(deps-dev): bump har-examples from 2.0.2 to 2.1.0 (#231) ([efaa16e](https://github.com/readmeio/fetch-har/commit/efaa16e)), closes [#231](https://github.com/readmeio/fetch-har/issues/231)
+* chore(deps-dev): bump jest from 27.4.2 to 27.4.5 (#234) ([24f099e](https://github.com/readmeio/fetch-har/commit/24f099e)), closes [#234](https://github.com/readmeio/fetch-har/issues/234)
+* chore(deps-dev): bump jest-puppeteer from 6.0.2 to 6.0.3 (#229) ([fcd9262](https://github.com/readmeio/fetch-har/commit/fcd9262)), closes [#229](https://github.com/readmeio/fetch-har/issues/229)
+* chore(deps-dev): bump multer from 1.4.3 to 1.4.4 (#232) ([4119c42](https://github.com/readmeio/fetch-har/commit/4119c42)), closes [#232](https://github.com/readmeio/fetch-har/issues/232)
+* chore(deps-dev): bump prettier from 2.5.0 to 2.5.1 (#233) ([4f96fae](https://github.com/readmeio/fetch-har/commit/4f96fae)), closes [#233](https://github.com/readmeio/fetch-har/issues/233)
+* chore(deps-dev): bump webpack from 5.64.4 to 5.65.0 (#230) ([f06706b](https://github.com/readmeio/fetch-har/commit/f06706b)), closes [#230](https://github.com/readmeio/fetch-har/issues/230)
+* chore(deps-dev): bump webpack-dev-middleware from 5.2.2 to 5.3.0 (#227) ([f68d06c](https://github.com/readmeio/fetch-har/commit/f68d06c)), closes [#227](https://github.com/readmeio/fetch-har/issues/227)
+* chore(deps): bump actions/setup-node from 2.5.0 to 2.5.1 (#226) ([38fa52b](https://github.com/readmeio/fetch-har/commit/38fa52b)), closes [#226](https://github.com/readmeio/fetch-har/issues/226)
+
+
+
 ## <small>5.0.4 (2021-12-01)</small>
 
 * chore(deps-dev): bump @readme/eslint-config from 7.1.1 to 7.2.2 (#211) ([1081874](https://github.com/readmeio/fetch-har/commit/1081874)), closes [#211](https://github.com/readmeio/fetch-har/issues/211)

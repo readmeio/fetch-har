@@ -9,19 +9,24 @@ if (!globalThis.fetch) {
   globalThis.FormData = require('form-data');
 }
 
-fetchHar({
+const har = {
   log: {
     entries: [
       {
+        startedDateTime: '2021-07-09T23:28:52.627Z',
+        time: 420,
         request: {
           method: 'POST',
           url: 'https://httpbin.org/post',
+          httpVersion: 'HTTP/1.1',
+          cookies: [],
           headers: [
             {
               name: 'content-type',
               value: 'multipart/form-data',
             },
           ],
+          queryString: [],
           postData: {
             mimeType: 'multipart/form-data',
             params: [
@@ -31,47 +36,14 @@ fetchHar({
               },
             ],
           },
+          bodySize: -1,
+          headersSize: -1,
         },
       },
     ],
   },
-})
-  .then(res => res.json())
-  .then(res => {
-    console.log('🚥 multipart/form-data request', res);
-  });
+};
 
-fetchHar({
-  log: {
-    entries: [
-      {
-        request: {
-          headers: [
-            {
-              name: 'Authorization',
-              value: 'Bearer api-key',
-            },
-            {
-              name: 'Content-Type',
-              value: 'application/json',
-            },
-          ],
-          queryString: [
-            { name: 'a', value: 1 },
-            { name: 'b', value: 2 },
-          ],
-          postData: {
-            mimeType: 'application/json',
-            text: '{"id":8,"category":{"id":6,"name":"name"},"name":"name"}',
-          },
-          method: 'POST',
-          url: 'http://httpbin.org/post',
-        },
-      },
-    ],
-  },
-})
-  .then(res => res.json())
-  .then(res => {
-    console.log('🚥 application/json request', res);
-  });
+fetchHar(har)
+  .then(request => request.json())
+  .then(console.log);

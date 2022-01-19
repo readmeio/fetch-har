@@ -1,12 +1,6 @@
 {
-  "extends": [
-    "@readme/eslint-config",
-    "plugin:compat/recommended"
-  ],
+  "extends": ["@readme/eslint-config", "plugin:compat/recommended"],
   "root": true,
-  "rules": {
-    "arrow-body-style": 0
-  },
   "env": {
     "browser": true
   },

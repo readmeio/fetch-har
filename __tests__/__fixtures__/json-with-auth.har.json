@@ -3,6 +3,8 @@
     "entries": [
       {
         "request": {
+          "method": "PUT",
+          "url": "http://petstore.swagger.io/v2/pet",
           "headers": [
             {
               "name": "Authorization",
@@ -20,9 +22,7 @@
           "postData": {
             "mimeType": "application/json",
             "text": "{\"id\":8,\"category\":{\"id\":6,\"name\":\"name\"},\"name\":\"name\"}"
-          },
-          "method": "PUT",
-          "url": "http://petstore.swagger.io/v2/pet"
+          }
         }
       }
     ]

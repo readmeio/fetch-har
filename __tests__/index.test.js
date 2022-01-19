@@ -1,7 +1,7 @@
-global.fetch = require('node-fetch');
-global.Headers = require('node-fetch').Headers;
-global.Request = require('node-fetch').Request;
-global.FormData = require('form-data');
+globalThis.fetch = require('node-fetch');
+globalThis.Headers = require('node-fetch').Headers;
+globalThis.Request = require('node-fetch').Request;
+globalThis.FormData = require('form-data');
 
 const fs = require('fs').promises;
 const path = require('path');
@@ -67,6 +67,19 @@ describe('#fetch', () => {
         });
 
       await fetchHar(harExamples.full);
+      mock.done();
+    });
+
+    it('should be able to handle `text/plain` payloads', async () => {
+      const mock = nock('https://httpbin.org')
+        .matchHeader('content-type', 'text/plain')
+        .post('/post')
+        .query(true)
+        .reply(200, function (uri, body) {
+          expect(body).toBe('Hello World');
+        });
+
+      await fetchHar(harExamples['text-plain']);
       mock.done();
     });
 
@@ -159,19 +172,6 @@ Hello World`);
           mock.done();
         });
       });
-    });
-
-    it('should be able to handle `text/plain` payloads', async () => {
-      const mock = nock('https://httpbin.org')
-        .matchHeader('content-type', 'text/plain')
-        .post('/post')
-        .query(true)
-        .reply(200, function (uri, body) {
-          expect(body).toBe('Hello World');
-        });
-
-      await fetchHar(harExamples['text-plain']);
-      mock.done();
     });
   });
 });

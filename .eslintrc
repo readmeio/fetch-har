@@ -5,10 +5,13 @@
   ],
   "root": true,
   "rules": {
-    "arrow-body-style": 0
+    "global-require": "off"
   },
   "env": {
     "browser": true
+  },
+  "globals": {
+    "globalThis": true
   },
   "settings": {
     "polyfills": [

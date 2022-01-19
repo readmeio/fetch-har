@@ -16,10 +16,12 @@ npm install --save fetch-har
 const fetchHar = require('fetch-har');
 
 // If executing from an environment without `fetch`, you'll need to polyfill.
-global.fetch = require('node-fetch');
-global.Headers = require('node-fetch').Headers;
-global.Request = require('node-fetch').Request;
-global.FormData = require('form-data');
+if (!globalThis.fetch) {
+  globalThis.fetch = require('node-fetch');
+  globalThis.Headers = require('node-fetch').Headers;
+  globalThis.Request = require('node-fetch').Request;
+  globalThis.FormData = require('form-data');
+}
 
 const har = {
   log: {
@@ -54,18 +56,33 @@ fetchHar(har)
   .then(console.log);
 ```
 
-### `fetchHar(har, userAgent) => Promise`
+### API
+If you are executing `fetch-har` in a browser environment that supports the [FormData API](https://developer.mozilla.org/en-US/docs/Web/API/FormData) then you don't need to do anything. If you arent, however, you'll need to polyfill it.
 
-- `har` is a [har](https://en.wikipedia.org/wiki/.har) file format.
-- `userAgent` is an optional user agent string to let you declare where the request is coming from.
+Unfortunately the most popular NPM package [form-data](https://npm.im/form-data) ships with a [non-spec compliant API](https://github.com/form-data/form-data/issues/124), and for this we don't recommend you use it, as if you use `fetch-har` to upload files it may not work.
 
+We recommend either [formdata-node](https://npm.im/formdata-node) or [formdata-polyfill](https://npm.im/formdata-polyfill).
+
+#### `fetchHar(har, userAgent) => Promise`
 Performs a fetch request from a given HAR definition. HAR definitions can be used to list lots of requests but we only use the first from the `log.entries` array.
 
-### `fetchHar.constructRequest(har, userAgent) => Request`
+```js
+const fetchHar = require('fetch-har');
+```
 
 - `har` is a [har](https://en.wikipedia.org/wiki/.har) file format.
-- `userAgent` is an optional user agent string to let you declare where the request is coming from.
+- `userAgent` is an optional user agent string to let you declare where the request is coming from. Please note that if being executed within a browser environment this custom user agent may not be sent as some browsers do not let you set this client-side.
 
-We also export a second function which is used to construct a [Request](https://developer.mozilla.org/en-US/docs/Web/API/Request) object from your HAR.
+#### `fetchHar.constructRequest(har, userAgent) => Request`
 
-This function is mainly exported for testing purposes but could be useful if you want to construct a request but do not want to execute it right away.
+We also export a second function, `constructRequest`, which we use to construct a [Request](https://developer.mozilla.org/en-US/docs/Web/API/Request) object from your HAR.
+
+Though this function is mainly exported for testing purposes, it could be useful to you if you plan on constructing a request but not executing it right away.
+
+```js
+const { constructRequest } = require('fetch-har');
+```
+
+- `har` is a [har](https://en.wikipedia.org/wiki/.har) file format.
+- `userAgent` is an optional user agent string to let you declare where the request is coming from. Please note that if being executed within a browser environment this custom user agent may not be sent as some browsers do not let you set this client-side.
+

@@ -2,8 +2,6 @@
   "log": {
     "entries": [
       {
-        "startedDateTime": "2021-07-29T23:22:48.684Z",
-        "time": 88,
         "request": {
           "method": "POST",
           "url": "https://httpbin.org/post",

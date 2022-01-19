@@ -1,8 +1,3 @@
-globalThis.fetch = require('node-fetch');
-globalThis.Headers = require('node-fetch').Headers;
-globalThis.Request = require('node-fetch').Request;
-globalThis.FormData = require('form-data');
-
 const fs = require('fs').promises;
 const path = require('path');
 const nock = require('nock');
@@ -13,6 +8,13 @@ const invalidHeadersHAR = require('./__fixtures__/invalid-headers.har.json');
 const jsonWithAuthHAR = require('./__fixtures__/json-with-auth.har.json');
 const urlEncodedWithAuthHAR = require('./__fixtures__/urlencoded-with-auth.har.json');
 
+beforeAll(() => {
+  globalThis.fetch = require('node-fetch');
+  globalThis.Headers = require('node-fetch').Headers;
+  globalThis.Request = require('node-fetch').Request;
+  globalThis.FormData = require('form-data');
+});
+
 describe('#fetch', () => {
   it('should throw if it looks like you are missing a valid HAR definition', () => {
     expect(fetchHar).toThrow('Missing HAR definition');
@@ -22,7 +24,7 @@ describe('#fetch', () => {
 
   it('should make a request with a custom user agent if specified', async () => {
     const mock = nock('https://httpbin.org').matchHeader('user-agent', 'test-app/1.0').get('/get').reply(200);
-    await fetchHar(harExamples.short, 'test-app/1.0');
+    await fetchHar(harExamples.short, { userAgent: 'test-app/1.0' });
     mock.done();
   });
 
@@ -188,7 +190,7 @@ describe('#constructRequest', () => {
   });
 
   it('should include a `User-Agent` header if one is supplied', () => {
-    const request = constructRequest(jsonWithAuthHAR, 'test-user-agent/1.0');
+    const request = constructRequest(jsonWithAuthHAR, { userAgent: 'test-user-agent/1.0' });
 
     expect(request.headers.get('user-agent')).toBe('test-user-agent/1.0');
   });

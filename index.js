@@ -1,7 +1,6 @@
-/* eslint-disable no-case-declarations */
 const parseDataUrl = require('parse-data-url');
 
-function constructRequest(har, userAgent = false) {
+function constructRequest(har, opts = { userAgent: false, files: {} }) {
   if (!har) throw new Error('Missing HAR definition');
   if (!har.log || !har.log.entries || !har.log.entries.length) throw new Error('Missing log.entries array');
 
@@ -158,8 +157,8 @@ function constructRequest(har, userAgent = false) {
     querystring = `?${query}`;
   }
 
-  if (userAgent) {
-    headers.append('User-Agent', userAgent);
+  if (opts.userAgent) {
+    headers.append('User-Agent', opts.userAgent);
   }
 
   options.headers = headers;
@@ -167,8 +166,8 @@ function constructRequest(har, userAgent = false) {
   return new Request(`${url}${querystring}`, options);
 }
 
-function fetchHar(har, userAgent) {
-  return fetch(constructRequest(har, userAgent));
+function fetchHar(har, opts = { userAgent: false, files: {} }) {
+  return fetch(constructRequest(har, opts));
 }
 
 module.exports = fetchHar;

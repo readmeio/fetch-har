@@ -5,7 +5,8 @@
   ],
   "root": true,
   "rules": {
-    "global-require": "off"
+    "global-require": "off",
+    "no-case-declarations": "off"
   },
   "env": {
     "browser": true

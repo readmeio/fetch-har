@@ -81,7 +81,7 @@ describe('#fetch', () => {
   it('should not make a request with a custom user agent if specified', async () => {
     const req = await page.evaluate(async () => {
       const har = debugHar(await window.har_full());
-      return fetchHar(har, 'test-app/1.0').then(res => res.json());
+      return fetchHar(har, { userAgent: 'test-app/1.0' }).then(res => res.json());
     });
 
     expect(req.headers['user-agent']).not.toContain('test-app/1.0');
@@ -233,7 +233,7 @@ describe('#constructRequest', () => {
   it('should not include a `User-Agent` header if one is supplied', async () => {
     const req = await page.evaluate(async () => {
       const { constructRequest } = fetchHar;
-      return serializeRequest(constructRequest(await window.har_jsonWithAuthHar()));
+      return serializeRequest(constructRequest(await window.har_jsonWithAuthHar(), { userAgent: 'test-app/1.0' }));
     });
 
     expect(req.headers['user-agent']).toBeUndefined();

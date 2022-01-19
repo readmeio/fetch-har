@@ -4,6 +4,13 @@
   "env": {
     "browser": true
   },
+  "globals": {
+    "globalThis": true
+  },
+  "rules": {
+    "global-require": "off",
+    "no-case-declarations": "off"
+  },
   "settings": {
     "polyfills": [
       "fetch",

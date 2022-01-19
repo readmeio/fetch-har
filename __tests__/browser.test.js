@@ -81,7 +81,7 @@ describe('#fetch', () => {
   it('should not make a request with a custom user agent if specified', async () => {
     const req = await page.evaluate(async () => {
       const har = debugHar(await window.har_full());
-      return fetchHar(har, 'test-app/1.0').then(res => res.json());
+      return fetchHar(har, { userAgent: 'test-app/1.0' }).then(res => res.json());
     });
 
     expect(req.headers['user-agent']).not.toContain('test-app/1.0');
@@ -118,6 +118,16 @@ describe('#fetch', () => {
       expect(req.cookies).toMatchObject({ foo: 'bar', bar: 'baz' });
       expect(req.query).toMatchObject({ foo: ['bar', 'baz'], baz: 'abc' });
       expect(req.body).toMatchObject({ foo: 'bar' });
+    });
+
+    it('should be able to handle `text/plain` payloads', async () => {
+      const req = await page.evaluate(async () => {
+        const har = debugHar(await window.har_textPlain());
+        return fetchHar(har).then(res => res.json());
+      });
+
+      expect(req.headers['content-type']).toBe('text/plain');
+      expect(req.body).toBe('Hello World');
     });
 
     describe('multipart/form-data', () => {
@@ -202,16 +212,6 @@ describe('#fetch', () => {
         });
       });
     });
-
-    it('should be able to handle `text/plain` payloads', async () => {
-      const req = await page.evaluate(async () => {
-        const har = debugHar(await window.har_textPlain());
-        return fetchHar(har).then(res => res.json());
-      });
-
-      expect(req.headers['content-type']).toBe('text/plain');
-      expect(req.body).toBe('Hello World');
-    });
   });
 });
 
@@ -233,7 +233,9 @@ describe('#constructRequest', () => {
   it('should not include a `User-Agent` header if one is supplied', async () => {
     const req = await page.evaluate(async () => {
       const { constructRequest } = fetchHar;
-      return serializeRequest(constructRequest(await window.har_jsonWithAuthHar()));
+      return serializeRequest(
+        constructRequest(await window.har_jsonWithAuthHar(), { userAgent: 'test-user-agent/1.0' })
+      );
     });
 
     expect(req.headers['user-agent']).toBeUndefined();
@@ -272,6 +274,18 @@ describe('#constructRequest', () => {
       expect(req.credentials).toBe('include');
 
       expect(req.body.toString()).toBe('foo=bar');
+    });
+
+    it('should be able to handle `text/plain` payloads', async () => {
+      const req = await page.evaluate(async () => {
+        const { constructRequest } = fetchHar;
+        return serializeRequest(constructRequest(await window.har_textPlain()));
+      });
+
+      expect(req.url).toBe('https://httpbin.org/post');
+      expect(req.method).toBe('POST');
+      expect(req.headers['content-type']).toBe('text/plain');
+      expect(req.body).toBe('Hello World');
     });
 
     describe('multipart/form-data', () => {
@@ -324,18 +338,6 @@ Hello World`);
           expect(e.message).toMatch(/doesn't have access to the filesystem/);
         }
       });
-    });
-
-    it('should be able to handle `text/plain` payloads', async () => {
-      const req = await page.evaluate(async () => {
-        const { constructRequest } = fetchHar;
-        return serializeRequest(constructRequest(await window.har_textPlain()));
-      });
-
-      expect(req.url).toBe('https://httpbin.org/post');
-      expect(req.method).toBe('POST');
-      expect(req.headers['content-type']).toBe('text/plain');
-      expect(req.body).toBe('Hello World');
     });
   });
 });

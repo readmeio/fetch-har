@@ -22,7 +22,7 @@ describe('#fetch', () => {
 
   it('should make a request with a custom user agent if specified', async () => {
     const mock = nock('https://httpbin.org').matchHeader('user-agent', 'test-app/1.0').get('/get').reply(200);
-    await fetchHar(harExamples.short, 'test-app/1.0');
+    await fetchHar(harExamples.short, { userAgent: 'test-app/1.0' });
     mock.done();
   });
 
@@ -67,6 +67,19 @@ describe('#fetch', () => {
         });
 
       await fetchHar(harExamples.full);
+      mock.done();
+    });
+
+    it('should be able to handle `text/plain` payloads', async () => {
+      const mock = nock('https://httpbin.org')
+        .matchHeader('content-type', 'text/plain')
+        .post('/post')
+        .query(true)
+        .reply(200, function (uri, body) {
+          expect(body).toBe('Hello World');
+        });
+
+      await fetchHar(harExamples['text-plain']);
       mock.done();
     });
 
@@ -160,19 +173,6 @@ Hello World`);
         });
       });
     });
-
-    it('should be able to handle `text/plain` payloads', async () => {
-      const mock = nock('https://httpbin.org')
-        .matchHeader('content-type', 'text/plain')
-        .post('/post')
-        .query(true)
-        .reply(200, function (uri, body) {
-          expect(body).toBe('Hello World');
-        });
-
-      await fetchHar(harExamples['text-plain']);
-      mock.done();
-    });
   });
 });
 
@@ -188,7 +188,7 @@ describe('#constructRequest', () => {
   });
 
   it('should include a `User-Agent` header if one is supplied', () => {
-    const request = constructRequest(jsonWithAuthHAR, 'test-user-agent/1.0');
+    const request = constructRequest(jsonWithAuthHAR, { userAgent: 'test-user-agent/1.0' });
 
     expect(request.headers.get('user-agent')).toBe('test-user-agent/1.0');
   });
@@ -232,6 +232,15 @@ describe('#constructRequest', () => {
       expect(request.headers.get('content-type')).toBeNull();
     });
 
+    it('should be able to handle `text/plain` payloads', () => {
+      const request = constructRequest(harExamples['text-plain']);
+
+      expect(request.url).toBe('https://httpbin.org/post');
+      expect(request.method).toBe('POST');
+      expect(request.headers.get('content-type')).toBe('text/plain');
+      expect(request.body.toString()).toBe('Hello World');
+    });
+
     describe('multipart/form-data', () => {
       it("should be able to handle a `multipart/form-data` payload that's a standard object", () => {
         const request = constructRequest(harExamples['multipart-form-data']);
@@ -271,13 +280,5 @@ Hello World`);
       });
     });
 
-    it('should be able to handle `text/plain` payloads', () => {
-      const request = constructRequest(harExamples['text-plain']);
-
-      expect(request.url).toBe('https://httpbin.org/post');
-      expect(request.method).toBe('POST');
-      expect(request.headers.get('content-type')).toBe('text/plain');
-      expect(request.body.toString()).toBe('Hello World');
-    });
   });
 });

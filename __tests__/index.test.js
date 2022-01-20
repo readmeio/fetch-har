@@ -1,19 +1,33 @@
-global.fetch = require('node-fetch');
-global.Headers = require('node-fetch').Headers;
-global.Request = require('node-fetch').Request;
-global.FormData = require('form-data');
-
 const fs = require('fs').promises;
-const path = require('path');
-const nock = require('nock');
 const fetchHar = require('..');
 const { constructRequest } = require('..');
+const { Blob, File } = require('formdata-node');
 const harExamples = require('har-examples');
+
 const invalidHeadersHAR = require('./__fixtures__/invalid-headers.har.json');
 const jsonWithAuthHAR = require('./__fixtures__/json-with-auth.har.json');
 const urlEncodedWithAuthHAR = require('./__fixtures__/urlencoded-with-auth.har.json');
 
+console.logx = obj => {
+  console.log(require('util').inspect(obj, false, null, true));
+};
+
+beforeEach(() => {
+  globalThis.fetch = require('node-fetch');
+  globalThis.Headers = require('node-fetch').Headers;
+  globalThis.Request = require('node-fetch').Request;
+  globalThis.FormData = require('formdata-node').FormData;
+});
+
 describe('#fetch', () => {
+  it('should throw if you are using a non-compliant FormData polyfill', () => {
+    globalThis.FormData = require('form-data');
+
+    expect(() => {
+      fetchHar(harExamples['multipart-form-data']);
+    }).toThrow("We've detected you're using a non-spec compliant FormData library.");
+  });
+
   it('should throw if it looks like you are missing a valid HAR definition', () => {
     expect(fetchHar).toThrow('Missing HAR definition');
     expect(fetchHar.bind(null, { log: {} })).toThrow('Missing log.entries array');
@@ -21,133 +35,192 @@ describe('#fetch', () => {
   });
 
   it('should make a request with a custom user agent if specified', async () => {
-    const mock = nock('https://httpbin.org').matchHeader('user-agent', 'test-app/1.0').get('/get').reply(200);
-    await fetchHar(harExamples.short, { userAgent: 'test-app/1.0' });
-    mock.done();
+    const res = await fetchHar(harExamples.short, { userAgent: 'test-app/1.0' }).then(r => r.json());
+    expect(res.headers['User-Agent']).toBe('test-app/1.0');
   });
 
   it('should catch and toss invalid headers present in a HAR', async () => {
-    const mock = nock('https://httpbin.org')
-      .post('/post')
-      .reply(function () {
-        expect(this.req.headers['x-api-key']).toStrictEqual(['asdf1234']);
-        expect(this.req.headers['x-api-key (invalid)']).toBeUndefined();
-        return [200];
-      });
-
-    await fetchHar(invalidHeadersHAR);
-    mock.done();
+    const res = await fetchHar(invalidHeadersHAR).then(r => r.json());
+    expect(res.headers['X-Api-Key']).toBe('asdf1234');
+    expect(res.headers['X-Api-Key (invalid)']).toBeUndefined();
+    expect(Object.keys(res.headers)).toHaveLength(8);
   });
 
-  describe('Content types', () => {
-    it('should be able to handle `application/x-www-form-urlencoded` payloads', async () => {
-      const mock = nock('http://petstore.swagger.io')
-        .matchHeader('content-type', 'application/x-www-form-urlencoded')
-        .put('/v2/pet')
-        .query({ a: 1, b: 2 })
-        .reply(200, function (uri, body) {
-          expect(this.req.headers.authorization).toStrictEqual(['Bearer api-key']);
-          expect(body).toBe('id=8&category=%7B%22id%22%3A6%2C%22name%22%3A%22name%22%7D&name=name');
-        });
-
-      await fetchHar(urlEncodedWithAuthHAR);
-      mock.done();
+  describe('integrations', () => {
+    it('should support `text/plain` requests', async () => {
+      const res = await fetchHar(harExamples['text-plain']).then(r => r.json());
+      expect(res).toStrictEqual({
+        args: {},
+        data: 'Hello World',
+        files: {},
+        form: {},
+        headers: expect.objectContaining({
+          'Content-Length': '11',
+          'Content-Type': 'text/plain',
+        }),
+        json: null,
+        origin: expect.any(String),
+        url: 'https://httpbin.org/post',
+      });
     });
 
-    it('should be able to handle full payloads', async () => {
-      const mock = nock('https://httpbin.org')
-        .matchHeader('content-type', 'application/x-www-form-urlencoded')
-        .post('/post')
-        .query(true)
-        .reply(200, function (uri, body) {
-          expect(this.req.path).toBe('/post?key=value?foo=bar&foo=baz&baz=abc');
-          expect(this.req.headers.accept).toStrictEqual(['application/json']);
-          expect(this.req.headers.cookie).toStrictEqual(['foo=bar; bar=baz']);
-          expect(body).toBe('foo=bar');
-        });
-
-      await fetchHar(harExamples.full);
-      mock.done();
+    it('should support requests with cookies', async () => {
+      const res = await fetchHar(harExamples.cookies).then(r => r.json());
+      expect(res).toStrictEqual({
+        cookies: {
+          bar: 'baz',
+          foo: 'bar',
+        },
+      });
     });
 
-    it('should be able to handle `text/plain` payloads', async () => {
-      const mock = nock('https://httpbin.org')
-        .matchHeader('content-type', 'text/plain')
-        .post('/post')
-        .query(true)
-        .reply(200, function (uri, body) {
-          expect(body).toBe('Hello World');
-        });
+    it('should support `application/x-www-form-urlencoded` requests with auth', async () => {
+      const res = await fetchHar(urlEncodedWithAuthHAR).then(r => r.json());
+      expect(res).toStrictEqual({
+        args: { a: '1', b: '2' },
+        data: '',
+        files: {},
+        form: { category: '{"id":6,"name":"name"}', id: '8', name: 'name' },
+        headers: expect.objectContaining({
+          Authorization: 'Bearer api-key',
+          'Content-Length': '68',
+          'Content-Type': 'application/x-www-form-urlencoded',
+        }),
+        json: null,
+        origin: expect.any(String),
+        url: 'https://httpbin.org/post?a=1&b=2',
+      });
+    });
 
-      await fetchHar(harExamples['text-plain']);
-      mock.done();
+    it('should support requests that cover the entire HAR spec', async () => {
+      const res = await fetchHar(harExamples.full).then(r => r.json());
+      expect(res).toStrictEqual({
+        args: { baz: 'abc', foo: 'baz', key: 'value?foo=bar' },
+        data: '',
+        files: {},
+        form: { foo: 'bar' },
+        headers: expect.objectContaining({
+          'Content-Length': '7',
+          'Content-Type': 'application/x-www-form-urlencoded',
+          Cookie: 'foo=bar; bar=baz',
+        }),
+        json: null,
+        origin: expect.any(String),
+        url: 'https://httpbin.org/post?key=value%3Ffoo=bar&foo=baz&baz=abc',
+      });
     });
 
     describe('multipart/form-data', () => {
-      it("should be able to handle a `multipart/form-data` payload that's a standard object", async () => {
-        const mock = nock('https://httpbin.org')
-          .post('/post')
-          .reply(200, function (uri, body) {
-            expect(this.req.headers['content-type'][0]).toContain('multipart/form-data');
-            expect(this.req.headers['content-type'][0]).toContain('boundary=--------------------------');
-
-            expect(body.replace(/\r\n/g, '\n')).toContain(`Content-Disposition: form-data; name="foo"
-
-bar`);
-          });
-
-        await fetchHar(harExamples['multipart-form-data']);
-        mock.done();
+      it("should support a `multipart/form-data` request that's a standard object", async () => {
+        const res = await fetchHar(harExamples['multipart-form-data']).then(r => r.json());
+        expect(res.form).toStrictEqual({ foo: 'bar' });
+        expect(res.headers).toStrictEqual(
+          expect.objectContaining({
+            'Content-Length': '133',
+            'Content-Type': expect.stringMatching(/^multipart\/form-data; boundary=form-data-boundary-(.*)$/),
+          })
+        );
       });
 
-      it('should be able to handle a `multipart/form-data` payload with a file', async () => {
-        const mock = nock('https://httpbin.org')
-          .post('/post')
-          .reply(200, function (uri, body) {
-            expect(this.req.headers['content-type'][0]).toContain('multipart/form-data');
-            expect(this.req.headers['content-type'][0]).toContain('boundary=--------------------------');
+      describe('files', () => {
+        it('should throw an error if `fileName` is present without `value` or a mapping', () => {
+          expect(() => {
+            fetchHar(harExamples['multipart-file']);
+          }).toThrow(/doesn't have access to the filesystem/);
+        });
 
-            expect(
-              body.replace(/\r\n/g, '\n')
-            ).toContain(`Content-Disposition: form-data; name="foo"; filename="hello.txt"
-Content-Type: text/plain
+        it('should support a `multipart/form-data` request with a plaintext file encoded in the HAR', async () => {
+          const res = await fetchHar(harExamples['multipart-data']).then(r => r.json());
 
-Hello World`);
+          expect(res.files).toStrictEqual({ foo: 'Hello World' });
+          expect(res.headers).toStrictEqual(
+            expect.objectContaining({
+              'Content-Length': '189',
+              'Content-Type': expect.stringMatching(/^multipart\/form-data; boundary=form-data-boundary-(.*)$/),
+            })
+          );
+        });
+
+        describe('file mapping option', () => {
+          let owlbert;
+          let owlbertDataURL;
+
+          beforeEach(async () => {
+            owlbert = await fs.readFile(`${__dirname}/__fixtures__/owlbert.png`);
+
+            // If you decode this data URL and save it to the filesystem it'll be a copy of `owlbert.png`.
+            owlbertDataURL =
+              'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAMCAYAAABbayygAAABV0lEQVR4AWNwL/Bh0FGQ9FWUENUGsZExPz8/h5gArzmIDRZw1VfpSfeyagIJgiRBYkCg7mOl72akIt0KVwhSVB5o9SPESutJWajzquJgx/lRDganc7zNX3obq9SiKKxN8P/fmB33vybc7j+MHe1k8t9RSy4NrrA4K2Xp1k0b/peUlPzPjfL5v3bpgv9NTc3/48JD/sOsBju4JDnq6MS+3v9uLlb/pzeY/l82r+9/cIA/GNtrK2wFqQH7uDzY/gXQOrBpbemi/xO9DH4B2WCrQe4GqWHQVRDfBnLXpDTX/z3xTii4xM/if4iF5n+QGgZjZamvIIH5RT5wPKvQC0wDDQAr1FMQ/8YgK8zfAzIeqgCOp+V5gBW6Giq9A6kB+9pUXTiqINjwJ9B6uKKmBHuwW7XkhFeAYg2sMMWXQTvJh/2Uu6nciTgXvVsg7Gsp+xAkZqHPIA1SAwCKnrxJusHahgAAAABJRU5ErkJggg==';
           });
 
-        await fetchHar(harExamples['multipart-data']);
-        mock.done();
+          it('should support Buffer objects', async () => {
+            const res = await fetchHar(harExamples['multipart-data-dataurl'], {
+              files: {
+                'owlbert.png': owlbert,
+              },
+            }).then(r => r.json());
+
+            expect(res.files).toStrictEqual({ foo: owlbertDataURL });
+            expect(res.headers).toStrictEqual(
+              expect.objectContaining({
+                'Content-Length': '579',
+                'Content-Type': expect.stringMatching(/^multipart\/form-data; boundary=form-data-boundary-(.*)$/),
+              })
+            );
+          });
+
+          it('should support File objects', async () => {
+            const res = await fetchHar(harExamples['multipart-data-dataurl'], {
+              files: {
+                'owlbert.png': new File([owlbert], 'owlbert.png', { type: 'image/png' }),
+              },
+            }).then(r => r.json());
+
+            expect(res.files).toStrictEqual({ foo: owlbertDataURL });
+            expect(res.headers).toStrictEqual(
+              expect.objectContaining({
+                'Content-Length': '579',
+                'Content-Type': expect.stringMatching(/^multipart\/form-data; boundary=form-data-boundary-(.*)$/),
+              })
+            );
+          });
+
+          it('should throw on an unsupported type', () => {
+            expect(() => {
+              fetchHar(harExamples['multipart-data-dataurl'], {
+                files: {
+                  'owlbert.png': new Blob([owlbert.toString()], { type: 'image/png' }),
+                },
+              });
+            }).toThrow('An unknown object has been supplied into the `files` config for use.');
+          });
+        });
       });
 
+      // Though thests tests are testling if we'll a data URL properly,  the image contained within this data URL isn't
+      // guaranteed here to be right because the PNG to data URL conversion sometimes screws images up.
+      //
+      // We're just asserting here that we aren't mangling what we're dealing with.
       describe('base64-encoded data URLs', () => {
         let owlbert;
 
         beforeAll(async () => {
-          owlbert = await fs.readFile(path.join(__dirname, '__fixtures__', 'owlbert.png')).then(img => {
-            return img.toString();
-          });
+          owlbert = await fs.readFile(`${__dirname}/__fixtures__/owlbert.png`).then(img => img.toString());
         });
 
         it('should be able to handle a `multipart/form-data` payload with a base64-encoded data URL file', async () => {
-          const mock = nock('https://httpbin.org')
-            .post('/post')
-            .reply(200, function (uri, body) {
-              expect(this.req.headers['content-type'][0]).toContain('multipart/form-data');
-              expect(this.req.headers['content-type'][0]).toContain('boundary=--------------------------');
-
-              expect(body).toContain('Content-Disposition: form-data; name="foo"; filename="owlbert.png"');
-              expect(body).toContain('Content-Type: image/png');
-
-              // The rest of the body should be the raw image not the data URL that was in the HAR.
-              expect(body).toContain(owlbert);
-            });
-
-          await fetchHar(harExamples['multipart-data-dataurl']);
-          mock.done();
+          const res = await fetchHar(harExamples['multipart-data-dataurl']).then(r => r.json());
+          expect(res.files).toStrictEqual({ foo: owlbert });
+          expect(res.headers).toStrictEqual(
+            expect.objectContaining({
+              'Content-Length': '887',
+              'Content-Type': expect.stringMatching(/^multipart\/form-data; boundary=form-data-boundary-(.*)$/),
+            })
+          );
         });
 
         it('should be able to handle a `multipart/form-data` payload with a base64-encoded data URL filename that contains parentheses', async () => {
-          const har = harExamples['multipart-data-dataurl'];
+          const har = JSON.parse(JSON.stringify(harExamples['multipart-data-dataurl']));
           har.log.entries[0].request.postData.params[0].fileName = 'owlbert (1).png';
           har.log.entries[0].request.postData.params[0].value =
             har.log.entries[0].request.postData.params[0].value.replace(
@@ -155,21 +228,14 @@ Hello World`);
               `name=${encodeURIComponent('owlbert (1).png')};`
             );
 
-          const mock = nock('https://httpbin.org')
-            .post('/post')
-            .reply(200, function (uri, body) {
-              expect(this.req.headers['content-type'][0]).toContain('multipart/form-data');
-              expect(this.req.headers['content-type'][0]).toContain('boundary=--------------------------');
-
-              expect(body).toContain('Content-Disposition: form-data; name="foo"; filename="owlbert (1).png"');
-              expect(body).toContain('Content-Type: image/png');
-
-              // The rest of the body should be the raw image not the data URL that was in the HAR.
-              expect(body).toContain(owlbert);
-            });
-
-          await fetchHar(har);
-          mock.done();
+          const res = await fetchHar(har).then(r => r.json());
+          expect(res.files).toStrictEqual({ foo: owlbert });
+          expect(res.headers).toStrictEqual(
+            expect.objectContaining({
+              'Content-Length': '891',
+              'Content-Type': expect.stringMatching(/^multipart\/form-data; boundary=form-data-boundary-(.*)$/),
+            })
+          );
         });
       });
     });
@@ -177,108 +243,18 @@ Hello World`);
 });
 
 describe('#constructRequest', () => {
-  it('should convert HAR object to a HTTP request object', () => {
-    const request = constructRequest(jsonWithAuthHAR);
+  it('should convert a HAR object to a HTTP request object', () => {
+    const request = constructRequest(harExamples.full);
 
-    expect(request.url).toBe('http://petstore.swagger.io/v2/pet?a=1&b=2');
-    expect(request.method).toBe('PUT');
-    expect(request.headers.get('authorization')).toBe('Bearer api-key');
-    expect(request.headers.get('content-type')).toBe('application/json');
-    expect(request.body.toString()).toBe('{"id":8,"category":{"id":6,"name":"name"},"name":"name"}');
-  });
+    expect(request.url).toBe('https://httpbin.org/post?key=value?foo=bar&foo=baz&baz=abc');
+    expect(request.method).toBe('POST');
 
-  it('should include a `User-Agent` header if one is supplied', () => {
-    const request = constructRequest(jsonWithAuthHAR, { userAgent: 'test-user-agent/1.0' });
+    expect(Array.from(request.headers)).toStrictEqual([
+      ['accept', 'application/json'],
+      ['content-type', 'application/x-www-form-urlencoded'],
+      ['cookie', 'foo=bar; bar=baz'],
+    ]);
 
-    expect(request.headers.get('user-agent')).toBe('test-user-agent/1.0');
-  });
-
-  describe('Content types', () => {
-    it('should be able to handle `application/x-www-form-urlencoded` payloads', () => {
-      const request = constructRequest(urlEncodedWithAuthHAR);
-
-      expect(request.url).toBe('http://petstore.swagger.io/v2/pet?a=1&b=2');
-      expect(request.method).toBe('PUT');
-      expect(request.headers.get('authorization')).toBe('Bearer api-key');
-
-      // Though we have a Content-Type header set to application/json, since the post data is to be treated as
-      // `application/x-www-form-urlencoded`, that needs to be the only `Content-Type` header present. This is how
-      // Postman handles this case!
-      expect(request.headers.get('content-type')).toBe('application/x-www-form-urlencoded');
-      expect(request.body.toString()).toBe('id=8&category=%7B%22id%22%3A6%2C%22name%22%3A%22name%22%7D&name=name');
-    });
-
-    it('should be able to handle full payloads', () => {
-      const request = constructRequest(harExamples.full);
-
-      expect(request.url).toBe('https://httpbin.org/post?key=value?foo=bar&foo=baz&baz=abc');
-      expect(request.method).toBe('POST');
-
-      expect(request.headers.get('accept')).toBe('application/json');
-      expect(request.headers.get('content-type')).toBe('application/x-www-form-urlencoded');
-      expect(request.headers.get('cookie')).toBe('foo=bar; bar=baz');
-
-      expect(request.body.toString()).toBe('foo=bar');
-    });
-
-    it('should be able to handle payloads with cookies', () => {
-      const request = constructRequest(harExamples.cookies);
-
-      expect(request.url).toBe('https://httpbin.org/cookies');
-      expect(request.method).toBe('GET');
-      expect(request.headers.get('cookie')).toBe('foo=bar; bar=baz');
-
-      // Wasn't supplied with the HAR so it shouldn't be present.
-      expect(request.headers.get('content-type')).toBeNull();
-    });
-
-    it('should be able to handle `text/plain` payloads', () => {
-      const request = constructRequest(harExamples['text-plain']);
-
-      expect(request.url).toBe('https://httpbin.org/post');
-      expect(request.method).toBe('POST');
-      expect(request.headers.get('content-type')).toBe('text/plain');
-      expect(request.body.toString()).toBe('Hello World');
-    });
-
-    describe('multipart/form-data', () => {
-      it("should be able to handle a `multipart/form-data` payload that's a standard object", () => {
-        const request = constructRequest(harExamples['multipart-form-data']);
-
-        expect(request.url).toBe('https://httpbin.org/post');
-        expect(request.method).toBe('POST');
-        expect(request.headers.get('content-type')).toContain('multipart/form-data');
-        expect(request.headers.get('content-type')).toContain('boundary=-------------------------');
-
-        expect(request.body).toBeInstanceOf(FormData);
-        expect(request.body.getBuffer().toString().replace(/\r\n/g, '\n'))
-          .toContain(`Content-Disposition: form-data; name="foo"
-
-bar`);
-      });
-
-      it('should be able to handle a `multipart/form-data` payload with a file', () => {
-        const request = constructRequest(harExamples['multipart-data']);
-
-        expect(request.url).toBe('https://httpbin.org/post');
-        expect(request.method).toBe('POST');
-        expect(request.headers.get('content-type')).toContain('multipart/form-data');
-        expect(request.headers.get('content-type')).toContain('boundary=-------------------------');
-
-        expect(request.body).toBeInstanceOf(FormData);
-        expect(request.body.getBuffer().toString().replace(/\r\n/g, '\n'))
-          .toContain(`Content-Disposition: form-data; name="foo"; filename="hello.txt"
-Content-Type: text/plain
-
-Hello World`);
-      });
-
-      it('should throw an error if `fileName` is present but no file content in `value`', () => {
-        expect(() => {
-          constructRequest(harExamples['multipart-file']);
-        }).toThrow(/doesn't have access to the filesystem/);
-      });
-    });
-
+    expect(request.body.toString()).toBe('foo=bar');
   });
 });

@@ -1,4 +1,17 @@
+const { Readable } = require('readable-stream');
 const parseDataUrl = require('parse-data-url');
+const { Blob: BlobPolyfill, File: FilePolyfill } = require('formdata-node');
+const { FormDataEncoder, isFormData } = require('form-data-encoder');
+
+// Instead of requiring the user to polyfill this on their end we're doing it ourselves so we can ensure that we have
+// an API we know will work.
+if (!globalThis.Blob) {
+  globalThis.Blob = BlobPolyfill;
+}
+
+if (!globalThis.File) {
+  globalThis.File = FilePolyfill;
+}
 
 function constructRequest(har, opts = { userAgent: false, files: {} }) {
   if (!har) throw new Error('Missing HAR definition');
@@ -78,59 +91,90 @@ function constructRequest(har, opts = { userAgent: false, files: {} }) {
             headers.delete('Content-Type');
           }
 
-          // The `form-data` NPM module returns one of two things: a native `FormData` API, or its own polyfill. Since
-          // the polyfill does not support the full API of the native FormData object, when you load `form-data` within
-          // a browser environment you'll have two major differences in API:
-          //
-          //  * The `.append()` API in `form-data` requires that the third argument is an object containing various,
-          //    undocumented, options. In the browser, `.append()`'s third argument should only be present when the
-          //    second is a `Blob` or `USVString`, and when it is present, it should be a filename string.
-          //  * `form-data` does not expose an `.entries()` API, so the only way to retrieve data out of it for
-          //    construction of boundary-separated payload content is to use its `.pipe()` API. Since the browser
-          //    doesn't have this API, you'll be unable to retrieve data out of it.
-          //
-          // Now since the native `FormData` API is iterable, and has the `.entries()` iterator, we can easily detect
-          // what version of the FormData API we have access to by looking for this and constructing a simple wrapper
-          // to disconnect some of this logic so you can work against a single, consistent API.
-          //
-          // Having to do this isn't fun, but it's the only way you can write code to work with `multipart/form-data`
-          // content under a server and browser.
           const form = new FormData();
-          const isNativeFormData = typeof form[Symbol.iterator] === 'function';
+          if (!isFormData(form)) {
+            // The `form-data` NPM module returns one of two things: a native `FormData` API or its own polyfill.
+            // Unfortunatley this polyfill does not support the full API of the native FormData object so when you load
+            // `form-data` within a browser environment you'll have two major differences in API:
+            //
+            //  * The `.append()` API in `form-data` requires that the third argument is an object containing various,
+            //    undocumented, options. In the browser, `.append()`'s third argument should only be present when the
+            //    second is a `Blob` or `USVString`, and when it is present, it should be a filename string.
+            //  * `form-data` does not expose an `.entries()` API, so the only way to retrieve data out of it for
+            //    construction of boundary-separated payload content is to use its `.pipe()` API. Since the browser
+            //    doesn't have this API, you'll be unable to retrieve data out of it.
+            //
+            // Now since the native `FormData` API is iterable, and has the `.entries()` iterator, we can easily detect
+            // if we have a native copy of the FormData API. It's for all of these reasons that we're opting to hard
+            // crash here because supporting this non-compliant API is more trouble than its worth.
+            //
+            // https://github.com/form-data/form-data/issues/124
+            throw new Error(
+              "We've detected you're using a non-spec compliant FormData library. We recommend polyfilling FormData with https://npm.im/formdata-node"
+            );
+          }
 
           request.postData.params.forEach(param => {
-            if ('fileName' in param && !('value' in param)) {
+            if ('fileName' in param) {
+              if (opts.files && param.fileName in opts.files) {
+                const fileContents = opts.files[param.fileName];
+
+                // If the file we've got available to us is a Buffer then we need to convert it so that the FormData
+                // API can use it.
+                if (Buffer.isBuffer(fileContents)) {
+                  form.set(
+                    param.name,
+                    new File([fileContents], param.fileName, {
+                      type: param.contentType || null,
+                    }),
+                    param.fileName
+                  );
+
+                  return;
+                } else if (fileContents instanceof File) {
+                  // The `Blob` polyfill on Node comes back as being an instanceof `File`. Because passing a Blob into
+                  // a File will end up with a corrupted file we want to prevent this.
+                  //
+                  // This object identity crisis does not happen in the browser.
+                  if (fileContents.constructor.name === 'File') {
+                    form.set(param.name, fileContents, param.fileName);
+                    return;
+                  }
+                }
+
+                throw new TypeError(
+                  'An unknown object has been supplied into the `files` config for use. We only support instances of the File API and Node Buffer objects.'
+                );
+              } else if ('value' in param) {
+                // If the contents of this file parameter are a data URL we need to decode and send that value as the
+                // contents of the file instead of the data URL.
+                const parsed = parseDataUrl(param.value);
+                if (parsed) {
+                  // eslint-disable-next-line no-param-reassign
+                  param.value = parsed.toBuffer().toString();
+                }
+
+                const paramBlob = new Blob([param.value], { type: param.contentType || null });
+                form.append(param.name, paramBlob, param.fileName);
+                return;
+              }
+
               throw new Error(
-                "The supplied HAR has a postData parameter with `fileName`, but no `value` content. Since this library doesn't have access to the filesystem, it can't fetch that file."
+                "The supplied HAR has a postData parameter with `fileName`, but neither `value` content within the HAR or any file buffers were supplied with the `files` option. Since this library doesn't have access to the filesystem, it can't fetch that file."
               );
             }
 
-            // If the incoming parameter is a file, and that files value is a data URL, we should decode that and set
-            // the contents of the value in the HAR to the actual contents of the file.
-            if ('fileName' in param) {
-              const parsed = parseDataUrl(param.value);
-              if (parsed) {
-                // eslint-disable-next-line no-param-reassign
-                param.value = parsed.toBuffer().toString();
-              }
-            }
-
-            if (isNativeFormData) {
-              if ('fileName' in param) {
-                const paramBlob = new Blob([param.value], { type: param.contentType || null });
-                form.append(param.name, paramBlob, param.fileName);
-              } else {
-                form.append(param.name, param.value);
-              }
-            } else {
-              form.append(param.name, param.value || '', {
-                filename: param.fileName || null,
-                contentType: param.contentType || null,
-              });
-            }
+            form.append(param.name, param.value);
           });
 
-          options.body = form;
+          // Though we may have a native `fetch` implementation that can handle `FormData` already, we might not so we
+          // need to rework our `FormData` contents into an acceptable format + boundary headers for the request.
+          const encoder = new FormDataEncoder(form);
+          Object.keys(encoder.headers).forEach(header => {
+            headers.set(header, encoder.headers[header]);
+          });
+
+          options.body = Readable.from(encoder);
           break;
 
         default:

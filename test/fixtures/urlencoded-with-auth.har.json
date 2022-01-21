@@ -3,6 +3,8 @@
     "entries": [
       {
         "request": {
+          "method": "POST",
+          "url": "https://httpbin.org/post",
           "headers": [
             {
               "name": "Authorization",
@@ -18,11 +20,13 @@
             { "name": "b", "value": 2 }
           ],
           "postData": {
-            "mimeType": "application/json",
-            "text": "{\"id\":8,\"category\":{\"id\":6,\"name\":\"name\"},\"name\":\"name\"}"
-          },
-          "method": "PUT",
-          "url": "http://petstore.swagger.io/v2/pet"
+            "mimeType": "application/x-www-form-urlencoded",
+            "params": [
+              { "name": "id", "value": 8 },
+              { "name": "category", "value": "{\"id\":6,\"name\":\"name\"}" },
+              { "name": "name", "value": "name" }
+            ]
+          }
         }
       }
     ]

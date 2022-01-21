@@ -13,13 +13,17 @@ npm install --save fetch-har
 
 ## Usage
 ```js
-const fetchHar = require('fetch-har');
+require('isomorphic-fetch');
+const fetchHar = require('.');
 
-// If executing from an environment without `fetch`, you'll need to polyfill.
-global.fetch = require('node-fetch');
-global.Headers = require('node-fetch').Headers;
-global.Request = require('node-fetch').Request;
-global.FormData = require('form-data');
+// If executing from an environment that dodoesn't normally provide fetch()
+// you'll need to polyfill some APIs in order to make `multipart/form-data`
+// requests.
+if (!globalThis.FormData) {
+  globalThis.Blob = require('formdata-node').Blob;
+  globalThis.File = require('formdata-node').File;
+  globalThis.FormData = require('formdata-node').FormData;
+}
 
 const har = {
   log: {
@@ -36,7 +40,10 @@ const har = {
               value: 'application/json',
             },
           ],
-          queryString: [{ name: 'a', value: 1 }, { name: 'b', value: 2 }],
+          queryString: [
+            { name: 'a', value: 1 },
+            { name: 'b', value: 2 },
+          ],
           postData: {
             mimeType: 'application/json',
             text: '{"id":8,"category":{"id":6,"name":"name"},"name":"name"}',
@@ -54,18 +61,44 @@ fetchHar(har)
   .then(console.log);
 ```
 
-### `fetchHar(har, userAgent) => Promise`
+### API
+If you are executing `fetch-har` in a browser environment that supports the [FormData API](https://developer.mozilla.org/en-US/docs/Web/API/FormData) then you don't need to do anything. If you arent, however, you'll need to polyfill it.
 
-- `har` is a [har](https://en.wikipedia.org/wiki/.har) file format.
-- `userAgent` is an optional user agent string to let you declare where the request is coming from.
+Unfortunately the most popular NPM package [form-data](https://npm.im/form-data) ships with a [non-spec compliant API](https://github.com/form-data/form-data/issues/124), and for this we don't recommend you use it, as if you use `fetch-har` to upload files it may not work.
 
-Performs a fetch request from a given HAR definition. HAR definitions can be used to list lots of requests but we only use the first from the `log.entries` array.
+We recommend either [formdata-node](https://npm.im/formdata-node) or [formdata-polyfill](https://npm.im/formdata-polyfill).
 
-### `fetchHar.constructRequest(har, userAgent) => Request`
+#### Options
+##### userAgent
+A custom `User-Agent` header to apply to your request. Please note that browsers have their own handling for these headers in `fetch()` calls so it may not work everywhere; it will always be sent in Node however.
 
-- `har` is a [har](https://en.wikipedia.org/wiki/.har) file format.
-- `userAgent` is an optional user agent string to let you declare where the request is coming from.
+```js
+await fetchHar(har, { userAgent: 'my-client/1.0' });
+```
 
-We also export a second function which is used to construct a [Request](https://developer.mozilla.org/en-US/docs/Web/API/Request) object from your HAR.
+##### files
+An optional object map you can supply to use for `multipart/form-data` file uploads in leu of relying on if the HAR you have has [data URLs](https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/Data_URIs). It supports Node file buffers and the [File](https://developer.mozilla.org/en-US/docs/Web/API/File) API.
 
-This function is mainly exported for testing purposes but could be useful if you want to construct a request but do not want to execute it right away.
+```js
+await fetchHar(har, { files: {
+  'owlbert.png': await fs.readFile('./owlbert.png'),
+  'file.txt': document.querySelector('#some-file-input').files[0],
+} });
+```
+
+If you don't supply this option `fetch-har` will fallback to the data URL present within the supplied HAR. If no `files` option is present, and no data URL (via `param.value`) is present in the HAR, a fatal exception will be thrown.
+
+##### multipartEncoder
+> ❗ If you are using `fetch-har` in Node you may need this option!
+
+If you are running `fetch-har` within a Node environment and you're using `node-fetch@2`, or another `fetch` polyfill that does not support a spec-compliant `FormData` API, you will need to specify an encoder that will transform your `FormData` object into something that can be used with [Request.body](https://developer.mozilla.org/en-US/docs/Web/API/Request/body).
+
+We recommend [form-data-encoder](https://npm.im/form-data-encoder).
+
+```js
+const { FormDataEncoder } = require('form-data-encoder');
+
+await fetchHar(har, { multipartEncoder: FormDataEncoder });
+```
+
+You do **not**, and shouldn't, need to use this option in browser environments.

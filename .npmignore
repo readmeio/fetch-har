@@ -1,5 +1,8 @@
-__tests__/
 .github/
 coverage/
+test/
 .eslint*
+.mocha*
+.nyc*
 .prettier*
+karma.*

@@ -2,7 +2,11 @@
   "extends": ["@readme/eslint-config", "plugin:compat/recommended"],
   "root": true,
   "env": {
-    "browser": true
+    "es2020": true
+  },
+  "rules": {
+    "global-require": "off",
+    "no-case-declarations": "off"
   },
   "settings": {
     "polyfills": [

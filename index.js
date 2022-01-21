@@ -1,15 +1,26 @@
 const { Readable } = require('readable-stream');
 const parseDataUrl = require('parse-data-url');
-const { Blob: BlobPolyfill, File: FilePolyfill } = require('formdata-node');
 
-// Instead of requiring the user to polyfill this on their end we're doing it ourselves so we can ensure that we have
-// an API we know will work.
 if (!globalThis.Blob) {
-  globalThis.Blob = BlobPolyfill;
+  try {
+    // eslint-disable-next-line import/no-extraneous-dependencies
+    globalThis.Blob = require('formdata-node').Blob;
+  } catch (e) {
+    throw new Error(
+      'Since you do not have the Blob API available in this environment you must install the optional `formdata-node` dependency.'
+    );
+  }
 }
 
 if (!globalThis.File) {
-  globalThis.File = FilePolyfill;
+  try {
+    // eslint-disable-next-line import/no-extraneous-dependencies
+    globalThis.File = require('formdata-node').File;
+  } catch (e) {
+    throw new Error(
+      'Since you do not have the File API available in this environment you must install the optional `formdata-node` dependency.'
+    );
+  }
 }
 
 /**

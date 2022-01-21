@@ -13,14 +13,16 @@ npm install --save fetch-har
 
 ## Usage
 ```js
-const fetchHar = require('fetch-har');
+require('isomorphic-fetch');
+const fetchHar = require('.');
 
-// If executing from an environment without `fetch`, you'll need to polyfill.
-if (!globalThis.fetch) {
-  globalThis.fetch = require('node-fetch');
-  globalThis.Headers = require('node-fetch').Headers;
-  globalThis.Request = require('node-fetch').Request;
-  globalThis.FormData = require('form-data');
+// If executing from an environment that dodoesn't normally provide fetch()
+// you'll need to polyfill some APIs in order to make `multipart/form-data`
+// requests.
+if (!globalThis.FormData) {
+  globalThis.Blob = require('formdata-node').Blob;
+  globalThis.File = require('formdata-node').File;
+  globalThis.FormData = require('formdata-node').FormData;
 }
 
 const har = {
@@ -28,23 +30,26 @@ const har = {
     entries: [
       {
         request: {
-          method: 'POST',
-          url: 'https://httpbin.org/post',
           headers: [
             {
-              name: 'content-type',
-              value: 'multipart/form-data',
+              name: 'Authorization',
+              value: 'Bearer api-key',
+            },
+            {
+              name: 'Content-Type',
+              value: 'application/json',
             },
           ],
+          queryString: [
+            { name: 'a', value: 1 },
+            { name: 'b', value: 2 },
+          ],
           postData: {
-            mimeType: 'multipart/form-data',
-            params: [
-              {
-                name: 'foo',
-                value: 'bar',
-              },
-            ],
+            mimeType: 'application/json',
+            text: '{"id":8,"category":{"id":6,"name":"name"},"name":"name"}',
           },
+          method: 'POST',
+          url: 'http://httpbin.org/post',
         },
       },
     ],
@@ -63,26 +68,37 @@ Unfortunately the most popular NPM package [form-data](https://npm.im/form-data)
 
 We recommend either [formdata-node](https://npm.im/formdata-node) or [formdata-polyfill](https://npm.im/formdata-polyfill).
 
-### `fetchHar(har, { userAgent, files }) => Promise`
-Performs a fetch request from a given HAR definition. HAR definitions can be used to list lots of requests but we only use the first from the `log.entries` array.
+#### Options
+##### userAgent
+A custom `User-Agent` header to apply to your request. Please note that browsers have their own handling for these headers in `fetch()` calls so it may not work everywhere; it will always be sent in Node however.
 
 ```js
-const fetchHar = require('fetch-har');
+await fetchHar(har, { userAgent: 'my-client/1.0' });
 ```
 
-- `har` is a [har](https://en.wikipedia.org/wiki/.har) file format.
-- `opts.userAgent` is an optional user agent string to let you declare where the request is coming from.
-- `opts.files` is an optional user agent string to let you declare where the request is coming from.
-
-### `fetchHar.constructRequest(har, { userAgent, files }) => Request`
-We also export a second function, `constructRequest`, which we use to construct a [Request](https://developer.mozilla.org/en-US/docs/Web/API/Request) object from your HAR.
-
-Though this function is mainly exported for testing purposes, it could be useful to you if you plan on constructing a request but not executing it right away.
+##### files
+An optional object map you can supply to use for `multipart/form-data` file uploads in leu of relying on if the HAR you have has [data URLs](https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/Data_URIs). It supports Node file buffers and the [File](https://developer.mozilla.org/en-US/docs/Web/API/File) API.
 
 ```js
-const { constructRequest } = require('fetch-har');
+await fetchHar(har, { files: {
+  'owlbert.png': await fs.readFile('./owlbert.png'),
+  'file.txt': document.querySelector('#some-file-input').files[0],
+} });
 ```
 
-- `har` is a [har](https://en.wikipedia.org/wiki/.har) file format.
-- `opts.userAgent` is an optional user agent string to let you declare where the request is coming from.
-- `opts.files` is an optional mapping object of `fileName` to file buffers you can use to supply file uploads instead of relying on encoded file data within the supplied HAR.
+If you don't supply this option `fetch-har` will fallback to the data URL present within the supplied HAR. If no `files` option is present, and no data URL (via `param.value`) is present in the HAR, a fatal exception will be thrown.
+
+##### multipartEncoder
+> ❗ If you are using `fetch-har` in Node you may need this option!
+
+If you are running `fetch-har` within a Node environment and you're using `node-fetch@2`, or another `fetch` polyfill that does not support a spec-compliant `FormData` API, you will need to specify an encoder that will transform your `FormData` object into something that can be used with [Request.body](https://developer.mozilla.org/en-US/docs/Web/API/Request/body).
+
+We recommend [form-data-encoder](https://npm.im/form-data-encoder).
+
+```js
+const { FormDataEncoder } = require('form-data-encoder');
+
+await fetchHar(har, { multipartEncoder: FormDataEncoder });
+```
+
+You do **not**, and shouldn't, need to use this option in browser environments.

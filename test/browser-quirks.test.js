@@ -17,9 +17,7 @@ describe('#fetch (Browser-only quirks)', function () {
   describe('multipart/form-data', function () {
     it("should support a `multipart/form-data` request that's a standard object", async function () {
       // Windows CI sometimes takes longer than 2s to run this test.
-      if (host.os === 'windows') {
-        this.timeout(5000);
-      }
+      this.timeout(5000);
 
       const res = await fetchHar(harExamples['multipart-form-data']).then(r => r.json());
 

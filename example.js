@@ -1,43 +1,40 @@
 /* eslint-disable import/no-extraneous-dependencies, no-console */
+require('isomorphic-fetch');
 const fetchHar = require('.');
 
-// If executing from an environment without `fetch`, you'll need to polyfill.
-if (!globalThis.fetch) {
-  globalThis.fetch = require('node-fetch');
-  globalThis.Headers = require('node-fetch').Headers;
-  globalThis.Request = require('node-fetch').Request;
-  globalThis.FormData = require('form-data');
+// If executing from an environment that dodoesn't normally provide fetch() you'll need to polyfill some APIs in order
+// to make `multipart/form-data` requests.
+if (!globalThis.FormData) {
+  globalThis.Blob = require('formdata-node').Blob;
+  globalThis.File = require('formdata-node').File;
+  globalThis.FormData = require('formdata-node').FormData;
 }
 
 const har = {
   log: {
     entries: [
       {
-        startedDateTime: '2021-07-09T23:28:52.627Z',
-        time: 420,
         request: {
-          method: 'POST',
-          url: 'https://httpbin.org/post',
-          httpVersion: 'HTTP/1.1',
-          cookies: [],
           headers: [
             {
-              name: 'content-type',
-              value: 'multipart/form-data',
+              name: 'Authorization',
+              value: 'Bearer api-key',
+            },
+            {
+              name: 'Content-Type',
+              value: 'application/json',
             },
           ],
-          queryString: [],
+          queryString: [
+            { name: 'a', value: 1 },
+            { name: 'b', value: 2 },
+          ],
           postData: {
-            mimeType: 'multipart/form-data',
-            params: [
-              {
-                name: 'foo',
-                value: 'bar',
-              },
-            ],
+            mimeType: 'application/json',
+            text: '{"id":8,"category":{"id":6,"name":"name"},"name":"name"}',
           },
-          bodySize: -1,
-          headersSize: -1,
+          method: 'POST',
+          url: 'http://httpbin.org/post',
         },
       },
     ],

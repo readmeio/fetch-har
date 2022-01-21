@@ -1,0 +1,10 @@
+{
+  "extends": ["plugin:mocha/recommended"],
+  "plugins": ["mocha"],
+  "rules": {
+    "compat/compat": "off",
+
+    // Disabling this because some Chai assertions trigger it.
+    "no-unused-expressions": "off"
+  }
+}

@@ -1,7 +1,6 @@
 const { Readable } = require('readable-stream');
 const parseDataUrl = require('parse-data-url');
 const { Blob: BlobPolyfill, File: FilePolyfill } = require('formdata-node');
-const { FormDataEncoder, isFormData } = require('form-data-encoder');
 
 // Instead of requiring the user to polyfill this on their end we're doing it ourselves so we can ensure that we have
 // an API we know will work.
@@ -13,7 +12,34 @@ if (!globalThis.File) {
   globalThis.File = FilePolyfill;
 }
 
-function constructRequest(har, opts = { userAgent: false, files: {} }) {
+/**
+ * @license MIT
+ * @see {@link https://github.com/octet-stream/form-data-encoder/blob/master/lib/util/isFunction.ts}
+ */
+function isFunction(value) {
+  return typeof value === 'function';
+}
+
+/**
+ * We're loading this library in here instead of loading it from `form-data-encoder` because that uses lookbehind
+ * regex in its main encoder that Safari doesn't support so it throws a fatal page exception.
+ *
+ * @license MIT
+ * @see {@link https://github.com/octet-stream/form-data-encoder/blob/master/lib/util/isFormData.ts}
+ */
+function isFormData(value) {
+  return (
+    value &&
+    isFunction(value.constructor) &&
+    value[Symbol.toStringTag] === 'FormData' && // eslint-disable-line compat/compat
+    isFunction(value.append) &&
+    isFunction(value.getAll) &&
+    isFunction(value.entries) &&
+    isFunction(value[Symbol.iterator]) // eslint-disable-line compat/compat
+  );
+}
+
+function constructRequest(har, opts = { userAgent: false, files: {}, multipartEncoder: false }) {
   if (!har) throw new Error('Missing HAR definition');
   if (!har.log || !har.log.entries || !har.log.entries.length) throw new Error('Missing log.entries array');
 
@@ -80,7 +106,10 @@ function constructRequest(har, opts = { userAgent: false, files: {} }) {
           options.body = encodedParams.toString();
           break;
 
+        case 'multipart/alternative':
         case 'multipart/form-data':
+        case 'multipart/mixed':
+        case 'multipart/related':
           // If there's a Content-Type header set remove it. We're doing this because when we pass the form data object
           // into `fetch` that'll set a proper `Content-Type` header for this request that also includes the boundary
           // used on the content.
@@ -146,15 +175,16 @@ function constructRequest(har, opts = { userAgent: false, files: {} }) {
                   'An unknown object has been supplied into the `files` config for use. We only support instances of the File API and Node Buffer objects.'
                 );
               } else if ('value' in param) {
-                // If the contents of this file parameter are a data URL we need to decode and send that value as the
-                // contents of the file instead of the data URL.
+                let paramBlob;
                 const parsed = parseDataUrl(param.value);
                 if (parsed) {
-                  // eslint-disable-next-line no-param-reassign
-                  param.value = parsed.toBuffer().toString();
+                  // If we were able to parse out this data URL we don't need to transform its data into a buffer for
+                  // `Blob` because that supports data URLs already.
+                  paramBlob = new Blob([param.value], { type: parsed.contentType || param.contentType || null });
+                } else {
+                  paramBlob = new Blob([param.value], { type: param.contentType || null });
                 }
 
-                const paramBlob = new Blob([param.value], { type: param.contentType || null });
                 form.append(param.name, paramBlob, param.fileName);
                 return;
               }
@@ -167,14 +197,22 @@ function constructRequest(har, opts = { userAgent: false, files: {} }) {
             form.append(param.name, param.value);
           });
 
-          // Though we may have a native `fetch` implementation that can handle `FormData` already, we might not so we
-          // need to rework our `FormData` contents into an acceptable format + boundary headers for the request.
-          const encoder = new FormDataEncoder(form);
-          Object.keys(encoder.headers).forEach(header => {
-            headers.set(header, encoder.headers[header]);
-          });
+          // If a the `fetch` polyfill that's being used here doesn't have spec-compliant handling for the `FormData`
+          // API (like `node-fetch@2`), then you should pass in a handler (like the `form-data-encoder` library) to
+          // transform its contents into something that can be used with the `Request` object.
+          //
+          // https://www.npmjs.com/package/formdata-node
+          if (opts.multipartEncoder) {
+            // eslint-disable-next-line new-cap
+            const encoder = new opts.multipartEncoder(form);
+            Object.keys(encoder.headers).forEach(header => {
+              headers.set(header, encoder.headers[header]);
+            });
 
-          options.body = Readable.from(encoder);
+            options.body = Readable.from(encoder);
+          } else {
+            options.body = form;
+          }
           break;
 
         default:
@@ -210,7 +248,7 @@ function constructRequest(har, opts = { userAgent: false, files: {} }) {
   return new Request(`${url}${querystring}`, options);
 }
 
-function fetchHar(har, opts = { userAgent: false, files: {} }) {
+function fetchHar(har, opts = { userAgent: false, files: {}, multipartEncoder: false }) {
   return fetch(constructRequest(har, opts));
 }
 

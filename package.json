@@ -2,7 +2,7 @@
   "name": "fetch-har",
   "version": "5.0.5",
   "description": "Make a fetch request from a HAR definition",
-  "main": "src/index.js",
+  "main": "index.js",
   "engines": {
     "node": "^12 || ^14 || ^16"
   },

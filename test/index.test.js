@@ -2,8 +2,8 @@ require('isomorphic-fetch');
 
 const { host } = require('@jsdevtools/host-environment');
 const { expect } = require('chai');
-const fetchHar = require('../src');
-const { constructRequest } = require('../src');
+const fetchHar = require('..');
+const { constructRequest } = require('..');
 const { Blob: BlobPolyfill, File: FilePolyfill } = require('formdata-node');
 const harExamples = require('har-examples');
 

@@ -2,7 +2,7 @@ require('isomorphic-fetch');
 
 const { host } = require('@jsdevtools/host-environment');
 const { expect } = require('chai');
-const fetchHar = require('../src');
+const fetchHar = require('..');
 const harExamples = require('har-examples');
 
 const owlbert = require('./fixtures/owlbert-dataurl.json');

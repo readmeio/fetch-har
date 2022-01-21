@@ -2,7 +2,7 @@ require('isomorphic-fetch');
 
 const fs = require('fs').promises;
 const { expect } = require('chai');
-const fetchHar = require('../src');
+const fetchHar = require('..');
 const { Blob: BlobPolyfill, File: FilePolyfill } = require('formdata-node');
 const harExamples = require('har-examples');
 const { FormDataEncoder } = require('form-data-encoder');

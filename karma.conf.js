@@ -2,7 +2,7 @@ const { karmaConfig } = require('@jsdevtools/karma-config');
 const { host } = require('@jsdevtools/host-environment');
 
 module.exports = karmaConfig({
-  sourceDir: 'src/',
+  sourceDir: '.',
   fixtures: ['test/fixtures/*.json'],
   browsers: {
     chrome: true,

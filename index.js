@@ -123,7 +123,7 @@ function constructRequest(har, opts = { userAgent: false, files: {}, multipartEn
           const form = new FormData();
           if (!isFormData(form)) {
             // The `form-data` NPM module returns one of two things: a native `FormData` API or its own polyfill.
-            // Unfortunatley this polyfill does not support the full API of the native FormData object so when you load
+            // Unfortunately this polyfill does not support the full API of the native FormData object so when you load
             // `form-data` within a browser environment you'll have two major differences in API:
             //
             //  * The `.append()` API in `form-data` requires that the third argument is an object containing various,

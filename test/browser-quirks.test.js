@@ -12,22 +12,20 @@ describe('#fetch (Browser-only quirks)', function () {
     if (host.node) {
       this.skip('This test suite should only run in the browser.');
     }
+
+    // Windows in CI is a bit slow to run these tests.
+    if (host.os === 'windows') {
+      this.timeout(5000);
+    }
   });
 
   describe('multipart/form-data', function () {
     it("should support a `multipart/form-data` request that's a standard object", async function () {
-      this.timeout(15000);
-
       const res = await fetchHar(harExamples['multipart-form-data']).then(r => r.json());
-
-      // eslint-disable-next-line no-console
-      console.log('🚥 res=', JSON.stringify(res, null, 2));
 
       expect(res.form).to.deep.equal({ foo: 'bar' });
       expect(parseInt(res.headers['Content-Length'], 10)).to.be.at.least(133);
       expect(res.headers['Content-Type']).to.match(/^multipart\/form-data; boundary=(.*)$/);
-
-      console.log('🚥🚥🚥 i got here 🚥🚥🚥')
     });
 
     it('should support a `multipart/form-data` request with a plaintext file encoded in the HAR', async function () {

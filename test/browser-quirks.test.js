@@ -8,14 +8,15 @@ const harExamples = require('har-examples');
 const owlbert = require('./fixtures/owlbert-dataurl.json');
 
 describe('#fetch (Browser-only quirks)', function () {
+  // Windows in CI is a bit slow to run these tests.
+  // eslint-disable-next-line mocha/no-setup-in-describe
+  if (host.os === 'windows') {
+    this.timeout(5000);
+  }
+
   beforeEach(function () {
     if (host.node) {
       this.skip('This test suite should only run in the browser.');
-    }
-
-    // Windows in CI is a bit slow to run these tests.
-    if (host.os === 'windows') {
-      this.timeout(5000);
     }
   });
 

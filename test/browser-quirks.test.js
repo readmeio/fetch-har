@@ -16,14 +16,18 @@ describe('#fetch (Browser-only quirks)', function () {
 
   describe('multipart/form-data', function () {
     it("should support a `multipart/form-data` request that's a standard object", async function () {
+      this.timeout(15000);
+
       const res = await fetchHar(harExamples['multipart-form-data']).then(r => r.json());
 
       // eslint-disable-next-line no-console
-      console.log('res=', JSON.stringify(res, null, 2));
+      console.log('🚥 res=', JSON.stringify(res, null, 2));
 
       expect(res.form).to.deep.equal({ foo: 'bar' });
-      expect(parseInt(res.headers['Content-Length'], 10)).to.be.at.least(133); // Varies depending on the boundary being used.
+      expect(parseInt(res.headers['Content-Length'], 10)).to.be.at.least(133);
       expect(res.headers['Content-Type']).to.match(/^multipart\/form-data; boundary=(.*)$/);
+
+      console.log('🚥🚥🚥 i got here 🚥🚥🚥')
     });
 
     it('should support a `multipart/form-data` request with a plaintext file encoded in the HAR', async function () {

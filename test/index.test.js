@@ -9,7 +9,6 @@ const harExamples = require('har-examples');
 
 const owlbertDataURL = require('./fixtures/owlbert.dataurl.json');
 
-const binaryHAR = require('./fixtures/binary.har.json');
 const invalidHeadersHAR = require('./fixtures/invalid-headers.har.json');
 const urlEncodedWithAuthHAR = require('./fixtures/urlencoded-with-auth.har.json');
 
@@ -140,10 +139,11 @@ describe('#fetch', function () {
 
     describe('binary handling', function () {
       it('should support a `image/png` request', async function () {
-        const res = await fetchHar(binaryHAR).then(r => r.json());
+        const har = harExamples['image-png'];
+        const res = await fetchHar(har).then(r => r.json());
 
         expect(res.args).to.be.empty;
-        expect(res.data).to.equal(binaryHAR.log.entries[0].request.postData.text);
+        expect(res.data).to.equal(har.log.entries[0].request.postData.text);
         expect(res.files).to.be.empty;
         expect(res.form).to.be.empty;
         expect(parseInt(res.headers['Content-Length'], 10)).to.equal(575);

@@ -10,8 +10,6 @@ const { FormDataEncoder } = require('form-data-encoder');
 const owlbertDataURL = require('./fixtures/owlbert.dataurl.json');
 const owlbertShrubDataURL = require('./fixtures/owlbert-shrub.dataurl.json');
 
-const binaryHAR = require('./fixtures/binary.har.json');
-
 describe('#fetch (Node-only quirks)', function () {
   beforeEach(function () {
     globalThis.FormData = require('formdata-node').FormData;
@@ -30,11 +28,7 @@ describe('#fetch (Node-only quirks)', function () {
 
   describe('binary handling', function () {
     it('should support an `image/png` request that has a data URL with no file name', async function () {
-      const har = JSON.parse(JSON.stringify(binaryHAR));
-      har.log.entries[0].request.postData.text = har.log.entries[0].request.postData.text.replace(
-        'name=owlbert.png;',
-        ''
-      );
+      const har = JSON.parse(JSON.stringify(harExamples['image-png-no-filename']));
 
       // Not only is this Owlbert image not what is in the HAR, but the HAR doesn't contain a file name so supplying
       // this buffer to the fetch call will be ignored.
@@ -46,14 +40,15 @@ describe('#fetch (Node-only quirks)', function () {
 
     describe('supplemental overrides', function () {
       it('should support a Buffer `files` mapping override for a raw payload data URL', async function () {
+        const har = JSON.parse(JSON.stringify(harExamples['image-png']));
         const owlbert = await fs.readFile(`${__dirname}/fixtures/owlbert.png`);
-        const res = await fetchHar(binaryHAR, { files: { 'owlbert.png': owlbert } }).then(r => r.json());
+        const res = await fetchHar(har, { files: { 'owlbert.png': owlbert } }).then(r => r.json());
 
         expect(res.args).to.be.empty;
         expect(res.data).to.equal(
           // Since we uploaded a raw file buffer it isn't going to have `image/png` in the data URL coming back from
           // httpbin; that information will just exist within the `Content-Type` header.
-          binaryHAR.log.entries[0].request.postData.text.replace(
+          har.log.entries[0].request.postData.text.replace(
             'data:image/png;name=owlbert.png',
             'data:application/octet-stream'
           )
@@ -71,7 +66,7 @@ describe('#fetch (Node-only quirks)', function () {
         // In the HAR is `owlbert.png` but we want to adhoc override that with the contents of `owlbert-shrub.png` here
         // to ensure that the override works.
         const owlbert = new File([owlbertShrubDataURL], 'owlbert.png', { type: 'image/png' });
-        const res = await fetchHar(binaryHAR, { files: { 'owlbert.png': owlbert } }).then(r => r.json());
+        const res = await fetchHar(harExamples['image-png'], { files: { 'owlbert.png': owlbert } }).then(r => r.json());
 
         expect(res.args).to.be.empty;
         expect(res.data).to.equal(owlbertShrubDataURL);
@@ -84,9 +79,11 @@ describe('#fetch (Node-only quirks)', function () {
       });
 
       it("should ignore a `files` mapping override if it's neither a Buffer or a File", async function () {
-        const res = await fetchHar(binaryHAR, { files: { 'owlbert.png': 'owlbert.png' } }).then(r => r.json());
+        const res = await fetchHar(harExamples['image-png'], { files: { 'owlbert.png': 'owlbert.png' } }).then(r =>
+          r.json()
+        );
 
-        expect(res.data).to.equal(binaryHAR.log.entries[0].request.postData.text);
+        expect(res.data).to.equal(harExamples['image-png'].log.entries[0].request.postData.text);
       });
     });
   });

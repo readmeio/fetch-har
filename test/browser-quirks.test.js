@@ -8,8 +8,6 @@ const harExamples = require('har-examples');
 const owlbert = require('./fixtures/owlbert.dataurl.json');
 const owlbertShrubDataURL = require('./fixtures/owlbert-shrub.dataurl.json');
 
-const binaryHAR = require('./fixtures/binary.har.json');
-
 describe('#fetch (Browser-only quirks)', function () {
   beforeEach(function () {
     if (host.node) {
@@ -22,7 +20,7 @@ describe('#fetch (Browser-only quirks)', function () {
       it('should support a File `files` mapping override for a raw payload data URL', async function () {
         // In the HAR is `owlbert.png` but we want to adhoc override that with the contents of `owlbert-shrub.png` here
         // to ensure that the override works.
-        const res = await fetchHar(binaryHAR, {
+        const res = await fetchHar(harExamples['image-png'], {
           files: {
             'owlbert.png': new File([owlbertShrubDataURL], 'owlbert.png', { type: 'image/png' }),
           },

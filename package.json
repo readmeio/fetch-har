@@ -13,6 +13,7 @@
     "release": "npx conventional-changelog-cli -i CHANGELOG.md -s",
     "serve": "node __tests__/server.js",
     "test:browser": "karma start --single-run",
+    "test:browser:chrome": "karma start --browsers=Chrome --single-run=false",
     "test:browser:debug": "karma start --single-run=false",
     "test": "nyc mocha"
   },

@@ -6,12 +6,38 @@ const fetchHar = require('..');
 const harExamples = require('har-examples');
 
 const owlbert = require('./fixtures/owlbert.dataurl.json');
+const owlbertShrubDataURL = require('./fixtures/owlbert-shrub.dataurl.json');
+
+const binaryHAR = require('./fixtures/binary.har.json');
 
 describe('#fetch (Browser-only quirks)', function () {
   beforeEach(function () {
     if (host.node) {
       this.skip('This test suite should only run in the browser.');
     }
+  });
+
+  describe('binary handling', function () {
+    describe('supplemental overrides', function () {
+      it('should support a File `files` mapping override for a raw payload data URL', async function () {
+        // In the HAR is `owlbert.png` but we want to adhoc override that with the contents of `owlbert-shrub.png` here
+        // to ensure that the override works.
+        const res = await fetchHar(binaryHAR, {
+          files: {
+            'owlbert.png': new File([owlbertShrubDataURL], 'owlbert.png', { type: 'image/png' }),
+          },
+        }).then(r => r.json());
+
+        expect(res.args).to.be.empty;
+        expect(res.data).to.equal(owlbertShrubDataURL);
+        expect(res.files).to.be.empty;
+        expect(res.form).to.be.empty;
+        expect(parseInt(res.headers['Content-Length'], 10)).to.equal(877);
+        expect(res.headers['Content-Type']).to.equal('image/png');
+        expect(res.json).to.be.null;
+        expect(res.url).to.equal('https://httpbin.org/post');
+      });
+    });
   });
 
   describe('multipart/form-data', function () {

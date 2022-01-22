@@ -9,6 +9,7 @@ const { FormDataEncoder } = require('form-data-encoder');
 
 const owlbertDataURL = require('./fixtures/owlbert.dataurl.json');
 const owlbertShrubDataURL = require('./fixtures/owlbert-shrub.dataurl.json');
+
 const binaryHAR = require('./fixtures/binary.har.json');
 
 describe('#fetch (Node-only quirks)', function () {

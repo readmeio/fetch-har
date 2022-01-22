@@ -256,19 +256,23 @@ function constructRequest(har, opts = { userAgent: false, files: false, multipar
           if (Buffer.isBuffer(fileContents)) {
             options.body = fileContents;
           } else if (isFile(fileContents)) {
-            options.body = Readable.from(fileContents.stream());
+            // `Readable.from` isn't available in browsers but the browser `Request` object can handle `File` objects
+            // just fine without us having to mold it into shape.
+            if (typeof window !== 'undefined' && typeof document !== 'undefined') {
+              options.body = fileContents;
+            } else {
+              options.body = Readable.from(fileContents.stream());
 
-            // Supplying a `File` stream into `Request.body` doesn't automatically add the `Content-Length` header.
-            if (!headers.has('content-length')) {
-              headers.set('content-length', fileContents.size);
+              // Supplying a polyfilled `File` stream into `Request.body` doesn't automatically add `Content-Length`.
+              if (!headers.has('content-length')) {
+                headers.set('content-length', fileContents.size);
+              }
             }
-          } else {
-            options.body = request.postData.text;
           }
-        } else {
-          options.body = request.postData.text;
         }
-      } else {
+      }
+
+      if (typeof options.body === 'undefined') {
         options.body = request.postData.text;
       }
     }

@@ -21,7 +21,7 @@ module.exports = karmaConfig({
     client: {
       mocha: {
         // Windows CI sometimes takes longer than 2s to run some tests.
-        timeout: 6000,
+        timeout: 15000,
       },
     },
   },

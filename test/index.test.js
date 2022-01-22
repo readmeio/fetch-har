@@ -7,10 +7,11 @@ const { constructRequest } = require('..');
 const { Blob: BlobPolyfill, File: FilePolyfill } = require('formdata-node');
 const harExamples = require('har-examples');
 
+const owlbertDataURL = require('./fixtures/owlbert.dataurl.json');
+
 const binaryHAR = require('./fixtures/binary.har.json');
 const invalidHeadersHAR = require('./fixtures/invalid-headers.har.json');
 const urlEncodedWithAuthHAR = require('./fixtures/urlencoded-with-auth.har.json');
-const owlbertDataURL = require('./fixtures/owlbert.dataurl.json');
 
 describe('#fetch', function () {
   beforeEach(function () {

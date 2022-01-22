@@ -5,7 +5,7 @@ const { expect } = require('chai');
 const fetchHar = require('..');
 const harExamples = require('har-examples');
 
-const owlbert = require('./fixtures/owlbert-dataurl.json');
+const owlbert = require('./fixtures/owlbert.dataurl.json');
 
 describe('#fetch (Browser-only quirks)', function () {
   beforeEach(function () {

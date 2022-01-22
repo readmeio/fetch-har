@@ -23,6 +23,18 @@ if (!globalThis.File) {
   }
 }
 
+function isFile(value) {
+  if (value instanceof File) {
+    // The `Blob` polyfill on Node comes back as being an instanceof `File`. Because passing a Blob into
+    // a File will end up with a corrupted file we want to prevent this.
+    //
+    // This object identity crisis does not happen in the browser.
+    return value.constructor.name === 'File';
+  }
+
+  return false;
+}
+
 /**
  * @license MIT
  * @see {@link https://github.com/octet-stream/form-data-encoder/blob/master/lib/util/isFunction.ts}
@@ -50,7 +62,7 @@ function isFormData(value) {
   );
 }
 
-function constructRequest(har, opts = { userAgent: false, files: {}, multipartEncoder: false }) {
+function constructRequest(har, opts = { userAgent: false, files: false, multipartEncoder: false }) {
   if (!har) throw new Error('Missing HAR definition');
   if (!har.log || !har.log.entries || !har.log.entries.length) throw new Error('Missing log.entries array');
 
@@ -171,15 +183,9 @@ function constructRequest(har, opts = { userAgent: false, files: {}, multipartEn
                   );
 
                   return;
-                } else if (fileContents instanceof File) {
-                  // The `Blob` polyfill on Node comes back as being an instanceof `File`. Because passing a Blob into
-                  // a File will end up with a corrupted file we want to prevent this.
-                  //
-                  // This object identity crisis does not happen in the browser.
-                  if (fileContents.constructor.name === 'File') {
-                    form.set(param.name, fileContents, param.fileName);
-                    return;
-                  }
+                } else if (isFile(fileContents)) {
+                  form.set(param.name, fileContents, param.fileName);
+                  return;
                 }
 
                 throw new TypeError(
@@ -240,8 +246,31 @@ function constructRequest(har, opts = { userAgent: false, files: {}, multipartEn
 
           options.body = JSON.stringify(formBody);
       }
-    } else {
-      options.body = request.postData.text;
+    } else if (request.postData.text.length) {
+      // If we've got `files` map content present, and this post data content contains a valid data URL then we can
+      // substitute the payload with that file instead of the using data URL.
+      if (opts.files) {
+        const parsed = parseDataUrl(request.postData.text);
+        if (parsed && 'name' in parsed && parsed.name in opts.files) {
+          const fileContents = opts.files[parsed.name];
+          if (Buffer.isBuffer(fileContents)) {
+            options.body = fileContents;
+          } else if (isFile(fileContents)) {
+            options.body = Readable.from(fileContents.stream());
+
+            // Supplying a `File` stream into `Request.body` doesn't automatically add the `Content-Length` header.
+            if (!headers.has('content-length')) {
+              headers.set('content-length', fileContents.size);
+            }
+          } else {
+            options.body = request.postData.text;
+          }
+        } else {
+          options.body = request.postData.text;
+        }
+      } else {
+        options.body = request.postData.text;
+      }
     }
   }
 
@@ -259,7 +288,7 @@ function constructRequest(har, opts = { userAgent: false, files: {}, multipartEn
   return new Request(`${url}${querystring}`, options);
 }
 
-function fetchHar(har, opts = { userAgent: false, files: {}, multipartEncoder: false }) {
+function fetchHar(har, opts = { userAgent: false, files: false, multipartEncoder: false }) {
   return fetch(constructRequest(har, opts));
 }
 

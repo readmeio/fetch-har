@@ -7,9 +7,10 @@ const { constructRequest } = require('..');
 const { Blob: BlobPolyfill, File: FilePolyfill } = require('formdata-node');
 const harExamples = require('har-examples');
 
+const binaryHAR = require('./fixtures/binary.har.json');
 const invalidHeadersHAR = require('./fixtures/invalid-headers.har.json');
 const urlEncodedWithAuthHAR = require('./fixtures/urlencoded-with-auth.har.json');
-const owlbertDataURL = require('./fixtures/owlbert-dataurl.json');
+const owlbertDataURL = require('./fixtures/owlbert.dataurl.json');
 
 describe('#fetch', function () {
   beforeEach(function () {
@@ -134,6 +135,21 @@ describe('#fetch', function () {
 
       expect(res.json).to.be.null;
       expect(res.url).to.equal('https://httpbin.org/post?key=value%3Ffoo=bar&foo=baz&baz=abc');
+    });
+
+    describe('binary handling', function () {
+      it('should support a `image/png` request', async function () {
+        const res = await fetchHar(binaryHAR).then(r => r.json());
+
+        expect(res.args).to.be.empty;
+        expect(res.data).to.equal(binaryHAR.log.entries[0].request.postData.text);
+        expect(res.files).to.be.empty;
+        expect(res.form).to.be.empty;
+        expect(parseInt(res.headers['Content-Length'], 10)).to.equal(575);
+        expect(res.headers['Content-Type']).to.equal('image/png');
+        expect(res.json).to.be.null;
+        expect(res.url).to.equal('https://httpbin.org/post');
+      });
     });
 
     describe('multipart/form-data', function () {

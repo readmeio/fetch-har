@@ -246,8 +246,13 @@ function constructRequest(har, opts = { userAgent: false, files: {}, multipartEn
   }
 
   if ('queryString' in request && request.queryString.length) {
-    const query = request.queryString.map(q => `${q.name}=${q.value}`).join('&');
-    querystring = `?${query}`;
+    const queryParams = new URL(url).searchParams;
+
+    request.queryString.forEach(q => {
+      queryParams.append(q.name, q.value);
+    });
+
+    querystring = queryParams.toString();
   }
 
   if (opts.userAgent) {
@@ -256,7 +261,7 @@ function constructRequest(har, opts = { userAgent: false, files: {}, multipartEn
 
   options.headers = headers;
 
-  return new Request(`${url}${querystring}`, options);
+  return new Request(`${url.split('?')[0]}${querystring ? `?${querystring}` : ''}`, options);
 }
 
 function fetchHar(har, opts = { userAgent: false, files: {}, multipartEncoder: false }) {

@@ -25,7 +25,7 @@ describe('#fetch', function () {
     it('should convert a HAR object to a HTTP request object', async function () {
       const request = constructRequest(harExamples.full);
 
-      expect(request.url).to.equal('https://httpbin.org/post?key=value?foo=bar&foo=baz&baz=abc');
+      expect(request.url).to.equal('https://httpbin.org/post?key=value&foo=bar&foo=baz&baz=abc');
       expect(request.method).to.equal('POST');
 
       if (host.node) {
@@ -85,6 +85,13 @@ describe('#fetch', function () {
       expect(res.url).to.equal('https://httpbin.org/post');
     });
 
+    it('should support requests with array query parameters', async function () {
+      const res = await fetchHar(harExamples.query).then(r => r.json());
+
+      expect(res.args).to.deep.equal({ baz: 'abc', foo: ['bar', 'baz'], key: 'value' });
+      expect(res.url).to.equal('https://httpbin.org/get?key=value&foo=bar&foo=baz&baz=abc');
+    });
+
     it('should support requests with cookies', async function () {
       const res = await fetchHar(harExamples.cookies).then(r => r.json());
 
@@ -120,7 +127,7 @@ describe('#fetch', function () {
     it('should support requests that cover the entire HAR spec', async function () {
       const res = await fetchHar(harExamples.full).then(r => r.json());
 
-      expect(res.args).to.deep.equal({ baz: 'abc', foo: 'baz', key: 'value?foo=bar' });
+      expect(res.args).to.deep.equal({ baz: 'abc', foo: ['bar', 'baz'], key: 'value' });
       expect(res.data).to.equal('');
       expect(res.files).to.be.empty;
       expect(res.form).to.deep.equal({ foo: 'bar' });
@@ -133,7 +140,7 @@ describe('#fetch', function () {
       }
 
       expect(res.json).to.be.null;
-      expect(res.url).to.equal('https://httpbin.org/post?key=value%3Ffoo=bar&foo=baz&baz=abc');
+      expect(res.url).to.equal('https://httpbin.org/post?key=value&foo=bar&foo=baz&baz=abc');
     });
 
     describe('multipart/form-data', function () {

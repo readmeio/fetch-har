@@ -23,6 +23,14 @@ if (!globalThis.File) {
   }
 }
 
+function isBrowser() {
+  return typeof window !== 'undefined' && typeof document !== 'undefined';
+}
+
+function isBuffer(value) {
+  return typeof Buffer !== 'undefined' && Buffer.isBuffer(value);
+}
+
 function isFile(value) {
   if (value instanceof File) {
     // The `Blob` polyfill on Node comes back as being an instanceof `File`. Because passing a Blob into
@@ -92,7 +100,7 @@ function constructRequest(har, opts = { userAgent: false, files: false, multipar
     // As the browser fetch API can't set custom cookies for requests, they instead need to be defined on the document
     // and passed into the request via `credentials: include`. Since this is a browser-specific quirk, that should only
     // happen in browsers!
-    if (typeof window !== 'undefined' && typeof document !== 'undefined') {
+    if (isBrowser()) {
       request.cookies.forEach(cookie => {
         document.cookie = `${encodeURIComponent(cookie.name)}=${encodeURIComponent(cookie.value)}`;
       });
@@ -173,7 +181,7 @@ function constructRequest(har, opts = { userAgent: false, files: false, multipar
 
                 // If the file we've got available to us is a Buffer then we need to convert it so that the FormData
                 // API can use it.
-                if (Buffer.isBuffer(fileContents)) {
+                if (isBuffer(fileContents)) {
                   form.set(
                     param.name,
                     new File([fileContents], param.fileName, {
@@ -253,12 +261,12 @@ function constructRequest(har, opts = { userAgent: false, files: false, multipar
         const parsed = parseDataUrl(request.postData.text);
         if (parsed && 'name' in parsed && parsed.name in opts.files) {
           const fileContents = opts.files[parsed.name];
-          if (Buffer.isBuffer(fileContents)) {
+          if (isBuffer(fileContents)) {
             options.body = fileContents;
           } else if (isFile(fileContents)) {
             // `Readable.from` isn't available in browsers but the browser `Request` object can handle `File` objects
             // just fine without us having to mold it into shape.
-            if (typeof window !== 'undefined' && typeof document !== 'undefined') {
+            if (isBrowser()) {
               options.body = fileContents;
             } else {
               options.body = Readable.from(fileContents.stream());

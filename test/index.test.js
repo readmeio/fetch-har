@@ -80,7 +80,7 @@ describe('#fetch', function () {
       expect(res.data).to.equal('Hello World');
       expect(res.files).to.be.empty;
       expect(res.form).to.be.empty;
-      expect(res.headers['Content-Length']).to.equal('11');
+      expect(parseInt(res.headers['Content-Length'], 10)).to.equal(11);
       expect(res.headers['Content-Type']).to.equal('text/plain');
       expect(res.json).to.be.null;
       expect(res.url).to.equal('https://httpbin.org/post');
@@ -112,7 +112,7 @@ describe('#fetch', function () {
       expect(res.files).to.be.empty;
       expect(res.form).to.deep.equal({ category: '{"id":6,"name":"name"}', id: '8', name: 'name' });
       expect(res.headers.Authorization).to.equal('Bearer api-key');
-      expect(res.headers['Content-Length']).to.equal('68');
+      expect(parseInt(res.headers['Content-Length'], 10)).to.equal(68);
       expect(res.headers['Content-Type']).to.equal('application/x-www-form-urlencoded');
       expect(res.json).to.be.null;
       expect(res.url).to.equal('https://httpbin.org/post?a=1&b=2');
@@ -125,7 +125,7 @@ describe('#fetch', function () {
       expect(res.data).to.equal('');
       expect(res.files).to.be.empty;
       expect(res.form).to.deep.equal({ foo: 'bar' });
-      expect(res.headers['Content-Length']).to.equal('7');
+      expect(parseInt(res.headers['Content-Length'], 10)).to.equal(7);
       expect(res.headers['Content-Type']).to.equal('application/x-www-form-urlencoded');
 
       // @todo we should mock this request instead

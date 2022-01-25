@@ -105,7 +105,7 @@ describe('#fetch (Node-only quirks)', function () {
       );
 
       expect(res.files).to.deep.equal({ foo: 'Hello World' });
-      expect(parseInt(res.headers['Content-Length'], 10)).to.be.at.least(189);
+      expect(parseInt(res.headers['Content-Length'], 10)).to.equal(189);
       expect(res.headers['Content-Type']).to.match(/^multipart\/form-data; boundary=(.*)$/);
     });
 
@@ -125,7 +125,7 @@ describe('#fetch (Node-only quirks)', function () {
           foo: owlbertDataURL.replace('name=owlbert.png;', ''),
         });
 
-        expect(res.headers['Content-Length']).to.equal('579');
+        expect(parseInt(res.headers['Content-Length'], 10)).to.equal(579);
         expect(res.headers['Content-Type']).to.match(/^multipart\/form-data; boundary=form-data-boundary-(.*)$/);
       });
 
@@ -138,7 +138,7 @@ describe('#fetch (Node-only quirks)', function () {
         }).then(r => r.json());
 
         expect(res.files).to.deep.equal({ foo: owlbertDataURL });
-        expect(parseInt(res.headers['Content-Length'], 10)).to.be.at.least(737);
+        expect(parseInt(res.headers['Content-Length'], 10)).to.equal(737);
         expect(res.headers['Content-Type']).to.match(/^multipart\/form-data; boundary=(.*)$/);
       });
     });
@@ -150,7 +150,7 @@ describe('#fetch (Node-only quirks)', function () {
         );
 
         expect(res.files).to.deep.equal({ foo: owlbertDataURL });
-        expect(res.headers['Content-Length']).to.equal('754');
+        expect(parseInt(res.headers['Content-Length'], 10)).to.equal(754);
         expect(res.headers['Content-Type']).to.match(/^multipart\/form-data; boundary=form-data-boundary-(.*)$/);
       });
 
@@ -168,7 +168,7 @@ describe('#fetch (Node-only quirks)', function () {
           foo: owlbertDataURL.replace('owlbert.png', encodeURIComponent('owlbert (1).png')),
         });
 
-        expect(res.headers['Content-Length']).to.equal('764');
+        expect(parseInt(res.headers['Content-Length'], 10)).to.equal(764);
         expect(res.headers['Content-Type']).to.match(/^multipart\/form-data; boundary=form-data-boundary-(.*)$/);
       });
     });

@@ -138,7 +138,7 @@ describe('#fetch (Node-only quirks)', function () {
         }).then(r => r.json());
 
         expect(res.files).to.deep.equal({ foo: owlbertDataURL });
-        expect(parseInt(res.headers['Content-Length'], 10)).to.equal(737);
+        expect(parseInt(res.headers['Content-Length'], 10)).to.equal(754);
         expect(res.headers['Content-Type']).to.match(/^multipart\/form-data; boundary=(.*)$/);
       });
     });

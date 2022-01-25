@@ -23,6 +23,26 @@ if (!globalThis.File) {
   }
 }
 
+function isBrowser() {
+  return typeof window !== 'undefined' && typeof document !== 'undefined';
+}
+
+function isBuffer(value) {
+  return typeof Buffer !== 'undefined' && Buffer.isBuffer(value);
+}
+
+function isFile(value) {
+  if (value instanceof File) {
+    // The `Blob` polyfill on Node comes back as being an instanceof `File`. Because passing a Blob into
+    // a File will end up with a corrupted file we want to prevent this.
+    //
+    // This object identity crisis does not happen in the browser.
+    return value.constructor.name === 'File';
+  }
+
+  return false;
+}
+
 /**
  * @license MIT
  * @see {@link https://github.com/octet-stream/form-data-encoder/blob/master/lib/util/isFunction.ts}
@@ -50,7 +70,7 @@ function isFormData(value) {
   );
 }
 
-function constructRequest(har, opts = { userAgent: false, files: {}, multipartEncoder: false }) {
+function constructRequest(har, opts = { userAgent: false, files: false, multipartEncoder: false }) {
   if (!har) throw new Error('Missing HAR definition');
   if (!har.log || !har.log.entries || !har.log.entries.length) throw new Error('Missing log.entries array');
 
@@ -80,7 +100,7 @@ function constructRequest(har, opts = { userAgent: false, files: {}, multipartEn
     // As the browser fetch API can't set custom cookies for requests, they instead need to be defined on the document
     // and passed into the request via `credentials: include`. Since this is a browser-specific quirk, that should only
     // happen in browsers!
-    if (typeof window !== 'undefined' && typeof document !== 'undefined') {
+    if (isBrowser()) {
       request.cookies.forEach(cookie => {
         document.cookie = `${encodeURIComponent(cookie.name)}=${encodeURIComponent(cookie.value)}`;
       });
@@ -161,7 +181,7 @@ function constructRequest(har, opts = { userAgent: false, files: {}, multipartEn
 
                 // If the file we've got available to us is a Buffer then we need to convert it so that the FormData
                 // API can use it.
-                if (Buffer.isBuffer(fileContents)) {
+                if (isBuffer(fileContents)) {
                   form.set(
                     param.name,
                     new File([fileContents], param.fileName, {
@@ -171,15 +191,9 @@ function constructRequest(har, opts = { userAgent: false, files: {}, multipartEn
                   );
 
                   return;
-                } else if (fileContents instanceof File) {
-                  // The `Blob` polyfill on Node comes back as being an instanceof `File`. Because passing a Blob into
-                  // a File will end up with a corrupted file we want to prevent this.
-                  //
-                  // This object identity crisis does not happen in the browser.
-                  if (fileContents.constructor.name === 'File') {
-                    form.set(param.name, fileContents, param.fileName);
-                    return;
-                  }
+                } else if (isFile(fileContents)) {
+                  form.set(param.name, fileContents, param.fileName);
+                  return;
                 }
 
                 throw new TypeError(
@@ -240,8 +254,35 @@ function constructRequest(har, opts = { userAgent: false, files: {}, multipartEn
 
           options.body = JSON.stringify(formBody);
       }
-    } else {
-      options.body = request.postData.text;
+    } else if (request.postData.text.length) {
+      // If we've got `files` map content present, and this post data content contains a valid data URL then we can
+      // substitute the payload with that file instead of the using data URL.
+      if (opts.files) {
+        const parsed = parseDataUrl(request.postData.text);
+        if (parsed && 'name' in parsed && parsed.name in opts.files) {
+          const fileContents = opts.files[parsed.name];
+          if (isBuffer(fileContents)) {
+            options.body = fileContents;
+          } else if (isFile(fileContents)) {
+            // `Readable.from` isn't available in browsers but the browser `Request` object can handle `File` objects
+            // just fine without us having to mold it into shape.
+            if (isBrowser()) {
+              options.body = fileContents;
+            } else {
+              options.body = Readable.from(fileContents.stream());
+
+              // Supplying a polyfilled `File` stream into `Request.body` doesn't automatically add `Content-Length`.
+              if (!headers.has('content-length')) {
+                headers.set('content-length', fileContents.size);
+              }
+            }
+          }
+        }
+      }
+
+      if (typeof options.body === 'undefined') {
+        options.body = request.postData.text;
+      }
     }
   }
 
@@ -264,7 +305,7 @@ function constructRequest(har, opts = { userAgent: false, files: {}, multipartEn
   return new Request(`${url.split('?')[0]}${querystring ? `?${querystring}` : ''}`, options);
 }
 
-function fetchHar(har, opts = { userAgent: false, files: {}, multipartEncoder: false }) {
+function fetchHar(har, opts = { userAgent: false, files: false, multipartEncoder: false }) {
   return fetch(constructRequest(har, opts));
 }
 

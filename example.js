@@ -42,5 +42,5 @@ const har = {
 };
 
 fetchHar(har)
-  .then(request => request.json())
+  .then(res => res.json())
   .then(console.log);

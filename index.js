@@ -286,14 +286,17 @@ function constructRequest(har, opts = { userAgent: false, files: false, multipar
     }
   }
 
+  // We automaticaly assume that the HAR that we have already has query parameters encoded within it so we do **not**
+  // use the `URLSearchParams` API here for composing the query string.
   if ('queryString' in request && request.queryString.length) {
-    const queryParams = new URL(url).searchParams;
+    const urlObj = new URL(url);
 
+    const queryParams = Array.from(urlObj.searchParams).map(([k, v]) => `${k}=${v}`);
     request.queryString.forEach(q => {
-      queryParams.append(q.name, q.value);
+      queryParams.push(`${q.name}=${q.value}`);
     });
 
-    querystring = queryParams.toString();
+    querystring = queryParams.join('&');
   }
 
   if (opts.userAgent) {

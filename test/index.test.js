@@ -93,6 +93,22 @@ describe('#fetch', function () {
       expect(res.url).to.equal('https://httpbin.org/get?key=value&foo=bar&foo=baz&baz=abc');
     });
 
+    it('should not double encode query parameters', async function () {
+      const res = await fetchHar(harExamples['query-encoded']).then(r => r.json());
+
+      expect(res.args).to.deep.equal({
+        array: ['something&nothing=true', 'nothing&something=false', 'another item'],
+        stringArray: 'where[4]=10',
+        stringHash: 'hash#data',
+        stringPound: 'something&nothing=true',
+        stringWeird: 'properties["$email"] == "testing"',
+      });
+
+      expect(res.url).to.equal(
+        'https://httpbin.org/anything?stringPound=something%26nothing%3Dtrue&stringHash=hash%23data&stringArray=where[4]%3D10&stringWeird=properties["%24email"] %3D%3D "testing"&array=something%26nothing%3Dtrue&array=nothing%26something%3Dfalse&array=another item'
+      );
+    });
+
     it('should support requests with cookies', async function () {
       const res = await fetchHar(harExamples.cookies).then(r => r.json());
 

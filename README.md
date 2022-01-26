@@ -14,16 +14,11 @@ npm install --save fetch-har
 ## Usage
 ```js
 require('isomorphic-fetch');
-const fetchHar = require('.');
 
-// If executing from an environment that dodoesn't normally provide fetch()
-// you'll need to polyfill some APIs in order to make `multipart/form-data`
-// requests.
-if (!globalThis.FormData) {
-  globalThis.Blob = require('formdata-node').Blob;
-  globalThis.File = require('formdata-node').File;
-  globalThis.FormData = require('formdata-node').FormData;
-}
+// If executing from an environment that dodoesn't normally provide `fetch()`
+// we'll automatically polyfill in the `Blob`, `File`, and `FormData` APIs
+// with the optional `formdata-node` package (provided you've installed it).
+const fetchHar = require('.');
 
 const har = {
   log: {
@@ -66,7 +61,7 @@ If you are executing `fetch-har` in a browser environment that supports the [For
 
 Unfortunately the most popular NPM package [form-data](https://npm.im/form-data) ships with a [non-spec compliant API](https://github.com/form-data/form-data/issues/124), and for this we don't recommend you use it, as if you use `fetch-har` to upload files it may not work.
 
-We recommend either [formdata-node](https://npm.im/formdata-node) or [formdata-polyfill](https://npm.im/formdata-polyfill).
+Though we recommend either [formdata-node](https://npm.im/formdata-node) or [formdata-polyfill](https://npm.im/formdata-polyfill) we prefer [formdata-node](https://npm.im/formdata-node) right now as it's CJS-compatible.
 
 #### Options
 ##### userAgent
@@ -89,7 +84,7 @@ await fetchHar(har, { files: {
 If you don't supply this option `fetch-har` will fallback to the data URL present within the supplied HAR. If no `files` option is present, and no data URL (via `param.value`) is present in the HAR, a fatal exception will be thrown.
 
 ##### multipartEncoder
-> ❗ If you are using `fetch-har` in Node you may need this option!
+> ❗ If you are using `fetch-har` in Node you may need this option to execute `multipart/form-data` requests!
 
 If you are running `fetch-har` within a Node environment and you're using `node-fetch@2`, or another `fetch` polyfill that does not support a spec-compliant `FormData` API, you will need to specify an encoder that will transform your `FormData` object into something that can be used with [Request.body](https://developer.mozilla.org/en-US/docs/Web/API/Request/body).
 

@@ -1,14 +1,10 @@
 /* eslint-disable import/no-extraneous-dependencies, no-console */
 require('isomorphic-fetch');
-const fetchHar = require('.');
 
-// If executing from an environment that dodoesn't normally provide fetch() you'll need to polyfill some APIs in order
-// to make `multipart/form-data` requests.
-if (!globalThis.FormData) {
-  globalThis.Blob = require('formdata-node').Blob;
-  globalThis.File = require('formdata-node').File;
-  globalThis.FormData = require('formdata-node').FormData;
-}
+// If executing from an environment that dodoesn't normally provide `fetch()`
+// we'll automatically polyfill in the `Blob`, `File`, and `FormData` APIs
+// with the optional `formdata-node` package (provided you've installed it).
+const fetchHar = require('.');
 
 const har = {
   log: {

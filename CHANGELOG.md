@@ -1,3 +1,25 @@
+## <small>6.0.1 (2022-01-26)</small>
+
+* fix: regression in query parameter handling (#242) ([6c6a147](https://github.com/readmeio/fetch-har/commit/6c6a147)), closes [#242](https://github.com/readmeio/fetch-har/issues/242)
+
+
+
+## <small>6.0.0 (2022-01-25)</small>
+
+> **BREAKING CHANGE**
+>
+> With this release we no longer support the [form-data](https://npm.im/form-data) package as it's handling of `multipart/form-data` is non-compliant with the browser `FormData` API. Please use [formdata-node](https://npm.im/formdata-node) or [formdata-polyfill](https://npm.im/formdata-polyfill) instead.
+>
+> Additionally the optional `userAgent` option has been reworked into a new options object that also supports a new `files` mapping array for augmenting binaries or file uploads within a HAR with a file buffers or the `File` API. See the readme for documentation.
+
+* fix: handling of multipart/form-data requests and how we interact with FormData ([#237](https://github.com/readmeio/fetch-har/pull/237))
+* chore(deps-dev): bumping node-fetch ([#240]((https://github.com/readmeio/fetch-har/pull/240))
+* fix: improper handling of query strings ([#239](https://github.com/readmeio/fetch-har/pull/239))
+* feat: extending the new files option to allow overriding raw binary payloads ([#238](https://github.com/readmeio/fetch-har/pull/238))
+
+
+
+
 ## <small>5.0.5 (2022-01-03)</small>
 
 * chore: removing the publishConfig from the package file ([05df1e7](https://github.com/readmeio/fetch-har/commit/05df1e7))

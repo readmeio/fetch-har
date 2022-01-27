@@ -23,7 +23,7 @@ describe('#fetch', function () {
   });
 
   describe('#constructRequest', function () {
-    it('should convert a HAR object to a HTTP request object', async function () {
+    it('should convert a HAR object to a HTTP request object', function () {
       const request = constructRequest(harExamples.full);
 
       expect(request.url).to.equal('https://httpbin.org/post?key=value&foo=bar&foo=baz&baz=abc');

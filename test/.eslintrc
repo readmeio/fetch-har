@@ -1,10 +1,7 @@
 {
-  "extends": ["plugin:mocha/recommended"],
+  "extends": ["@readme/eslint-config/testing-mocha"],
   "plugins": ["mocha"],
   "rules": {
-    "compat/compat": "off",
-
-    // Disabling this because some Chai assertions trigger it.
-    "no-unused-expressions": "off"
+    "compat/compat": "off"
   }
 }

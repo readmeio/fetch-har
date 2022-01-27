@@ -36,7 +36,7 @@
   "devDependencies": {
     "@jsdevtools/host-environment": "^2.1.2",
     "@jsdevtools/karma-config": "^3.1.7",
-    "@readme/eslint-config": "^8.1.2",
+    "@readme/eslint-config": "^8.2.0",
     "chai": "^4.3.4",
     "eslint": "^8.7.0",
     "eslint-plugin-compat": "^4.0.1",

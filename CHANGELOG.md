@@ -1,3 +1,9 @@
+## <small>6.0.2 (2022-01-27)</small>
+
+* fix: typo in the optional formdata-node package ([d05bcda](https://github.com/readmeio/fetch-har/commit/d05bcda))
+
+
+
 ## <small>6.0.1 (2022-01-26)</small>
 
 * fix: regression in query parameter handling (#242) ([6c6a147](https://github.com/readmeio/fetch-har/commit/6c6a147)), closes [#242](https://github.com/readmeio/fetch-har/issues/242)

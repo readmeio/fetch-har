@@ -15,7 +15,7 @@ npm install --save fetch-har
 ```js
 require('isomorphic-fetch');
 
-// If executing from an environment that dodoesn't normally provide `fetch()`
+// If executing from an environment that doesn't normally provide `fetch()`
 // we'll automatically polyfill in the `Blob`, `File`, and `FormData` APIs
 // with the optional `formdata-node` package (provided you've installed it).
 const fetchHar = require('.');

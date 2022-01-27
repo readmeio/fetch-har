@@ -23,6 +23,17 @@ if (!globalThis.File) {
   }
 }
 
+if (!globalThis.FormData) {
+  try {
+    // eslint-disable-next-line import/no-extraneous-dependencies
+    globalThis.FormData = require('formdata-node').FormData;
+  } catch (e) {
+    throw new Error(
+      'Since you do not have the FormData API available in this environment you must install the optional `formdata-node` dependency.'
+    );
+  }
+}
+
 function isBrowser() {
   return typeof window !== 'undefined' && typeof document !== 'undefined';
 }

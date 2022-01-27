@@ -1,3 +1,9 @@
+## 6.1.0 (2022-01-27)
+
+* feat: automatically polyfilling FormData with formdata-node if present (#241) ([da94dfc](https://github.com/readmeio/fetch-har/commit/da94dfc)), closes [#241](https://github.com/readmeio/fetch-har/issues/241)
+
+
+
 ## <small>6.0.2 (2022-01-27)</small>
 
 * fix: typo in the optional formdata-node package ([d05bcda](https://github.com/readmeio/fetch-har/commit/d05bcda))

@@ -40,7 +40,6 @@
     "chai": "^4.3.4",
     "eslint": "^8.7.0",
     "eslint-plugin-compat": "^4.0.1",
-    "eslint-plugin-mocha": "^10.0.3",
     "form-data": "^4.0.0",
     "form-data-encoder": "^1.7.1",
     "formdata-node": "^4.3.2",

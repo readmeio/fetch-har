@@ -320,7 +320,15 @@ function constructRequest(har, opts = { userAgent: false, files: false, multipar
 }
 
 function fetchHar(har, opts = { userAgent: false, files: false, multipartEncoder: false }) {
-  return fetch(constructRequest(har, opts));
+  // Though supplying `constructRequest` directly into `fetch` is perfectly fine, Nock doesn't
+  // currently work on Node 18, and in order to mock requests with this library on Node 18 you need
+  // to use `fetch-mock`, and `fetch-mock` isn't able to understand us supplying `Request` directly
+  // into `fetch`.
+  //
+  // https://github.com/nock/nock/issues/2336
+  // https://github.com/wheresrhys/fetch-mock/issues/156
+  const req = constructRequest(har, opts);
+  return fetch(req.url, req);
 }
 
 module.exports = fetchHar;

@@ -1,3 +1,30 @@
+## 7.0.0 (2022-04-26)
+
+> **BREAKING CHANGE**
+>
+> Node 12 is no longer supported with this release.
+
+* chore: removing some docs from the repo now that they're in our .github/ repo ([86035f0](https://github.com/readmeio/fetch-har/commit/86035f0))
+* chore(deps-dev): bump chai from 4.3.4 to 4.3.6 (#247) ([e32e3b1](https://github.com/readmeio/fetch-har/commit/e32e3b1)), closes [#247](https://github.com/readmeio/fetch-har/issues/247)
+* chore(deps-dev): bump eslint from 8.11.0 to 8.12.0 (#258) ([86a2706](https://github.com/readmeio/fetch-har/commit/86a2706)), closes [#258](https://github.com/readmeio/fetch-har/issues/258)
+* chore(deps-dev): bump eslint from 8.7.0 to 8.8.0 (#246) ([1dc64b6](https://github.com/readmeio/fetch-har/commit/1dc64b6)), closes [#246](https://github.com/readmeio/fetch-har/issues/246)
+* chore(deps-dev): bump eslint-plugin-compat from 4.0.1 to 4.0.2 (#245) ([71626b1](https://github.com/readmeio/fetch-har/commit/71626b1)), closes [#245](https://github.com/readmeio/fetch-har/issues/245)
+* chore(deps-dev): bump form-data-encoder from 1.7.1 to 1.7.2 (#262) ([c56238e](https://github.com/readmeio/fetch-har/commit/c56238e)), closes [#262](https://github.com/readmeio/fetch-har/issues/262)
+* chore(deps-dev): bump mocha from 9.1.4 to 9.2.0 (#248) ([80b677e](https://github.com/readmeio/fetch-har/commit/80b677e)), closes [#248](https://github.com/readmeio/fetch-har/issues/248)
+* chore(deps-dev): bump prettier from 2.6.0 to 2.6.1 (#261) ([74022ed](https://github.com/readmeio/fetch-har/commit/74022ed)), closes [#261](https://github.com/readmeio/fetch-har/issues/261)
+* chore(deps-dev): bumping out of date dev deps ([9c6c07f](https://github.com/readmeio/fetch-har/commit/9c6c07f))
+* chore(deps-dev): bumping out of date dev deps (#256) ([f85da13](https://github.com/readmeio/fetch-har/commit/f85da13)), closes [#256](https://github.com/readmeio/fetch-har/issues/256)
+* chore(deps-dev): removing eslint-plugin-mocha as a hard devdep (#244) ([e21fc15](https://github.com/readmeio/fetch-har/commit/e21fc15)), closes [#244](https://github.com/readmeio/fetch-har/issues/244)
+* chore(deps-dev): upgrading our eslint config to pull in the new mocha config (#243) ([79c4348](https://github.com/readmeio/fetch-har/commit/79c4348)), closes [#243](https://github.com/readmeio/fetch-har/issues/243)
+* chore(deps): bump actions/cache from 2 to 3.0.1 (#259) ([68f506b](https://github.com/readmeio/fetch-har/commit/68f506b)), closes [#259](https://github.com/readmeio/fetch-har/issues/259)
+* chore(deps): bump actions/checkout from 2 to 3 (#260) ([08a76a0](https://github.com/readmeio/fetch-har/commit/08a76a0)), closes [#260](https://github.com/readmeio/fetch-har/issues/260)
+* chore(deps): bump follow-redirects from 1.14.7 to 1.14.8 (#250) ([239b437](https://github.com/readmeio/fetch-har/commit/239b437)), closes [#250](https://github.com/readmeio/fetch-har/issues/250)
+* chore(deps): bump minimist from 1.2.5 to 1.2.6 (#257) ([b29ec68](https://github.com/readmeio/fetch-har/commit/b29ec68)), closes [#257](https://github.com/readmeio/fetch-har/issues/257)
+* feat: adding support for node 18 (#263) ([c83dd79](https://github.com/readmeio/fetch-har/commit/c83dd79)), closes [#263](https://github.com/readmeio/fetch-har/issues/263)
+* docs: fixing a typo ([c247ceb](https://github.com/readmeio/fetch-har/commit/c247ceb))
+
+
+
 ## 6.1.0 (2022-01-27)
 
 * feat: automatically polyfilling FormData with formdata-node if present (#241) ([da94dfc](https://github.com/readmeio/fetch-har/commit/da94dfc)), closes [#241](https://github.com/readmeio/fetch-har/issues/241)

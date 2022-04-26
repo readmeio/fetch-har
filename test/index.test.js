@@ -23,7 +23,7 @@ describe('#fetch', function () {
   });
 
   describe('#constructRequest', function () {
-    it('should convert a HAR object to a HTTP request object', function () {
+    it('should convert a HAR object to a HTTP request object', async function () {
       const request = constructRequest(harExamples.full);
 
       expect(request.url).to.equal('https://httpbin.org/post?key=value&foo=bar&foo=baz&baz=abc');
@@ -45,7 +45,16 @@ describe('#fetch', function () {
       // Inspecting `Request.body` isn't supported in most browsers right now.
       // https://developer.mozilla.org/en-US/docs/Web/API/Request/body
       if (host.node) {
-        expect(request.body.toString()).to.equal('foo=bar');
+        // The `Request` object in Node 18 has `body` returning a `ReadableStream` (which is
+        // spec-compliant), whereas `node-fetch` returns it as a `Buffer`. Accordingly,
+        // `ReadableStream` was only introduced in Node 16 so if it doesn't exist here then we also
+        // don't want to fail.
+        if (typeof ReadableStream !== 'undefined' && request.body instanceof ReadableStream) {
+          const res = await new Response(request.body).text();
+          expect(res).to.equal('foo=bar');
+        } else {
+          expect(request.body.toString()).to.equal('foo=bar');
+        }
       }
     });
   });

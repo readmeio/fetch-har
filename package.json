@@ -18,7 +18,8 @@
     "test:browser": "karma start --single-run",
     "test:browser:chrome": "karma start --browsers=Chrome --single-run=false",
     "test:browser:debug": "karma start --single-run=false",
-    "test": "nyc mocha \"test/**/*.test.ts\""
+    "test": "nyc mocha \"test/**/*.test.ts\"",
+    "test:only": "nyc mocha \"test/**/*.test.ts\""
   },
   "repository": {
     "type": "git",

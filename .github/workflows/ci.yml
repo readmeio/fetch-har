@@ -73,7 +73,7 @@ jobs:
 
       - run: npm ci
       - run: npm run build
-      - run: npx mocha
+      - run: npm run test:only
 
   browser_tests:
     name: Browser

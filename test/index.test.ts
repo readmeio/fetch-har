@@ -16,8 +16,11 @@ import { host } from '@jsdevtools/host-environment';
  * This behavior also extends to Undici's usage of `Blob` as well where the `Blob` that ships with
  * `formdata-node` behaves differently than the `Blob` that is part of the Node `buffer` module,
  * which Undici wants you to use.
+ *
+ * This code will only be loaded if we're running this test within a Node environment as `NODE_ENV`
+ * is set to `production` when we run tests through Karma.
  */
-if (host.node) {
+if (process.env.NODE_ENV !== 'production') {
   if (!globalThis.File) {
     globalThis.FormData = require('formdata-node').FormData;
   }

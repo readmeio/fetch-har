@@ -1,9 +1,17 @@
 # fetch-har
-[![CI](https://github.com/readmeio/fetch-har/workflows/CI/badge.svg)](https://github.com/readmeio/fetch-har)
-
 Make a [fetch](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API) request from a HAR definition.
 
+[![CI](https://github.com/readmeio/fetch-har/workflows/CI/badge.svg)](https://github.com/readmeio/fetch-har/)
+[![](https://img.shields.io/npm/v/fetch-har)](https://npm.im/fetch-har)
+[![License](https://img.shields.io/npm/l/fetch-har.svg)](LICENSE)
+
 [![](https://d3vv6lp55qjaqc.cloudfront.net/items/1M3C3j0I0s0j3T362344/Untitled-2.png)](https://readme.io)
+
+## Features
+
+- Supports Node 14+ (including the native `fetch` implementation in Node 18!).
+- Natively works in all browsers that support [fetch](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API) without having to use any polyfils.
+- [Tested](https://github.com/readmeio/fetch-har/actions) across Chrome, Safari, Firefox on Mac, Windows, and Linux.
 
 ## Installation
 
@@ -18,7 +26,7 @@ require('isomorphic-fetch');
 // If executing from an environment that doesn't normally provide `fetch()`
 // we'll automatically polyfill in the `Blob`, `File`, and `FormData` APIs
 // with the optional `formdata-node` package (provided you've installed it).
-const fetchHar = require('.');
+const fetchHar = require('.').default;
 
 const har = {
   log: {

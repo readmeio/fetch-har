@@ -1,9 +1,10 @@
-const { Readable } = require('readable-stream');
-const parseDataUrl = require('parse-data-url');
+import type { Har } from 'har-format';
+import { Readable } from 'readable-stream';
+import parseDataUrl from 'parse-data-url';
 
 if (!globalThis.Blob) {
   try {
-    // eslint-disable-next-line import/no-extraneous-dependencies
+    // eslint-disable-next-line @typescript-eslint/no-var-requires, import/no-extraneous-dependencies
     globalThis.Blob = require('formdata-node').Blob;
   } catch (e) {
     throw new Error(
@@ -14,7 +15,7 @@ if (!globalThis.Blob) {
 
 if (!globalThis.File) {
   try {
-    // eslint-disable-next-line import/no-extraneous-dependencies
+    // eslint-disable-next-line @typescript-eslint/no-var-requires, import/no-extraneous-dependencies
     globalThis.File = require('formdata-node').File;
   } catch (e) {
     throw new Error(
@@ -25,7 +26,7 @@ if (!globalThis.File) {
 
 if (!globalThis.FormData) {
   try {
-    // eslint-disable-next-line import/no-extraneous-dependencies
+    // eslint-disable-next-line @typescript-eslint/no-var-requires, import/no-extraneous-dependencies
     globalThis.FormData = require('formdata-node').FormData;
   } catch (e) {
     throw new Error(
@@ -34,15 +35,27 @@ if (!globalThis.FormData) {
   }
 }
 
+type FetchHAROptions = {
+  userAgent?: string;
+  files?: Record<string, Blob | Buffer>;
+  multipartEncoder?: any; // form-data-encoder
+};
+
+type DataURL = parseDataUrl.DataUrl & {
+  // `parse-data-url` doesn't explicitly support `name` data URLs, but if it's there it'll be
+  // returned.
+  name?: string;
+};
+
 function isBrowser() {
   return typeof window !== 'undefined' && typeof document !== 'undefined';
 }
 
-function isBuffer(value) {
+function isBuffer(value: any) {
   return typeof Buffer !== 'undefined' && Buffer.isBuffer(value);
 }
 
-function isFile(value) {
+function isFile(value: any) {
   if (value instanceof File) {
     // The `Blob` polyfill on Node comes back as being an instanceof `File`. Because passing a Blob into
     // a File will end up with a corrupted file we want to prevent this.
@@ -58,7 +71,7 @@ function isFile(value) {
  * @license MIT
  * @see {@link https://github.com/octet-stream/form-data-encoder/blob/master/lib/util/isFunction.ts}
  */
-function isFunction(value) {
+function isFunction(value: any) {
   return typeof value === 'function';
 }
 
@@ -69,19 +82,19 @@ function isFunction(value) {
  * @license MIT
  * @see {@link https://github.com/octet-stream/form-data-encoder/blob/master/lib/util/isFormData.ts}
  */
-function isFormData(value) {
+function isFormData(value: any) {
   return (
     value &&
     isFunction(value.constructor) &&
-    value[Symbol.toStringTag] === 'FormData' && // eslint-disable-line compat/compat
+    value[Symbol.toStringTag] === 'FormData' &&
     isFunction(value.append) &&
     isFunction(value.getAll) &&
     isFunction(value.entries) &&
-    isFunction(value[Symbol.iterator]) // eslint-disable-line compat/compat
+    isFunction(value[Symbol.iterator])
   );
 }
 
-function constructRequest(har, opts = { userAgent: false, files: false, multipartEncoder: false }) {
+export default function fetchHar(har: Har, opts: FetchHAROptions = {}) {
   if (!har) throw new Error('Missing HAR definition');
   if (!har.log || !har.log.entries || !har.log.entries.length) throw new Error('Missing log.entries array');
 
@@ -90,7 +103,7 @@ function constructRequest(har, opts = { userAgent: false, files: false, multipar
   let querystring = '';
 
   const headers = new Headers();
-  const options = {
+  const req: RequestInit = {
     method: request.method,
   };
 
@@ -116,7 +129,7 @@ function constructRequest(har, opts = { userAgent: false, files: false, multipar
         document.cookie = `${encodeURIComponent(cookie.name)}=${encodeURIComponent(cookie.value)}`;
       });
 
-      options.credentials = 'include';
+      req.credentials = 'include';
     } else {
       headers.append(
         'cookie',
@@ -130,6 +143,7 @@ function constructRequest(har, opts = { userAgent: false, files: false, multipar
   if ('postData' in request) {
     if ('params' in request.postData) {
       if (!('mimeType' in request.postData)) {
+        // @ts-expect-error HAR spec requires that `mimeType` is always present but it might not be.
         request.postData.mimeType = 'application/octet-stream';
       }
 
@@ -145,7 +159,7 @@ function constructRequest(har, opts = { userAgent: false, files: false, multipar
           const encodedParams = new URLSearchParams();
           request.postData.params.forEach(param => encodedParams.set(param.name, param.value));
 
-          options.body = encodedParams.toString();
+          req.body = encodedParams.toString();
           break;
 
         case 'multipart/alternative':
@@ -203,7 +217,7 @@ function constructRequest(har, opts = { userAgent: false, files: false, multipar
 
                   return;
                 } else if (isFile(fileContents)) {
-                  form.set(param.name, fileContents, param.fileName);
+                  form.set(param.name, fileContents as Blob, param.fileName);
                   return;
                 }
 
@@ -245,14 +259,15 @@ function constructRequest(har, opts = { userAgent: false, files: false, multipar
               headers.set(header, encoder.headers[header]);
             });
 
-            options.body = Readable.from(encoder);
+            // @ts-expect-error "Property 'from' does not exist on type 'typeof Readable'." but it does!
+            req.body = Readable.from(encoder);
           } else {
-            options.body = form;
+            req.body = form;
           }
           break;
 
         default:
-          const formBody = {};
+          const formBody: Record<string, unknown> = {};
           request.postData.params.map(param => {
             try {
               formBody[param.name] = JSON.parse(param.value);
@@ -263,36 +278,39 @@ function constructRequest(har, opts = { userAgent: false, files: false, multipar
             return true;
           });
 
-          options.body = JSON.stringify(formBody);
+          req.body = JSON.stringify(formBody);
       }
     } else if (request.postData.text.length) {
       // If we've got `files` map content present, and this post data content contains a valid data URL then we can
       // substitute the payload with that file instead of the using data URL.
       if (opts.files) {
-        const parsed = parseDataUrl(request.postData.text);
-        if (parsed && 'name' in parsed && parsed.name in opts.files) {
-          const fileContents = opts.files[parsed.name];
-          if (isBuffer(fileContents)) {
-            options.body = fileContents;
-          } else if (isFile(fileContents)) {
-            // `Readable.from` isn't available in browsers but the browser `Request` object can handle `File` objects
-            // just fine without us having to mold it into shape.
-            if (isBrowser()) {
-              options.body = fileContents;
-            } else {
-              options.body = Readable.from(fileContents.stream());
+        const parsed = parseDataUrl(request.postData.text) as DataURL;
+        if (parsed) {
+          if (parsed?.name && parsed.name in opts.files) {
+            const fileContents = opts.files[parsed.name];
+            if (isBuffer(fileContents)) {
+              req.body = fileContents;
+            } else if (isFile(fileContents)) {
+              // `Readable.from` isn't available in browsers but the browser `Request` object can handle `File` objects
+              // just fine without us having to mold it into shape.
+              if (isBrowser()) {
+                req.body = fileContents;
+              } else {
+                // @ts-expect-error "Property 'from' does not exist on type 'typeof Readable'." but it does!
+                req.body = Readable.from((fileContents as File).stream());
 
-              // Supplying a polyfilled `File` stream into `Request.body` doesn't automatically add `Content-Length`.
-              if (!headers.has('content-length')) {
-                headers.set('content-length', fileContents.size);
+                // Supplying a polyfilled `File` stream into `Request.body` doesn't automatically add `Content-Length`.
+                if (!headers.has('content-length')) {
+                  headers.set('content-length', String((fileContents as File).size));
+                }
               }
             }
           }
         }
       }
 
-      if (typeof options.body === 'undefined') {
-        options.body = request.postData.text;
+      if (typeof req.body === 'undefined') {
+        req.body = request.postData.text;
       }
     }
   }
@@ -314,22 +332,7 @@ function constructRequest(har, opts = { userAgent: false, files: false, multipar
     headers.append('User-Agent', opts.userAgent);
   }
 
-  options.headers = headers;
+  req.headers = headers;
 
-  return new Request(`${url.split('?')[0]}${querystring ? `?${querystring}` : ''}`, options);
+  return fetch(`${url.split('?')[0]}${querystring ? `?${querystring}` : ''}`, req);
 }
-
-function fetchHar(har, opts = { userAgent: false, files: false, multipartEncoder: false }) {
-  // Though supplying `constructRequest` directly into `fetch` is perfectly fine, Nock doesn't
-  // currently work on Node 18, and in order to mock requests with this library on Node 18 you need
-  // to use `fetch-mock`, and `fetch-mock` isn't able to understand us supplying `Request` directly
-  // into `fetch`.
-  //
-  // https://github.com/nock/nock/issues/2336
-  // https://github.com/wheresrhys/fetch-mock/issues/156
-  const req = constructRequest(har, opts);
-  return fetch(req.url, req);
-}
-
-module.exports = fetchHar;
-module.exports.constructRequest = constructRequest;

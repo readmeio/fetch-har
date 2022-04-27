@@ -1,29 +1,61 @@
-require('isomorphic-fetch');
+/* eslint-disable @typescript-eslint/no-var-requires */
+/* eslint-disable import/first */
+import type { VersionInfo } from '@jsdevtools/host-environment';
+import 'isomorphic-fetch';
+import { host } from '@jsdevtools/host-environment';
 
-const fs = require('fs').promises;
-const { expect } = require('chai');
-const fetchHar = require('..');
-const { Blob: BlobPolyfill, File: FilePolyfill } = require('formdata-node');
-const harExamples = require('har-examples');
-const { FormDataEncoder } = require('form-data-encoder');
+/**
+ * Under Node 18's native `fetch` implementation if a `File` global doesn't exist it'll polyfill
+ * its own implementation. Normally this works fine, but its implementation is **different**
+ * than the one that `formdata-node` ships and when we use the `formdata-node` one under Node 18
+ * `type` options that we set into `File` instances don't get picked up, resulting in multipart
+ * payloads being sent as `application/octet-stream` instead of whatever content type was attached
+ * to that file.
+ *
+ * This behavior also extends to Undici's usage of `Blob` as well where the `Blob` that ships with
+ * `formdata-node` behaves differently than the `Blob` that is part of the Node `buffer` module,
+ * which Undici wants you to use.
+ */
+const isNode18 = (host.node as VersionInfo).version >= 18;
+if (isNode18) {
+  globalThis.File = require('undici').File;
+  globalThis.Blob = require('buffer').Blob;
+} else {
+  globalThis.File = require('formdata-node').File;
+  globalThis.Blob = require('formdata-node').Blob;
+}
 
-const owlbertDataURL = require('./fixtures/owlbert.dataurl.json');
-const owlbertShrubDataURL = require('./fixtures/owlbert-shrub.dataurl.json');
+import { promises as fs } from 'fs';
+import { expect } from 'chai';
+import fetchHar from '../src';
+import harExamples from 'har-examples';
+import { FormDataEncoder } from 'form-data-encoder';
+
+import owlbertDataURL from './fixtures/owlbert.dataurl.json';
+import owlbertShrubDataURL from './fixtures/owlbert-shrub.dataurl.json';
 
 describe('#fetch (Node-only quirks)', function () {
   beforeEach(function () {
-    globalThis.FormData = require('formdata-node').FormData;
-
-    globalThis.Blob = BlobPolyfill;
-    globalThis.File = FilePolyfill;
+    if (!isNode18) {
+      // We only need to polyfill handlers for `multipart/form-data` requests below Node 18 as Node
+      // 18 natively supports `fetch`.
+      if (!globalThis.FormData) {
+        globalThis.FormData = require('formdata-node').FormData;
+      }
+    }
   });
 
   it('should throw if you are using a non-compliant FormData polyfill', function () {
+    const ogFormData = globalThis.FormData;
     globalThis.FormData = require('form-data');
 
     expect(() => {
       fetchHar(harExamples['multipart-form-data']);
     }).to.throw("We've detected you're using a non-spec compliant FormData library.");
+
+    // Reset this to whatever it was originally so we don't corrupt any Node 18+ tests that use a
+    // native `FormData` API.
+    globalThis.FormData = ogFormData;
   });
 
   describe('binary handling', function () {
@@ -79,9 +111,12 @@ describe('#fetch (Node-only quirks)', function () {
       });
 
       it("should ignore a `files` mapping override if it's neither a Buffer or a File", async function () {
-        const res = await fetchHar(harExamples['image-png'], { files: { 'owlbert.png': 'owlbert.png' } }).then(r =>
-          r.json()
-        );
+        const res = await fetchHar(harExamples['image-png'], {
+          files: {
+            // @ts-expect-error This is intentionally testing a case of mistyping.
+            'owlbert.png': 'owlbert.png',
+          },
+        }).then(r => r.json());
 
         expect(res.data).to.equal(harExamples['image-png'].log.entries[0].request.postData.text);
       });
@@ -105,7 +140,14 @@ describe('#fetch (Node-only quirks)', function () {
       );
 
       expect(res.files).to.deep.equal({ foo: 'Hello World' });
-      expect(parseInt(res.headers['Content-Length'], 10)).to.equal(189);
+      if (isNode18) {
+        // The Node 18+ native `fetch` implementation adds more content into the payload but the
+        // ultimate result is still the same. 🤷‍♂️
+        expect(parseInt(res.headers['Content-Length'], 10)).to.equal(203);
+      } else {
+        expect(parseInt(res.headers['Content-Length'], 10)).to.equal(189);
+      }
+
       expect(res.headers['Content-Type']).to.match(/^multipart\/form-data; boundary=(.*)$/);
     });
 
@@ -149,8 +191,12 @@ describe('#fetch (Node-only quirks)', function () {
           r => r.json()
         );
 
+        // The Node 18+ native `fetch` implementation adds more content into the payload but the
+        // ultimate result is still the same. 🤷‍♂️
+        const expectedContentLength = isNode18 ? 769 : 754;
+
         expect(res.files).to.deep.equal({ foo: owlbertDataURL });
-        expect(parseInt(res.headers['Content-Length'], 10)).to.equal(754);
+        expect(parseInt(res.headers['Content-Length'], 10)).to.equal(expectedContentLength);
         expect(res.headers['Content-Type']).to.match(/^multipart\/form-data; boundary=form-data-boundary-(.*)$/);
       });
 
@@ -168,7 +214,11 @@ describe('#fetch (Node-only quirks)', function () {
           foo: owlbertDataURL.replace('owlbert.png', encodeURIComponent('owlbert (1).png')),
         });
 
-        expect(parseInt(res.headers['Content-Length'], 10)).to.equal(764);
+        // The Node 18+ native `fetch` implementation adds more content into the payload but the
+        // ultimate result is still the same. 🤷‍♂️
+        const expectedContentLength = isNode18 ? 779 : 764;
+        expect(parseInt(res.headers['Content-Length'], 10)).to.equal(expectedContentLength);
+
         expect(res.headers['Content-Type']).to.match(/^multipart\/form-data; boundary=form-data-boundary-(.*)$/);
       });
     });

@@ -1,64 +1,47 @@
-require('isomorphic-fetch');
+/* eslint-disable @typescript-eslint/no-var-requires */
+/* eslint-disable import/first */
+import type { VersionInfo } from '@jsdevtools/host-environment';
+import type { Har } from 'har-format';
+import 'isomorphic-fetch';
+import { host } from '@jsdevtools/host-environment';
 
-const { host } = require('@jsdevtools/host-environment');
-const { expect } = require('chai');
-const fetchHar = require('..');
-const { constructRequest } = require('..');
-const { Blob: BlobPolyfill, File: FilePolyfill } = require('formdata-node');
-const harExamples = require('har-examples');
+/**
+ * Under Node 18's native `fetch` implementation if a `File` global doesn't exist it'll polyfill
+ * its own implementation. Normally this works fine, but its implementation is **different**
+ * than the one that `formdata-node` ships and when we use the `formdata-node` one under Node 18
+ * `type` options that we set into `File` instances don't get picked up, resulting in multipart
+ * payloads being sent as `application/octet-stream` instead of whatever content type was attached
+ * to that file.
+ *
+ * This behavior also extends to Undici's usage of `Blob` as well where the `Blob` that ships with
+ * `formdata-node` behaves differently than the `Blob` that is part of the Node `buffer` module,
+ * which Undici wants you to use.
+ */
+if (host.node) {
+  if (!globalThis.File) {
+    globalThis.FormData = require('formdata-node').FormData;
+  }
 
-const owlbertDataURL = require('./fixtures/owlbert.dataurl.json');
+  const isNode18 = (host.node as VersionInfo).version >= 18;
+  if (isNode18) {
+    globalThis.File = require('undici').File;
+    globalThis.Blob = require('buffer').Blob;
+  } else {
+    globalThis.File = require('formdata-node').File;
+    globalThis.Blob = require('formdata-node').Blob;
+  }
+}
 
-const invalidHeadersHAR = require('./fixtures/invalid-headers.har.json');
-const urlEncodedWithAuthHAR = require('./fixtures/urlencoded-with-auth.har.json');
+import { expect } from 'chai';
+import fetchHar from '../src';
+import harExamples from 'har-examples';
+
+import owlbertDataURL from './fixtures/owlbert.dataurl.json';
+
+import invalidHeadersHAR from './fixtures/invalid-headers.har.json';
+import urlEncodedWithAuthHAR from './fixtures/urlencoded-with-auth.har.json';
 
 describe('#fetch', function () {
-  beforeEach(function () {
-    if (host.node) {
-      globalThis.FormData = require('formdata-node').FormData;
-
-      globalThis.Blob = BlobPolyfill;
-      globalThis.File = FilePolyfill;
-    }
-  });
-
-  describe('#constructRequest', function () {
-    it('should convert a HAR object to a HTTP request object', async function () {
-      const request = constructRequest(harExamples.full);
-
-      expect(request.url).to.equal('https://httpbin.org/post?key=value&foo=bar&foo=baz&baz=abc');
-      expect(request.method).to.equal('POST');
-
-      if (host.node) {
-        expect(Array.from(request.headers)).to.deep.equal([
-          ['accept', 'application/json'],
-          ['content-type', 'application/x-www-form-urlencoded'],
-          ['cookie', 'foo=bar; bar=baz'],
-        ]);
-      } else {
-        expect(Array.from(request.headers)).to.deep.equal([
-          ['accept', 'application/json'],
-          ['content-type', 'application/x-www-form-urlencoded'],
-        ]);
-      }
-
-      // Inspecting `Request.body` isn't supported in most browsers right now.
-      // https://developer.mozilla.org/en-US/docs/Web/API/Request/body
-      if (host.node) {
-        // The `Request` object in Node 18 has `body` returning a `ReadableStream` (which is
-        // spec-compliant), whereas `node-fetch` returns it as a `Buffer`. Accordingly,
-        // `ReadableStream` was only introduced in Node 16 so if it doesn't exist here then we also
-        // don't want to fail.
-        if (typeof ReadableStream !== 'undefined' && request.body instanceof ReadableStream) {
-          const res = await new Response(request.body).text();
-          expect(res).to.equal('foo=bar');
-        } else {
-          expect(request.body.toString()).to.equal('foo=bar');
-        }
-      }
-    });
-  });
-
   it('should throw if it looks like you are missing a valid HAR definition', function () {
     expect(fetchHar).to.throw('Missing HAR definition');
     expect(fetchHar.bind(null, { log: {} })).to.throw('Missing log.entries array');
@@ -67,8 +50,8 @@ describe('#fetch', function () {
 
   it('should make a request with a custom user agent if specified', async function () {
     if (!host.node) {
-      this.skip('Custom user agents are not supported in browser environments.');
-      return;
+      // Custom user agents are not supported in browser environments.
+      this.skip();
     }
 
     const res = await fetchHar(harExamples.short, { userAgent: 'test-app/1.0' }).then(r => r.json());
@@ -76,7 +59,7 @@ describe('#fetch', function () {
   });
 
   it('should catch and toss invalid headers present in a HAR', async function () {
-    const res = await fetchHar(invalidHeadersHAR).then(r => r.json());
+    const res = await fetchHar(invalidHeadersHAR as Har).then(r => r.json());
     expect(res.headers['X-Api-Key']).to.equal('asdf1234');
     expect(res.headers['X-Api-Key (invalid)']).to.be.undefined;
   });
@@ -137,7 +120,7 @@ describe('#fetch', function () {
     });
 
     it('should support `application/x-www-form-urlencoded` requests with auth', async function () {
-      const res = await fetchHar(urlEncodedWithAuthHAR).then(r => r.json());
+      const res = await fetchHar(urlEncodedWithAuthHAR as unknown as Har).then(r => r.json());
 
       expect(res.args).to.deep.equal({ a: '1', b: '2' });
       expect(res.data).to.equal('');
@@ -160,7 +143,7 @@ describe('#fetch', function () {
       expect(parseInt(res.headers['Content-Length'], 10)).to.equal(7);
       expect(res.headers['Content-Type']).to.equal('application/x-www-form-urlencoded');
 
-      // @todo we should mock this request instead
+      // We can't set cookies in the browser within this test environment.
       if (host.node) {
         expect(res.headers.Cookie).to.equal('foo=bar; bar=baz');
       }

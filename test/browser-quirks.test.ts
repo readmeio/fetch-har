@@ -1,17 +1,18 @@
-require('isomorphic-fetch');
+import 'isomorphic-fetch';
 
-const { host } = require('@jsdevtools/host-environment');
-const { expect } = require('chai');
-const fetchHar = require('..');
-const harExamples = require('har-examples');
+import { host } from '@jsdevtools/host-environment';
+import { expect } from 'chai';
+import fetchHar from '../src';
+import harExamples from 'har-examples';
 
-const owlbert = require('./fixtures/owlbert.dataurl.json');
-const owlbertShrubDataURL = require('./fixtures/owlbert-shrub.dataurl.json');
+import owlbert from './fixtures/owlbert.dataurl.json';
+import owlbertShrubDataURL from './fixtures/owlbert-shrub.dataurl.json';
 
 describe('#fetch (Browser-only quirks)', function () {
   beforeEach(function () {
     if (host.node) {
-      this.skip('This test suite should only run in the browser.');
+      // This test suite should only run in the browser.
+      this.skip();
     }
   });
 

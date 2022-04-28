@@ -73,7 +73,7 @@ jobs:
 
       - run: npm ci
       - run: npm run build
-      - run: npm run test:only
+      - run: npm run test --ignore-scripts
 
   browser_tests:
     name: Browser

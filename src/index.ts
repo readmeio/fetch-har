@@ -103,20 +103,20 @@ export default function fetchHAR(har: Har, opts: FetchHAROptions = {}) {
   const { url } = request;
   let querystring = '';
 
-  const req: RequestInit = {
+  const options: RequestInit = {
     // If we have custom options for the `Request` API we need to add them in here now before we
     // fill it in with everything we need from the HAR.
     ...(opts.init ? opts.init : {}),
     method: request.method,
   };
 
-  if (!req.headers) {
-    req.headers = new Headers();
-  } else if (typeof req.headers === 'object' && !(req.headers instanceof Headers) && req.headers !== null) {
-    req.headers = new Headers(req.headers);
+  if (!options.headers) {
+    options.headers = new Headers();
+  } else if (typeof options.headers === 'object' && !(options.headers instanceof Headers) && options.headers !== null) {
+    options.headers = new Headers(options.headers);
   }
 
-  const headers = req.headers as Headers;
+  const headers = options.headers as Headers;
   if ('headers' in request && request.headers.length) {
     // eslint-disable-next-line consistent-return
     request.headers.forEach(header => {
@@ -139,7 +139,7 @@ export default function fetchHAR(har: Har, opts: FetchHAROptions = {}) {
         document.cookie = `${encodeURIComponent(cookie.name)}=${encodeURIComponent(cookie.value)}`;
       });
 
-      req.credentials = 'include';
+      options.credentials = 'include';
     } else {
       headers.append(
         'cookie',
@@ -169,7 +169,7 @@ export default function fetchHAR(har: Har, opts: FetchHAROptions = {}) {
           const encodedParams = new URLSearchParams();
           request.postData.params.forEach(param => encodedParams.set(param.name, param.value));
 
-          req.body = encodedParams.toString();
+          options.body = encodedParams.toString();
           break;
 
         case 'multipart/alternative':
@@ -270,9 +270,9 @@ export default function fetchHAR(har: Har, opts: FetchHAROptions = {}) {
             });
 
             // @ts-expect-error "Property 'from' does not exist on type 'typeof Readable'." but it does!
-            req.body = Readable.from(encoder);
+            options.body = Readable.from(encoder);
           } else {
-            req.body = form;
+            options.body = form;
           }
           break;
 
@@ -288,7 +288,7 @@ export default function fetchHAR(har: Har, opts: FetchHAROptions = {}) {
             return true;
           });
 
-          req.body = JSON.stringify(formBody);
+          options.body = JSON.stringify(formBody);
       }
     } else if (request.postData.text.length) {
       // If we've got `files` map content present, and this post data content contains a valid data URL then we can
@@ -299,15 +299,15 @@ export default function fetchHAR(har: Har, opts: FetchHAROptions = {}) {
           if (parsed?.name && parsed.name in opts.files) {
             const fileContents = opts.files[parsed.name];
             if (isBuffer(fileContents)) {
-              req.body = fileContents;
+              options.body = fileContents;
             } else if (isFile(fileContents)) {
               // `Readable.from` isn't available in browsers but the browser `Request` object can handle `File` objects
               // just fine without us having to mold it into shape.
               if (isBrowser()) {
-                req.body = fileContents;
+                options.body = fileContents;
               } else {
                 // @ts-expect-error "Property 'from' does not exist on type 'typeof Readable'." but it does!
-                req.body = Readable.from((fileContents as File).stream());
+                options.body = Readable.from((fileContents as File).stream());
 
                 // Supplying a polyfilled `File` stream into `Request.body` doesn't automatically add `Content-Length`.
                 if (!headers.has('content-length')) {
@@ -319,8 +319,8 @@ export default function fetchHAR(har: Har, opts: FetchHAROptions = {}) {
         }
       }
 
-      if (typeof req.body === 'undefined') {
-        req.body = request.postData.text;
+      if (typeof options.body === 'undefined') {
+        options.body = request.postData.text;
       }
     }
   }
@@ -342,7 +342,7 @@ export default function fetchHAR(har: Har, opts: FetchHAROptions = {}) {
     headers.append('User-Agent', opts.userAgent);
   }
 
-  req.headers = headers;
+  options.headers = headers;
 
   return fetch(`${url.split('?')[0]}${querystring ? `?${querystring}` : ''}`, req);
 }

@@ -1,89 +1,105 @@
-require('isomorphic-fetch');
+/* eslint-disable @typescript-eslint/no-var-requires */
+import type { VersionInfo } from '@jsdevtools/host-environment';
+import type { Har } from 'har-format';
+import 'isomorphic-fetch';
+import { host } from '@jsdevtools/host-environment';
 
-const { host } = require('@jsdevtools/host-environment');
-const { expect } = require('chai');
-const fetchHar = require('..');
-const { constructRequest } = require('..');
-const { Blob: BlobPolyfill, File: FilePolyfill } = require('formdata-node');
-const harExamples = require('har-examples');
+import { expect } from 'chai';
+import harExamples from 'har-examples';
 
-const owlbertDataURL = require('./fixtures/owlbert.dataurl.json');
+import owlbertDataURL from './fixtures/owlbert.dataurl.json';
 
-const invalidHeadersHAR = require('./fixtures/invalid-headers.har.json');
-const urlEncodedWithAuthHAR = require('./fixtures/urlencoded-with-auth.har.json');
+import invalidHeadersHAR from './fixtures/invalid-headers.har.json';
+import urlEncodedWithAuthHAR from './fixtures/urlencoded-with-auth.har.json';
 
 describe('#fetch', function () {
+  let fetchHAR;
+
   beforeEach(function () {
-    if (host.node) {
-      globalThis.FormData = require('formdata-node').FormData;
+    /**
+     * Under Node 18's native `fetch` implementation if a `File` global doesn't exist it'll polyfill
+     * its own implementation. Normally this works fine, but its implementation is **different**
+     * than the one that `formdata-node` ships and when we use the `formdata-node` one under Node
+     * 18 `type` options that we set into `File` instances don't get picked up, resulting in
+     * multipart payloads being sent as `application/octet-stream` instead of whatever content type
+     * was attached to that file.
+     *
+     * This behavior also extends to Undici's usage of `Blob` as well where the `Blob` that ships
+     * with `formdata-node` behaves differently than the `Blob` that is part of the Node `buffer`
+     * module, which Undici wants you to use.
+     *
+     * `NODE_ENV` is set to `production` when Karma runs this code and we don't need to polyfill
+     * APIs that are already available in the browser.
+     */
+    if (process.env.NODE_ENV !== 'production') {
+      if (!globalThis.File) {
+        globalThis.FormData = require('formdata-node').FormData;
+      }
 
-      globalThis.Blob = BlobPolyfill;
-      globalThis.File = FilePolyfill;
-    }
-  });
-
-  describe('#constructRequest', function () {
-    it('should convert a HAR object to a HTTP request object', async function () {
-      const request = constructRequest(harExamples.full);
-
-      expect(request.url).to.equal('https://httpbin.org/post?key=value&foo=bar&foo=baz&baz=abc');
-      expect(request.method).to.equal('POST');
-
-      if (host.node) {
-        expect(Array.from(request.headers)).to.deep.equal([
-          ['accept', 'application/json'],
-          ['content-type', 'application/x-www-form-urlencoded'],
-          ['cookie', 'foo=bar; bar=baz'],
-        ]);
+      const isNode18 = (host.node as VersionInfo).version >= 18;
+      if (isNode18) {
+        globalThis.File = require('undici').File;
+        globalThis.Blob = require('buffer').Blob;
       } else {
-        expect(Array.from(request.headers)).to.deep.equal([
-          ['accept', 'application/json'],
-          ['content-type', 'application/x-www-form-urlencoded'],
-        ]);
+        globalThis.File = require('formdata-node').File;
+        globalThis.Blob = require('formdata-node').Blob;
       }
+    }
 
-      // Inspecting `Request.body` isn't supported in most browsers right now.
-      // https://developer.mozilla.org/en-US/docs/Web/API/Request/body
-      if (host.node) {
-        // The `Request` object in Node 18 has `body` returning a `ReadableStream` (which is
-        // spec-compliant), whereas `node-fetch` returns it as a `Buffer`. Accordingly,
-        // `ReadableStream` was only introduced in Node 16 so if it doesn't exist here then we also
-        // don't want to fail.
-        if (typeof ReadableStream !== 'undefined' && request.body instanceof ReadableStream) {
-          const res = await new Response(request.body).text();
-          expect(res).to.equal('foo=bar');
-        } else {
-          expect(request.body.toString()).to.equal('foo=bar');
-        }
-      }
-    });
+    fetchHAR = require('../src').default;
   });
 
   it('should throw if it looks like you are missing a valid HAR definition', function () {
-    expect(fetchHar).to.throw('Missing HAR definition');
-    expect(fetchHar.bind(null, { log: {} })).to.throw('Missing log.entries array');
-    expect(fetchHar.bind(null, { log: { entries: [] } })).to.throw('Missing log.entries array');
+    expect(fetchHAR).to.throw('Missing HAR definition');
+    expect(fetchHAR.bind(null, { log: {} })).to.throw('Missing log.entries array');
+    expect(fetchHAR.bind(null, { log: { entries: [] } })).to.throw('Missing log.entries array');
   });
 
   it('should make a request with a custom user agent if specified', async function () {
     if (!host.node) {
-      this.skip('Custom user agents are not supported in browser environments.');
-      return;
+      // Custom user agents are not supported in browser environments.
+      this.skip();
     }
 
-    const res = await fetchHar(harExamples.short, { userAgent: 'test-app/1.0' }).then(r => r.json());
+    const res = await fetchHAR(harExamples.short, { userAgent: 'test-app/1.0' }).then(r => r.json());
     expect(res.headers['User-Agent']).to.equal('test-app/1.0');
   });
 
   it('should catch and toss invalid headers present in a HAR', async function () {
-    const res = await fetchHar(invalidHeadersHAR).then(r => r.json());
+    const res = await fetchHAR(invalidHeadersHAR as Har).then(r => r.json());
     expect(res.headers['X-Api-Key']).to.equal('asdf1234');
     expect(res.headers['X-Api-Key (invalid)']).to.be.undefined;
   });
 
+  describe('custom options', function () {
+    it('should support supplying custom headers in a `Headers` instance', async function () {
+      const res = await fetchHAR(harExamples['text-plain'], {
+        init: {
+          headers: new Headers({
+            'x-custom-header': 'buster',
+          }),
+        },
+      }).then(r => r.json());
+
+      expect(res.headers['X-Custom-Header']).to.equal('buster');
+    });
+
+    it('should support supplying custom headers as an object', async function () {
+      const res = await fetchHAR(harExamples['text-plain'], {
+        init: {
+          headers: {
+            'x-custom-header': 'buster',
+          },
+        },
+      }).then(r => r.json());
+
+      expect(res.headers['X-Custom-Header']).to.equal('buster');
+    });
+  });
+
   describe('integrations', function () {
     it('should support `text/plain` requests', async function () {
-      const res = await fetchHar(harExamples['text-plain']).then(r => r.json());
+      const res = await fetchHAR(harExamples['text-plain']).then(r => r.json());
 
       expect(res.args).to.be.empty;
       expect(res.data).to.equal('Hello World');
@@ -96,14 +112,14 @@ describe('#fetch', function () {
     });
 
     it('should support requests with array query parameters', async function () {
-      const res = await fetchHar(harExamples.query).then(r => r.json());
+      const res = await fetchHAR(harExamples.query).then(r => r.json());
 
       expect(res.args).to.deep.equal({ baz: 'abc', foo: ['bar', 'baz'], key: 'value' });
       expect(res.url).to.equal('https://httpbin.org/get?key=value&foo=bar&foo=baz&baz=abc');
     });
 
     it('should not double encode query parameters', async function () {
-      const res = await fetchHar(harExamples['query-encoded']).then(r => r.json());
+      const res = await fetchHAR(harExamples['query-encoded']).then(r => r.json());
 
       expect(res.args).to.deep.equal({
         array: ['something&nothing=true', 'nothing&something=false', 'another item'],
@@ -119,7 +135,7 @@ describe('#fetch', function () {
     });
 
     it('should support requests with cookies', async function () {
-      const res = await fetchHar(harExamples.cookies).then(r => r.json());
+      const res = await fetchHAR(harExamples.cookies).then(r => r.json());
 
       if (host.browser) {
         // This assertion looks funky but because we're making a cross-origin request here we aren't going to have
@@ -137,7 +153,7 @@ describe('#fetch', function () {
     });
 
     it('should support `application/x-www-form-urlencoded` requests with auth', async function () {
-      const res = await fetchHar(urlEncodedWithAuthHAR).then(r => r.json());
+      const res = await fetchHAR(urlEncodedWithAuthHAR as unknown as Har).then(r => r.json());
 
       expect(res.args).to.deep.equal({ a: '1', b: '2' });
       expect(res.data).to.equal('');
@@ -151,7 +167,7 @@ describe('#fetch', function () {
     });
 
     it('should support requests that cover the entire HAR spec', async function () {
-      const res = await fetchHar(harExamples.full).then(r => r.json());
+      const res = await fetchHAR(harExamples.full).then(r => r.json());
 
       expect(res.args).to.deep.equal({ baz: 'abc', foo: ['bar', 'baz'], key: 'value' });
       expect(res.data).to.equal('');
@@ -160,7 +176,7 @@ describe('#fetch', function () {
       expect(parseInt(res.headers['Content-Length'], 10)).to.equal(7);
       expect(res.headers['Content-Type']).to.equal('application/x-www-form-urlencoded');
 
-      // @todo we should mock this request instead
+      // We can't set cookies in the browser within this test environment.
       if (host.node) {
         expect(res.headers.Cookie).to.equal('foo=bar; bar=baz');
       }
@@ -172,7 +188,7 @@ describe('#fetch', function () {
     describe('binary handling', function () {
       it('should support a `image/png` request', async function () {
         const har = harExamples['image-png'];
-        const res = await fetchHar(har).then(r => r.json());
+        const res = await fetchHAR(har).then(r => r.json());
 
         expect(res.args).to.be.empty;
         expect(res.data).to.equal(har.log.entries[0].request.postData.text);
@@ -188,14 +204,14 @@ describe('#fetch', function () {
     describe('multipart/form-data', function () {
       it('should throw an error if `fileName` is present without `value` or a mapping', function () {
         expect(() => {
-          fetchHar(harExamples['multipart-file']);
+          fetchHAR(harExamples['multipart-file']);
         }).to.throw(/doesn't have access to the filesystem/);
       });
 
       describe('`files` option', function () {
         it('should throw on an unsupported type', function () {
           expect(() => {
-            fetchHar(harExamples['multipart-data-dataurl'], {
+            fetchHAR(harExamples['multipart-data-dataurl'], {
               files: {
                 'owlbert.png': new Blob([owlbertDataURL], { type: 'image/png' }),
               },

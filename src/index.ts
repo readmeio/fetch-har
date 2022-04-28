@@ -1,9 +1,10 @@
-const { Readable } = require('readable-stream');
-const parseDataUrl = require('parse-data-url');
+import type { Har } from 'har-format';
+import { Readable } from 'readable-stream';
+import parseDataUrl from 'parse-data-url';
 
 if (!globalThis.Blob) {
   try {
-    // eslint-disable-next-line import/no-extraneous-dependencies
+    // eslint-disable-next-line @typescript-eslint/no-var-requires, import/no-extraneous-dependencies
     globalThis.Blob = require('formdata-node').Blob;
   } catch (e) {
     throw new Error(
@@ -14,7 +15,7 @@ if (!globalThis.Blob) {
 
 if (!globalThis.File) {
   try {
-    // eslint-disable-next-line import/no-extraneous-dependencies
+    // eslint-disable-next-line @typescript-eslint/no-var-requires, import/no-extraneous-dependencies
     globalThis.File = require('formdata-node').File;
   } catch (e) {
     throw new Error(
@@ -25,7 +26,7 @@ if (!globalThis.File) {
 
 if (!globalThis.FormData) {
   try {
-    // eslint-disable-next-line import/no-extraneous-dependencies
+    // eslint-disable-next-line @typescript-eslint/no-var-requires, import/no-extraneous-dependencies
     globalThis.FormData = require('formdata-node').FormData;
   } catch (e) {
     throw new Error(
@@ -38,11 +39,11 @@ function isBrowser() {
   return typeof window !== 'undefined' && typeof document !== 'undefined';
 }
 
-function isBuffer(value) {
+function isBuffer(value: any) {
   return typeof Buffer !== 'undefined' && Buffer.isBuffer(value);
 }
 
-function isFile(value) {
+function isFile(value: any) {
   if (value instanceof File) {
     // The `Blob` polyfill on Node comes back as being an instanceof `File`. Because passing a Blob into
     // a File will end up with a corrupted file we want to prevent this.
@@ -58,7 +59,7 @@ function isFile(value) {
  * @license MIT
  * @see {@link https://github.com/octet-stream/form-data-encoder/blob/master/lib/util/isFunction.ts}
  */
-function isFunction(value) {
+function isFunction(value: any) {
   return typeof value === 'function';
 }
 
@@ -69,19 +70,32 @@ function isFunction(value) {
  * @license MIT
  * @see {@link https://github.com/octet-stream/form-data-encoder/blob/master/lib/util/isFormData.ts}
  */
-function isFormData(value) {
+function isFormData(value: any) {
   return (
     value &&
     isFunction(value.constructor) &&
-    value[Symbol.toStringTag] === 'FormData' && // eslint-disable-line compat/compat
+    value[Symbol.toStringTag] === 'FormData' &&
     isFunction(value.append) &&
     isFunction(value.getAll) &&
     isFunction(value.entries) &&
-    isFunction(value[Symbol.iterator]) // eslint-disable-line compat/compat
+    isFunction(value[Symbol.iterator])
   );
 }
 
-function constructRequest(har, opts = { userAgent: false, files: false, multipartEncoder: false }) {
+type FetchHAROptions = {
+  userAgent?: string;
+  files?: Record<string, Blob | Buffer>;
+  multipartEncoder?: any; // form-data-encoder
+  init?: RequestInit;
+};
+
+type DataURL = parseDataUrl.DataUrl & {
+  // `parse-data-url` doesn't explicitly support `name` in data URLs but if it's there it'll be
+  // returned back to us.
+  name?: string;
+};
+
+export default function fetchHAR(har: Har, opts: FetchHAROptions = {}) {
   if (!har) throw new Error('Missing HAR definition');
   if (!har.log || !har.log.entries || !har.log.entries.length) throw new Error('Missing log.entries array');
 
@@ -89,11 +103,20 @@ function constructRequest(har, opts = { userAgent: false, files: false, multipar
   const { url } = request;
   let querystring = '';
 
-  const headers = new Headers();
-  const options = {
+  const options: RequestInit = {
+    // If we have custom options for the `Request` API we need to add them in here now before we
+    // fill it in with everything we need from the HAR.
+    ...(opts.init ? opts.init : {}),
     method: request.method,
   };
 
+  if (!options.headers) {
+    options.headers = new Headers();
+  } else if (typeof options.headers === 'object' && !(options.headers instanceof Headers) && options.headers !== null) {
+    options.headers = new Headers(options.headers);
+  }
+
+  const headers = options.headers as Headers;
   if ('headers' in request && request.headers.length) {
     // eslint-disable-next-line consistent-return
     request.headers.forEach(header => {
@@ -130,6 +153,7 @@ function constructRequest(har, opts = { userAgent: false, files: false, multipar
   if ('postData' in request) {
     if ('params' in request.postData) {
       if (!('mimeType' in request.postData)) {
+        // @ts-expect-error HAR spec requires that `mimeType` is always present but it might not be.
         request.postData.mimeType = 'application/octet-stream';
       }
 
@@ -203,7 +227,7 @@ function constructRequest(har, opts = { userAgent: false, files: false, multipar
 
                   return;
                 } else if (isFile(fileContents)) {
-                  form.set(param.name, fileContents, param.fileName);
+                  form.set(param.name, fileContents as Blob, param.fileName);
                   return;
                 }
 
@@ -245,6 +269,7 @@ function constructRequest(har, opts = { userAgent: false, files: false, multipar
               headers.set(header, encoder.headers[header]);
             });
 
+            // @ts-expect-error "Property 'from' does not exist on type 'typeof Readable'." but it does!
             options.body = Readable.from(encoder);
           } else {
             options.body = form;
@@ -252,7 +277,7 @@ function constructRequest(har, opts = { userAgent: false, files: false, multipar
           break;
 
         default:
-          const formBody = {};
+          const formBody: Record<string, unknown> = {};
           request.postData.params.map(param => {
             try {
               formBody[param.name] = JSON.parse(param.value);
@@ -269,22 +294,25 @@ function constructRequest(har, opts = { userAgent: false, files: false, multipar
       // If we've got `files` map content present, and this post data content contains a valid data URL then we can
       // substitute the payload with that file instead of the using data URL.
       if (opts.files) {
-        const parsed = parseDataUrl(request.postData.text);
-        if (parsed && 'name' in parsed && parsed.name in opts.files) {
-          const fileContents = opts.files[parsed.name];
-          if (isBuffer(fileContents)) {
-            options.body = fileContents;
-          } else if (isFile(fileContents)) {
-            // `Readable.from` isn't available in browsers but the browser `Request` object can handle `File` objects
-            // just fine without us having to mold it into shape.
-            if (isBrowser()) {
+        const parsed = parseDataUrl(request.postData.text) as DataURL;
+        if (parsed) {
+          if (parsed?.name && parsed.name in opts.files) {
+            const fileContents = opts.files[parsed.name];
+            if (isBuffer(fileContents)) {
               options.body = fileContents;
-            } else {
-              options.body = Readable.from(fileContents.stream());
+            } else if (isFile(fileContents)) {
+              // `Readable.from` isn't available in browsers but the browser `Request` object can handle `File` objects
+              // just fine without us having to mold it into shape.
+              if (isBrowser()) {
+                options.body = fileContents;
+              } else {
+                // @ts-expect-error "Property 'from' does not exist on type 'typeof Readable'." but it does!
+                options.body = Readable.from((fileContents as File).stream());
 
-              // Supplying a polyfilled `File` stream into `Request.body` doesn't automatically add `Content-Length`.
-              if (!headers.has('content-length')) {
-                headers.set('content-length', fileContents.size);
+                // Supplying a polyfilled `File` stream into `Request.body` doesn't automatically add `Content-Length`.
+                if (!headers.has('content-length')) {
+                  headers.set('content-length', String((fileContents as File).size));
+                }
               }
             }
           }
@@ -316,12 +344,5 @@ function constructRequest(har, opts = { userAgent: false, files: false, multipar
 
   options.headers = headers;
 
-  return new Request(`${url.split('?')[0]}${querystring ? `?${querystring}` : ''}`, options);
+  return fetch(`${url.split('?')[0]}${querystring ? `?${querystring}` : ''}`, options);
 }
-
-function fetchHar(har, opts = { userAgent: false, files: false, multipartEncoder: false }) {
-  return fetch(constructRequest(har, opts));
-}
-
-module.exports = fetchHar;
-module.exports.constructRequest = constructRequest;

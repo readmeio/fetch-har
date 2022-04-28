@@ -1,9 +1,17 @@
 # fetch-har
-[![CI](https://github.com/readmeio/fetch-har/workflows/CI/badge.svg)](https://github.com/readmeio/fetch-har)
-
 Make a [fetch](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API) request from a HAR definition.
 
+[![CI](https://github.com/readmeio/fetch-har/workflows/CI/badge.svg)](https://github.com/readmeio/fetch-har/)
+[![](https://img.shields.io/npm/v/fetch-har)](https://npm.im/fetch-har)
+[![License](https://img.shields.io/npm/l/fetch-har.svg)](LICENSE)
+
 [![](https://d3vv6lp55qjaqc.cloudfront.net/items/1M3C3j0I0s0j3T362344/Untitled-2.png)](https://readme.io)
+
+## Features
+
+- Supports Node 14+ (including the native `fetch` implementation in Node 18!).
+- Natively works in all browsers that support [fetch](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API) without having to use any polyfils.
+- [Tested](https://github.com/readmeio/fetch-har/actions) across Chrome, Safari, Firefox on Mac, Windows, and Linux.
 
 ## Installation
 
@@ -15,10 +23,11 @@ npm install --save fetch-har
 ```js
 require('isomorphic-fetch');
 
-// If executing from an environment that doesn't normally provide `fetch()`
-// we'll automatically polyfill in the `Blob`, `File`, and `FormData` APIs
-// with the optional `formdata-node` package (provided you've installed it).
-const fetchHar = require('.');
+// If executing from an environment that doesn't normally provide `fetch()` we'll automatically
+// polyfill in the `Blob`, `File`, and `FormData` APIs with the optional `formdata-node` package
+// (provided you've installed it).
+const fetchHAR = require('fetch-har').default;
+// import fetchHAR from 'fetch-har'); // Or if you're in an ESM codebase.
 
 const har = {
   log: {
@@ -51,7 +60,7 @@ const har = {
   },
 };
 
-fetchHar(har)
+fetchHAR(har)
   .then(res => res.json())
   .then(console.log);
 ```
@@ -68,14 +77,14 @@ Though we recommend either [formdata-node](https://npm.im/formdata-node) or [for
 A custom `User-Agent` header to apply to your request. Please note that browsers have their own handling for these headers in `fetch()` calls so it may not work everywhere; it will always be sent in Node however.
 
 ```js
-await fetchHar(har, { userAgent: 'my-client/1.0' });
+await fetchHAR(har, { userAgent: 'my-client/1.0' });
 ```
 
 ##### files
 An optional object map you can supply to use for `multipart/form-data` file uploads in leu of relying on if the HAR you have has [data URLs](https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/Data_URIs). It supports Node file buffers and the [File](https://developer.mozilla.org/en-US/docs/Web/API/File) API.
 
 ```js
-await fetchHar(har, { files: {
+await fetchHAR(har, { files: {
   'owlbert.png': await fs.readFile('./owlbert.png'),
   'file.txt': document.querySelector('#some-file-input').files[0],
 } });
@@ -93,7 +102,22 @@ We recommend [form-data-encoder](https://npm.im/form-data-encoder).
 ```js
 const { FormDataEncoder } = require('form-data-encoder');
 
-await fetchHar(har, { multipartEncoder: FormDataEncoder });
+await fetchHAR(har, { multipartEncoder: FormDataEncoder });
 ```
 
 You do **not**, and shouldn't, need to use this option in browser environments.
+
+##### init
+This optional argument lets you supply any option that's available to supply to the [Request constructor](https://developer.mozilla.org/en-US/docs/Web/API/Request/Request).
+
+```js
+await fetchHAR(har, {
+  init: {
+    headers: new Headers({
+      'x-custom-header': 'buster',
+    }),
+  },
+})
+```
+
+> ❗ Note that if you supply `body` or `credentials` to this option they may be overridden by what your HAR requires.

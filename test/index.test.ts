@@ -12,7 +12,7 @@ import owlbertDataURL from './fixtures/owlbert.dataurl.json';
 import invalidHeadersHAR from './fixtures/invalid-headers.har.json';
 import urlEncodedWithAuthHAR from './fixtures/urlencoded-with-auth.har.json';
 
-describe('#fetch', function () {
+describe('fetch-har', function () {
   let fetchHAR;
 
   beforeEach(function () {

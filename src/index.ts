@@ -94,7 +94,7 @@ function isFormData(value: any) {
   );
 }
 
-export default function fetchHar(har: Har, opts: FetchHAROptions = {}) {
+export default function fetchHAR(har: Har, opts: FetchHAROptions = {}) {
   if (!har) throw new Error('Missing HAR definition');
   if (!har.log || !har.log.entries || !har.log.entries.length) throw new Error('Missing log.entries array');
 

@@ -13,7 +13,7 @@ import owlbertShrubDataURL from './fixtures/owlbert-shrub.dataurl.json';
 
 const isNode18 = (host.node as VersionInfo).version >= 18;
 
-describe('#fetch (Node-only quirks)', function () {
+describe('#fetchHAR (Node-only quirks)', function () {
   let fetchHAR;
 
   beforeEach(function () {

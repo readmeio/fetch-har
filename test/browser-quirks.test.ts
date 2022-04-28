@@ -7,7 +7,7 @@ import harExamples from 'har-examples';
 import owlbert from './fixtures/owlbert.dataurl.json';
 import owlbertShrubDataURL from './fixtures/owlbert-shrub.dataurl.json';
 
-describe('#fetch (Browser-only quirks)', function () {
+describe('#fetchHAR (Browser-only quirks)', function () {
   let fetchHAR;
 
   beforeEach(function () {

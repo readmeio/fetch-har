@@ -344,5 +344,5 @@ export default function fetchHAR(har: Har, opts: FetchHAROptions = {}) {
 
   options.headers = headers;
 
-  return fetch(`${url.split('?')[0]}${querystring ? `?${querystring}` : ''}`, req);
+  return fetch(`${url.split('?')[0]}${querystring ? `?${querystring}` : ''}`, options);
 }

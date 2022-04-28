@@ -1,3 +1,14 @@
+## 8.0.0 (2022-04-28)
+
+> **BREAKING CHANGE**
+>
+> This library is now written in TypeScript and as a result the main export dist is now contained within a `default` object. If you load it into your codebase with `import` you don't need to do anything, but if you're using `require()` you'll need to do `require('fetch-har').default`.
+
+* feat: adding test for common mocking libraries (#266) ([1cdb0bf](https://github.com/readmeio/fetch-har/commit/1cdb0bf)), closes [#266](https://github.com/readmeio/fetch-har/issues/266)
+* feat: rewriting the library in typescript, adding support for node 18 (#265) ([209cb20](https://github.com/readmeio/fetch-har/commit/209cb20)), closes [#265](https://github.com/readmeio/fetch-har/issues/265)
+
+
+
 ## 7.0.0 (2022-04-26)
 
 > **BREAKING CHANGE**

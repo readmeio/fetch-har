@@ -164,7 +164,7 @@ export default function fetchHAR(har: Har, opts: FetchHAROptions = {}) {
           // when building code snippets!
           //
           // https://github.com/github/fetch/issues/263#issuecomment-209530977
-          (req.headers as Headers).set('Content-Type', request.postData.mimeType);
+          headers.set('Content-Type', request.postData.mimeType);
 
           const encodedParams = new URLSearchParams();
           request.postData.params.forEach(param => encodedParams.set(param.name, param.value));

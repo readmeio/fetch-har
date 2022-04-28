@@ -14,11 +14,11 @@ describe('#fetchHAR mocking (fetch-mock)', function () {
         url: 'https://httpbin.org/get',
         method: 'get',
       },
-      new Response('oops!', { status: 404 })
+      new Response(null, { status: 429 })
     );
 
-    const res = await fetchHAR(harExamples.short).then(r => r.text());
-    expect(res).to.equal('oops!');
+    const res = await fetchHAR(harExamples.short);
+    expect(res.status).to.equal(429);
 
     fetchMock.restore();
   });

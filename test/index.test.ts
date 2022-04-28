@@ -71,6 +71,32 @@ describe('#fetch', function () {
     expect(res.headers['X-Api-Key (invalid)']).to.be.undefined;
   });
 
+  describe('custom options', function () {
+    it('should support supplying custom headers in a `Headers` instance', async function () {
+      const res = await fetchHAR(harExamples['text-plain'], {
+        init: {
+          headers: new Headers({
+            'x-custom-header': 'buster',
+          }),
+        },
+      }).then(r => r.json());
+
+      expect(res.headers['X-Custom-Header']).to.equal('buster');
+    });
+
+    it('should support supplying custom headers as an object', async function () {
+      const res = await fetchHAR(harExamples['text-plain'], {
+        init: {
+          headers: {
+            'x-custom-header': 'buster',
+          },
+        },
+      }).then(r => r.json());
+
+      expect(res.headers['X-Custom-Header']).to.equal('buster');
+    });
+  });
+
   describe('integrations', function () {
     it('should support `text/plain` requests', async function () {
       const res = await fetchHAR(harExamples['text-plain']).then(r => r.json());

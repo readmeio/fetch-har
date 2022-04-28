@@ -35,18 +35,6 @@ if (!globalThis.FormData) {
   }
 }
 
-type FetchHAROptions = {
-  userAgent?: string;
-  files?: Record<string, Blob | Buffer>;
-  multipartEncoder?: any; // form-data-encoder
-};
-
-type DataURL = parseDataUrl.DataUrl & {
-  // `parse-data-url` doesn't explicitly support `name` data URLs, but if it's there it'll be
-  // returned.
-  name?: string;
-};
-
 function isBrowser() {
   return typeof window !== 'undefined' && typeof document !== 'undefined';
 }
@@ -94,6 +82,19 @@ function isFormData(value: any) {
   );
 }
 
+type FetchHAROptions = {
+  userAgent?: string;
+  files?: Record<string, Blob | Buffer>;
+  multipartEncoder?: any; // form-data-encoder
+  init?: RequestInit;
+};
+
+type DataURL = parseDataUrl.DataUrl & {
+  // `parse-data-url` doesn't explicitly support `name` in data URLs but if it's there it'll be
+  // returned back to us.
+  name?: string;
+};
+
 export default function fetchHAR(har: Har, opts: FetchHAROptions = {}) {
   if (!har) throw new Error('Missing HAR definition');
   if (!har.log || !har.log.entries || !har.log.entries.length) throw new Error('Missing log.entries array');
@@ -102,11 +103,20 @@ export default function fetchHAR(har: Har, opts: FetchHAROptions = {}) {
   const { url } = request;
   let querystring = '';
 
-  const headers = new Headers();
   const req: RequestInit = {
+    // If we have custom options for the `Request` API we need to add them in here now before we
+    // fill it in with everything we need from the HAR.
+    ...(opts.init ? opts.init : {}),
     method: request.method,
   };
 
+  if (!req.headers) {
+    req.headers = new Headers();
+  } else if (typeof req.headers === 'object' && !(req.headers instanceof Headers) && req.headers !== null) {
+    req.headers = new Headers(req.headers);
+  }
+
+  const headers = req.headers as Headers;
   if ('headers' in request && request.headers.length) {
     // eslint-disable-next-line consistent-return
     request.headers.forEach(header => {
@@ -154,7 +164,7 @@ export default function fetchHAR(har: Har, opts: FetchHAROptions = {}) {
           // when building code snippets!
           //
           // https://github.com/github/fetch/issues/263#issuecomment-209530977
-          headers.set('Content-Type', request.postData.mimeType);
+          (req.headers as Headers).set('Content-Type', request.postData.mimeType);
 
           const encodedParams = new URLSearchParams();
           request.postData.params.forEach(param => encodedParams.set(param.name, param.value));

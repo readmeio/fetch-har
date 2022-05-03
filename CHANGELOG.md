@@ -1,3 +1,15 @@
+## <small>8.0.1 (2022-05-03)</small>
+
+* fix: making har-format types a regular dep ([93dcb7d](https://github.com/readmeio/fetch-har/commit/93dcb7d))
+* chore: don't remove a `@types/` directory that we aren't using ([c915fae](https://github.com/readmeio/fetch-har/commit/c915fae))
+* chore(deps-dev): bump @types/node from 17.0.29 to 17.0.30 (#269) ([e6f62f3](https://github.com/readmeio/fetch-har/commit/e6f62f3)), closes [#269](https://github.com/readmeio/fetch-har/issues/269)
+* chore(deps-dev): bump ts-loader from 7.0.5 to 9.3.0 (#268) ([34877c5](https://github.com/readmeio/fetch-har/commit/34877c5)), closes [#268](https://github.com/readmeio/fetch-har/issues/268)
+* chore(deps-dev): bump typescript from 4.6.3 to 4.6.4 (#267) ([826dcac](https://github.com/readmeio/fetch-har/commit/826dcac)), closes [#267](https://github.com/readmeio/fetch-har/issues/267)
+* chore(deps): bump actions/cache from 3.0.1 to 3.0.2 (#270) ([55e45a6](https://github.com/readmeio/fetch-har/commit/55e45a6)), closes [#270](https://github.com/readmeio/fetch-har/issues/270)
+* chore(deps): bump github/codeql-action from 1 to 2 (#271) ([e29ddce](https://github.com/readmeio/fetch-har/commit/e29ddce)), closes [#271](https://github.com/readmeio/fetch-har/issues/271)
+
+
+
 ## 8.0.0 (2022-04-28)
 
 > **BREAKING CHANGE**

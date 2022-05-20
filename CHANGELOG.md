@@ -1,3 +1,12 @@
+## <small>8.0.2 (2022-05-20)</small>
+
+* fix: don't look for a length on `postData.text` if it's undefined (#272) ([cd70c2f](https://github.com/readmeio/fetch-har/commit/cd70c2f)), closes [#272](https://github.com/readmeio/fetch-har/issues/272)
+* fix: pin to node 18.0 (#273) ([9ab5991](https://github.com/readmeio/fetch-har/commit/9ab5991)), closes [#273](https://github.com/readmeio/fetch-har/issues/273)
+* ci: pin ci to node 18.0 ([6ce62ac](https://github.com/readmeio/fetch-har/commit/6ce62ac))
+* ci: pin to node 18.1 because 18.2 has broken cookie header support ([05748b4](https://github.com/readmeio/fetch-har/commit/05748b4))
+
+
+
 ## <small>8.0.1 (2022-05-03)</small>
 
 * fix: making har-format types a regular dep ([93dcb7d](https://github.com/readmeio/fetch-har/commit/93dcb7d))

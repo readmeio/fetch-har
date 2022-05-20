@@ -220,5 +220,41 @@ describe('fetch-har', function () {
         });
       });
     });
+
+    describe('quirks', function () {
+      it('should not fail if `postData.text` is `undefined`', function () {
+        const har = {
+          log: {
+            entries: [
+              {
+                request: {
+                  cookies: [],
+                  headers: [
+                    {
+                      name: 'Content-Type',
+                      value: 'application/json',
+                    },
+                  ],
+                  headersSize: 0,
+                  queryString: [],
+                  postData: {
+                    mimeType: 'application/json',
+                    text: undefined,
+                  },
+                  bodySize: 0,
+                  method: 'GET',
+                  url: 'https://httpbin.org/anything',
+                  httpVersion: 'HTTP/1.1',
+                },
+              },
+            ],
+          },
+        };
+
+        expect(() => {
+          fetchHAR(har);
+        }).not.to.throw("Cannot read property 'length' of undefined");
+      });
+    });
   });
 });

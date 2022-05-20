@@ -290,7 +290,7 @@ export default function fetchHAR(har: Har, opts: FetchHAROptions = {}) {
 
           options.body = JSON.stringify(formBody);
       }
-    } else if (request.postData.text.length) {
+    } else if (request.postData.text?.length) {
       // If we've got `files` map content present, and this post data content contains a valid data URL then we can
       // substitute the payload with that file instead of the using data URL.
       if (opts.files) {

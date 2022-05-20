@@ -42,7 +42,7 @@ jobs:
         node:
           - 14
           - 16
-          - 18
+          - 18.1 # Cookies on 18.2 are broken. https://github.com/nodejs/undici/issues/1463
 
     steps:
       - name: Checkout source

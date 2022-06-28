@@ -7,10 +7,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout source
-        uses: actions/checkout@v3
-
+      - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
+        with:
+          node-version: 16
 
       - name: Get npm cache directory
         id: npm-cache-dir
@@ -42,7 +42,7 @@ jobs:
         node:
           - 14
           - 16
-          - "18.0.0" # Cookies on 18.2 are broken and 18.1 added charsets to content types (was removed in 18.2). https://github.com/nodejs/undici/issues/1463
+          - 18
 
     steps:
       - name: Checkout source
@@ -95,7 +95,7 @@ jobs:
       - name: Install Node
         uses: actions/setup-node@v3
         with:
-          node-version: 14
+          node-version: 16
 
       - name: Get npm cache directory
         id: npm-cache-dir
@@ -109,10 +109,6 @@ jobs:
           key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
           restore-keys: |
             ${{ runner.os }}-node-
-
-      # Node 14 still ships with npm@6 which doesn't install peerDeps by default.
-      - name: Install npm@7
-        run: npm install -g npm@7
 
       - run: npm ci
       - run: npm run build

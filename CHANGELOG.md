@@ -1,3 +1,23 @@
+## <small>8.0.3 (2022-06-28)</small>
+
+* ci: pin ci to node 18.0 ([6ce62ac](https://github.com/readmeio/fetch-har/commit/6ce62ac))
+* ci: pin to node 18.1 because 18.2 has broken cookie header support ([05748b4](https://github.com/readmeio/fetch-har/commit/05748b4))
+* ci: running ci tests on the latest node 18 again ([0465075](https://github.com/readmeio/fetch-har/commit/0465075))
+* build: 8.0.2 release ([491eedf](https://github.com/readmeio/fetch-har/commit/491eedf))
+* chore(deps-dev): bump @jsdevtools/karma-config from 3.1.7 to 3.2.0 (#281) ([291f16d](https://github.com/readmeio/fetch-har/commit/291f16d)), closes [#281](https://github.com/readmeio/fetch-har/issues/281)
+* chore(deps-dev): bump @readme/eslint-config from 8.7.3 to 8.8.0 (#285) ([47a83be](https://github.com/readmeio/fetch-har/commit/47a83be)), closes [#285](https://github.com/readmeio/fetch-har/issues/285)
+* chore(deps-dev): bump @types/node from 17.0.30 to 17.0.38 (#275) ([9ad835a](https://github.com/readmeio/fetch-har/commit/9ad835a)), closes [#275](https://github.com/readmeio/fetch-har/issues/275)
+* chore(deps-dev): bump eslint from 8.14.0 to 8.16.0 (#279) ([e78536f](https://github.com/readmeio/fetch-har/commit/e78536f)), closes [#279](https://github.com/readmeio/fetch-har/issues/279)
+* chore(deps-dev): bump mocha from 9.2.2 to 10.0.0 (#277) ([62cc6b6](https://github.com/readmeio/fetch-har/commit/62cc6b6)), closes [#277](https://github.com/readmeio/fetch-har/issues/277)
+* chore(deps-dev): bump ts-node from 10.7.0 to 10.8.1 (#286) ([fe87394](https://github.com/readmeio/fetch-har/commit/fe87394)), closes [#286](https://github.com/readmeio/fetch-har/issues/286)
+* chore(deps-dev): bump typescript from 4.6.4 to 4.7.4 (#287) ([a9e5b29](https://github.com/readmeio/fetch-har/commit/a9e5b29)), closes [#287](https://github.com/readmeio/fetch-har/issues/287)
+* chore(deps-dev): bump undici from 5.0.0 to 5.5.1 (#284) ([6e013e2](https://github.com/readmeio/fetch-har/commit/6e013e2)), closes [#284](https://github.com/readmeio/fetch-har/issues/284)
+* chore(deps): bump actions/cache from 3.0.2 to 3.0.3 (#274) ([17071a2](https://github.com/readmeio/fetch-har/commit/17071a2)), closes [#274](https://github.com/readmeio/fetch-har/issues/274)
+* fix: don't look for a length on `postData.text` if it's undefined (#272) ([cd70c2f](https://github.com/readmeio/fetch-har/commit/cd70c2f)), closes [#272](https://github.com/readmeio/fetch-har/issues/272)
+* fix: pin to node 18.0 (#273) ([9ab5991](https://github.com/readmeio/fetch-har/commit/9ab5991)), closes [#273](https://github.com/readmeio/fetch-har/issues/273)
+
+
+
 ## <small>8.0.2 (2022-05-20)</small>
 
 * fix: don't look for a length on `postData.text` if it's undefined (#272) ([cd70c2f](https://github.com/readmeio/fetch-har/commit/cd70c2f)), closes [#272](https://github.com/readmeio/fetch-har/issues/272)

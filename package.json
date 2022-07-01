@@ -43,7 +43,7 @@
     "@readme/eslint-config": "^8.7.3",
     "@types/chai": "^4.3.1",
     "@types/mocha": "^9.1.1",
-    "@types/node": "^17.0.29",
+    "@types/node": "^18.0.0",
     "@types/parse-data-url": "^3.0.0",
     "@types/readable-stream": "^2.3.13",
     "chai": "^4.3.4",

@@ -32,7 +32,7 @@
   "dependencies": {
     "@types/har-format": "^1.2.8",
     "parse-data-url": "^4.0.1",
-    "readable-stream": "^3.6.0"
+    "readable-stream": "^4.0.0"
   },
   "optionalDependencies": {
     "formdata-node": "^4.3.2"

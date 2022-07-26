@@ -20,7 +20,7 @@ module.exports = karmaConfig({
         timeout: 15000,
       },
     },
-    exclude: ['test/mocking/*.ts', 'test/node-quirks.test.ts'],
+    exclude: ['test/mocking/*.ts', 'test/file-upload-quirks.test.ts', 'test/node-quirks.test.ts'],
     webpack: {
       resolve: {
         extensions: ['.js', '.ts'],

@@ -25,6 +25,14 @@ updates:
       prefix: chore(deps)
       prefix-development: chore(deps-dev)
     ignore:
+      # These can't be upgraded because `@jsdevtools/karma-config@3` still requires Webpack 4.
+      - dependency-name: ts-loader
+        versions:
+          - "> 8"
+      - dependency-name: webpack
+        versions:
+          - "> 4"
+
       # node-fetch is now an ESM package and can't be used here without a rewrite.
       - dependency-name: node-fetch
         versions:

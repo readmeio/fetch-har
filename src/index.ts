@@ -217,7 +217,7 @@ export default function fetchHAR(har: Har, opts: FetchHAROptions = {}) {
                 // If the file we've got available to us is a Buffer then we need to convert it so that the FormData
                 // API can use it.
                 if (isBuffer(fileContents)) {
-                  form.set(
+                  form.append(
                     param.name,
                     new File([fileContents], param.fileName, {
                       type: param.contentType || null,
@@ -227,7 +227,7 @@ export default function fetchHAR(har: Har, opts: FetchHAROptions = {}) {
 
                   return;
                 } else if (isFile(fileContents)) {
-                  form.set(param.name, fileContents as Blob, param.fileName);
+                  form.append(param.name, fileContents as Blob, param.fileName);
                   return;
                 }
 

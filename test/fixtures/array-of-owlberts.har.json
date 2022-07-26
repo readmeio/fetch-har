@@ -1,0 +1,40 @@
+{
+  "log": {
+    "entries": [
+      {
+        "request": {
+          "cookies": [],
+          "headers": [
+            {
+              "name": "Content-Type",
+              "value": "multipart/form-data"
+            }
+          ],
+          "headersSize": 0,
+          "queryString": [],
+          "postData": {
+            "mimeType": "multipart/form-data",
+            "params": [
+              {
+                "name": "files",
+                "value": "data:image/png;name=owlbert.png;base64,YnVzdGVy",
+                "fileName": "owlbert.png",
+                "contentType": "image/png"
+              },
+              {
+                "name": "files",
+                "value": "data:image/png;name=owlbert-shrub.png;base64,YnVzdGVy",
+                "fileName": "owlbert-shrub.png",
+                "contentType": "image/png"
+              }
+            ]
+          },
+          "bodySize": 0,
+          "method": "POST",
+          "url": "https://httpbin.org/anything/multipart-formdata",
+          "httpVersion": "HTTP/1.1"
+        }
+      }
+    ]
+  }
+}

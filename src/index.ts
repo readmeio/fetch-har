@@ -45,10 +45,12 @@ function isBuffer(value: any) {
 
 function isFile(value: any) {
   if (value instanceof File) {
-    // The `Blob` polyfill on Node comes back as being an instanceof `File`. Because passing a Blob into
-    // a File will end up with a corrupted file we want to prevent this.
-    //
-    // This object identity crisis does not happen in the browser.
+    /**
+     * The `Blob` polyfill on Node comes back as being an instanceof `File`. Because passing a Blob
+     * into a File will end up with a corrupted file we want to prevent this.
+     *
+     * This object identity crisis does not happen in the browser.
+     */
     return value.constructor.name === 'File';
   }
 
@@ -64,8 +66,9 @@ function isFunction(value: any) {
 }
 
 /**
- * We're loading this library in here instead of loading it from `form-data-encoder` because that uses lookbehind
- * regex in its main encoder that Safari doesn't support so it throws a fatal page exception.
+ * We're using this library in here instead of loading it from `form-data-encoder` because that
+ * uses lookbehind regex in its main encoder that Safari doesn't support so it throws a fatal page
+ * exception.
  *
  * @license MIT
  * @see {@link https://github.com/octet-stream/form-data-encoder/blob/master/lib/util/isFormData.ts}
@@ -123,17 +126,23 @@ export default function fetchHAR(har: Har, opts: FetchHAROptions = {}) {
       try {
         return headers.append(header.name, header.value);
       } catch (err) {
-        // `Headers.append()` will throw errors if the header name is not a legal HTTP header name, like
-        // `X-API-KEY (Header)`. If that happens instead of tossing the error back out, we should silently just ignore
-        // it.
+        /**
+         * `Headers.append()` will throw errors if the header name is not a legal HTTP header name,
+         * like `X-API-KEY (Header)`. If that happens instead of tossing the error back out, we
+         * should silently just ignore
+         * it.
+         */
       }
     });
   }
 
   if ('cookies' in request && request.cookies.length) {
-    // As the browser fetch API can't set custom cookies for requests, they instead need to be defined on the document
-    // and passed into the request via `credentials: include`. Since this is a browser-specific quirk, that should only
-    // happen in browsers!
+    /**
+     * As the browser fetch API can't set custom cookies for requests, they instead need to be
+     * defined on the document and passed into the request via `credentials: include`. Since this
+     * is a browser-specific quirk, that should only
+     * happen in browsers!
+     */
     if (isBrowser()) {
       request.cookies.forEach(cookie => {
         document.cookie = `${encodeURIComponent(cookie.name)}=${encodeURIComponent(cookie.value)}`;
@@ -159,11 +168,14 @@ export default function fetchHAR(har: Har, opts: FetchHAROptions = {}) {
 
       switch (request.postData.mimeType) {
         case 'application/x-www-form-urlencoded':
-          // Since the content we're handling here is to be encoded as `application/x-www-form-urlencoded`, this should
-          // override any other Content-Type headers that are present in the HAR. This is how Postman handles this case
-          // when building code snippets!
-          //
-          // https://github.com/github/fetch/issues/263#issuecomment-209530977
+          /**
+           * Since the content we're handling here is to be encoded as
+           * `application/x-www-form-urlencoded`, this should override any other `Content-Type`
+           * headers that are present in the HAR. This is how Postman handles this case when
+           * building code snippets!
+           *
+           * @see {@link https://github.com/github/fetch/issues/263#issuecomment-209530977}
+           */
           headers.set('Content-Type', request.postData.mimeType);
 
           const encodedParams = new URLSearchParams();
@@ -176,34 +188,42 @@ export default function fetchHAR(har: Har, opts: FetchHAROptions = {}) {
         case 'multipart/form-data':
         case 'multipart/mixed':
         case 'multipart/related':
-          // If there's a Content-Type header set remove it. We're doing this because when we pass the form data object
-          // into `fetch` that'll set a proper `Content-Type` header for this request that also includes the boundary
-          // used on the content.
-          //
-          // If we don't do this, then consumers won't be able to parse out the payload because they won't know what
-          // the boundary to split on it.
+          /**
+           * If there's a `Content-Type` header set we need to remove it. We're doing this because
+           * when we pass the form data object into `fetch` that'll set a proper `Content-Type`
+           * header for this request that also includes the boundary used on the content.
+           *
+           * If we don't do this, then consumers won't be able to parse out the payload because
+           * they won't know what the boundary to split on it.
+           */
           if (headers.has('Content-Type')) {
             headers.delete('Content-Type');
           }
 
           const form = new FormData();
           if (!isFormData(form)) {
-            // The `form-data` NPM module returns one of two things: a native `FormData` API or its own polyfill.
-            // Unfortunately this polyfill does not support the full API of the native FormData object so when you load
-            // `form-data` within a browser environment you'll have two major differences in API:
-            //
-            //  * The `.append()` API in `form-data` requires that the third argument is an object containing various,
-            //    undocumented, options. In the browser, `.append()`'s third argument should only be present when the
-            //    second is a `Blob` or `USVString`, and when it is present, it should be a filename string.
-            //  * `form-data` does not expose an `.entries()` API, so the only way to retrieve data out of it for
-            //    construction of boundary-separated payload content is to use its `.pipe()` API. Since the browser
-            //    doesn't have this API, you'll be unable to retrieve data out of it.
-            //
-            // Now since the native `FormData` API is iterable, and has the `.entries()` iterator, we can easily detect
-            // if we have a native copy of the FormData API. It's for all of these reasons that we're opting to hard
-            // crash here because supporting this non-compliant API is more trouble than its worth.
-            //
-            // https://github.com/form-data/form-data/issues/124
+            /**
+             * The `form-data` NPM module returns one of two things: a native `FormData` API or its
+             * own polyfill. Unfortunately this polyfill does not support the full API of the native
+             * FormData object so when you load `form-data` within a browser environment you'll
+             * have two major differences in API:
+             *
+             *  - The `.append()` API in `form-data` requires that the third argument is an object
+             *    containing various, undocumented, options. In the browser, `.append()`'s third
+             *    argument should only be present when the second is a `Blob` or `USVString`, and
+             *    when it is present, it should be a filename string.
+             *  - `form-data` does not expose an `.entries()` API, so the only way to retrieve data
+             *    out of it for construction of boundary-separated payload content is to use its
+             *    `.pipe()` API. Since the browser doesn't have this API, you'll be unable to
+             * retrieve data out of it.
+             *
+             * Now since the native `FormData` API is iterable, and has the `.entries()` iterator,
+             * we can easily detect if we have a native copy of the FormData API. It's for all of
+             * these reasons that we're opting to hard crash here because supporting this
+             * non-compliant API is more trouble than its worth.
+             *
+             * @see {@link https://github.com/form-data/form-data/issues/124}
+             */
             throw new Error(
               "We've detected you're using a non-spec compliant FormData library. We recommend polyfilling FormData with https://npm.im/formdata-node"
             );
@@ -214,8 +234,8 @@ export default function fetchHAR(har: Har, opts: FetchHAROptions = {}) {
               if (opts.files && param.fileName in opts.files) {
                 const fileContents = opts.files[param.fileName];
 
-                // If the file we've got available to us is a Buffer then we need to convert it so that the FormData
-                // API can use it.
+                // If the file we've got available to us is a Buffer then we need to convert it so
+                // that the FormData API can use it.
                 if (isBuffer(fileContents)) {
                   form.append(
                     param.name,
@@ -238,8 +258,8 @@ export default function fetchHAR(har: Har, opts: FetchHAROptions = {}) {
                 let paramBlob;
                 const parsed = parseDataUrl(param.value);
                 if (parsed) {
-                  // If we were able to parse out this data URL we don't need to transform its data into a buffer for
-                  // `Blob` because that supports data URLs already.
+                  // If we were able to parse out this data URL we don't need to transform its data
+                  // into a buffer for `Blob` because that supports data URLs already.
                   paramBlob = new Blob([param.value], { type: parsed.contentType || param.contentType || null });
                 } else {
                   paramBlob = new Blob([param.value], { type: param.contentType || null });
@@ -257,11 +277,14 @@ export default function fetchHAR(har: Har, opts: FetchHAROptions = {}) {
             form.append(param.name, param.value);
           });
 
-          // If a the `fetch` polyfill that's being used here doesn't have spec-compliant handling for the `FormData`
-          // API (like `node-fetch@2`), then you should pass in a handler (like the `form-data-encoder` library) to
-          // transform its contents into something that can be used with the `Request` object.
-          //
-          // https://www.npmjs.com/package/formdata-node
+          /**
+           * If a the `fetch` polyfill that's being used here doesn't have spec-compliant handling
+           * for the `FormData` API (like `node-fetch@2`), then you should pass in a handler (like
+           * the `form-data-encoder` library) to transform its contents into something that can be
+           * used with the `Request` object.
+           *
+           * @see {@link https://www.npmjs.com/package/formdata-node}
+           */
           if (opts.multipartEncoder) {
             // eslint-disable-next-line new-cap
             const encoder = new opts.multipartEncoder(form);
@@ -291,8 +314,8 @@ export default function fetchHAR(har: Har, opts: FetchHAROptions = {}) {
           options.body = JSON.stringify(formBody);
       }
     } else if (request.postData.text?.length) {
-      // If we've got `files` map content present, and this post data content contains a valid data URL then we can
-      // substitute the payload with that file instead of the using data URL.
+      // If we've got `files` map content present, and this post data content contains a valid data
+      // URL then we can substitute the payload with that file instead of the using data URL.
       if (opts.files) {
         const parsed = parseDataUrl(request.postData.text) as DataURL;
         if (parsed) {
@@ -301,15 +324,16 @@ export default function fetchHAR(har: Har, opts: FetchHAROptions = {}) {
             if (isBuffer(fileContents)) {
               options.body = fileContents;
             } else if (isFile(fileContents)) {
-              // `Readable.from` isn't available in browsers but the browser `Request` object can handle `File` objects
-              // just fine without us having to mold it into shape.
+              // `Readable.from` isn't available in browsers but the browser `Request` object can
+              // handle `File` objects just fine without us having to mold it into shape.
               if (isBrowser()) {
                 options.body = fileContents;
               } else {
                 // @ts-expect-error "Property 'from' does not exist on type 'typeof Readable'." but it does!
                 options.body = Readable.from((fileContents as File).stream());
 
-                // Supplying a polyfilled `File` stream into `Request.body` doesn't automatically add `Content-Length`.
+                // Supplying a polyfilled `File` stream into `Request.body` doesn't automatically
+                // add `Content-Length`.
                 if (!headers.has('content-length')) {
                   headers.set('content-length', String((fileContents as File).size));
                 }
@@ -325,8 +349,8 @@ export default function fetchHAR(har: Har, opts: FetchHAROptions = {}) {
     }
   }
 
-  // We automaticaly assume that the HAR that we have already has query parameters encoded within it so we do **not**
-  // use the `URLSearchParams` API here for composing the query string.
+  // We automaticaly assume that the HAR that we have already has query parameters encoded within
+  // it so we do **not** use the `URLSearchParams` API here for composing the query string.
   if ('queryString' in request && request.queryString.length) {
     const urlObj = new URL(url);
 

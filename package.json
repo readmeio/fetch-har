@@ -30,8 +30,8 @@
   },
   "homepage": "https://github.com/readmeio/fetch-har#readme",
   "dependencies": {
+    "@readme/data-urls": "^1.0.0",
     "@types/har-format": "^1.2.8",
-    "parse-data-url": "^4.0.1",
     "readable-stream": "^3.6.0"
   },
   "optionalDependencies": {
@@ -46,7 +46,6 @@
     "@types/mocha": "^9.1.1",
     "@types/multer": "^1.4.7",
     "@types/node": "^18.0.0",
-    "@types/parse-data-url": "^3.0.0",
     "@types/readable-stream": "^2.3.13",
     "chai": "^4.3.4",
     "datauri": "^4.1.0",

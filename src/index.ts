@@ -1,6 +1,7 @@
 import type { Har } from 'har-format';
+import type { DataURL as npmDataURL } from '@readme/data-urls';
 import { Readable } from 'readable-stream';
-import parseDataUrl from 'parse-data-url';
+import { parse as parseDataUrl } from '@readme/data-urls';
 
 if (!globalThis.Blob) {
   try {
@@ -92,7 +93,7 @@ type FetchHAROptions = {
   init?: RequestInit;
 };
 
-type DataURL = parseDataUrl.DataUrl & {
+type DataURL = npmDataURL & {
   // `parse-data-url` doesn't explicitly support `name` in data URLs but if it's there it'll be
   // returned back to us.
   name?: string;

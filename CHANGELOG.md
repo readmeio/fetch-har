@@ -1,3 +1,9 @@
+## <small>8.1.2 (2022-07-27)</small>
+
+* fix: updating the data-urls package to fix a problem with file case sensititivity ([42cadff](https://github.com/readmeio/fetch-har/commit/42cadff))
+
+
+
 ## <small>8.1.1 (2022-07-27)</small>
 
 * fix: swapping parse-data-url for @readme/data-urls (#307) ([a2306bd](https://github.com/readmeio/fetch-har/commit/a2306bd)), closes [#307](https://github.com/readmeio/fetch-har/issues/307)

@@ -30,7 +30,7 @@
   },
   "homepage": "https://github.com/readmeio/fetch-har#readme",
   "dependencies": {
-    "@readme/data-urls": "^1.0.0",
+    "@readme/data-urls": "^1.0.1",
     "@types/har-format": "^1.2.8",
     "readable-stream": "^3.6.0"
   },

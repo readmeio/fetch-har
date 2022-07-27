@@ -1,3 +1,9 @@
+## <small>8.1.1 (2022-07-27)</small>
+
+* fix: swapping parse-data-url for @readme/data-urls (#307) ([a2306bd](https://github.com/readmeio/fetch-har/commit/a2306bd)), closes [#307](https://github.com/readmeio/fetch-har/issues/307)
+
+
+
 ## 8.1.0 (2022-07-26)
 
 * chore: code comment cleanup ([bd344f1](https://github.com/readmeio/fetch-har/commit/bd344f1))

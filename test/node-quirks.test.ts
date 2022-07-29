@@ -9,6 +9,7 @@ import harExamples from 'har-examples';
 import { FormDataEncoder } from 'form-data-encoder';
 
 import owlbertDataURL from './fixtures/owlbert.dataurl.json';
+import owlbertScreenshotDataURL from './fixtures/owlbert-screenshot.dataurl.json';
 import owlbertShrubDataURL from './fixtures/owlbert-shrub.dataurl.json';
 
 const isNode18 = (host.node as VersionInfo).version >= 18;
@@ -142,11 +143,7 @@ describe('#fetchHAR (Node-only quirks)', function () {
       );
 
       expect(res.files).to.deep.equal({ foo: 'Hello World' });
-
-      // When running this test on Node 18, dependending on the test environment that this is
-      // executed within the `Content-Length` header may be one of these values.
-      expect(parseInt(res.headers['Content-Length'], 10)).to.be.oneOf([189, 203]);
-
+      expect(parseInt(res.headers['Content-Length'], 10)).to.equal(189);
       expect(res.headers['Content-Type']).to.match(/^multipart\/form-data; boundary=(.*)$/);
     });
 
@@ -182,6 +179,31 @@ describe('#fetchHAR (Node-only quirks)', function () {
         expect(parseInt(res.headers['Content-Length'], 10)).to.equal(754);
         expect(res.headers['Content-Type']).to.match(/^multipart\/form-data; boundary=(.*)$/);
       });
+
+      it('should support filenames with characters that are encoded with `encodeURIComponent`', async function () {
+        const encodedFilename = encodeURIComponent('owlbert screen shot 2022-07-29 at 11.05.56 AM.png');
+
+        // We're intentionally corrupting the data URL with a junk base64 payload in order to test
+        // that the the file we're supplying below is delivered.
+        const har = JSON.parse(JSON.stringify(harExamples['multipart-data-dataurl']));
+        har.log.entries[0].request.postData.params[0].fileName = encodedFilename;
+        har.log.entries[0].request.postData.params[0].value = `data:image/png;name=${encodedFilename};base64,YnVzdGVy`;
+
+        const res = await fetchHAR(har, {
+          files: {
+            'owlbert screen shot 2022-07-29 at 11.05.56 AM.png': new File(
+              [owlbertScreenshotDataURL],
+              'owlbert screen shot 2022-07-29 at 11.05.56 AM.png.png',
+              { type: 'image/png' }
+            ),
+          },
+          multipartEncoder: FormDataEncoder,
+        }).then(r => r.json());
+
+        expect(res.files).to.deep.equal({ foo: owlbertScreenshotDataURL });
+        expect(parseInt(res.headers['Content-Length'], 10)).to.equal(36368);
+        expect(res.headers['Content-Type']).to.match(/^multipart\/form-data; boundary=(.*)$/);
+      });
     });
 
     describe('data URLs', function () {
@@ -191,11 +213,7 @@ describe('#fetchHAR (Node-only quirks)', function () {
         );
 
         expect(res.files).to.deep.equal({ foo: owlbertDataURL });
-
-        // When running this test on Node 18, dependending on the test environment that this is
-        // executed within the `Content-Length` header may be one of these values.
-        expect(parseInt(res.headers['Content-Length'], 10)).to.be.oneOf([754, 769]);
-
+        expect(parseInt(res.headers['Content-Length'], 10)).to.equal(754);
         expect(res.headers['Content-Type']).to.match(/^multipart\/form-data; boundary=form-data-boundary-(.*)$/);
       });
 
@@ -213,10 +231,7 @@ describe('#fetchHAR (Node-only quirks)', function () {
           foo: owlbertDataURL.replace('owlbert.png', encodeURIComponent('owlbert (1).png')),
         });
 
-        // When running this test on Node 18, dependending on the test environment that this is
-        // executed within the `Content-Length` header may be one of these values.
-        expect(parseInt(res.headers['Content-Length'], 10)).to.be.oneOf([764, 779]);
-
+        expect(parseInt(res.headers['Content-Length'], 10)).to.equal(764);
         expect(res.headers['Content-Type']).to.match(/^multipart\/form-data; boundary=form-data-boundary-(.*)$/);
       });
     });

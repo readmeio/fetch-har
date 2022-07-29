@@ -36,6 +36,19 @@ if (!globalThis.FormData) {
   }
 }
 
+export type FetchHAROptions = {
+  userAgent?: string;
+  files?: Record<string, Blob | Buffer>;
+  multipartEncoder?: any; // form-data-encoder
+  init?: RequestInit;
+};
+
+type DataURL = npmDataURL & {
+  // `parse-data-url` doesn't explicitly support `name` in data URLs but if it's there it'll be
+  // returned back to us.
+  name?: string;
+};
+
 function isBrowser() {
   return typeof window !== 'undefined' && typeof document !== 'undefined';
 }
@@ -86,18 +99,15 @@ function isFormData(value: any) {
   );
 }
 
-type FetchHAROptions = {
-  userAgent?: string;
-  files?: Record<string, Blob | Buffer>;
-  multipartEncoder?: any; // form-data-encoder
-  init?: RequestInit;
-};
+function getFileFromSuppliedFiles(filename: string, files: FetchHAROptions['files']) {
+  if (filename in files) {
+    return files[filename];
+  } else if (decodeURIComponent(filename) in files) {
+    return files[decodeURIComponent(filename)];
+  }
 
-type DataURL = npmDataURL & {
-  // `parse-data-url` doesn't explicitly support `name` in data URLs but if it's there it'll be
-  // returned back to us.
-  name?: string;
-};
+  return false;
+}
 
 export default function fetchHAR(har: Har, opts: FetchHAROptions = {}) {
   if (!har) throw new Error('Missing HAR definition');
@@ -232,30 +242,33 @@ export default function fetchHAR(har: Har, opts: FetchHAROptions = {}) {
 
           request.postData.params.forEach(param => {
             if ('fileName' in param) {
-              if (opts.files && param.fileName in opts.files) {
-                const fileContents = opts.files[param.fileName];
+              if (opts.files) {
+                const fileContents = getFileFromSuppliedFiles(param.fileName, opts.files);
+                if (fileContents) {
+                  // If the file we've got available to us is a Buffer then we need to convert it so
+                  // that the FormData API can use it.
+                  if (isBuffer(fileContents)) {
+                    form.append(
+                      param.name,
+                      new File([fileContents], param.fileName, {
+                        type: param.contentType || null,
+                      }),
+                      param.fileName
+                    );
 
-                // If the file we've got available to us is a Buffer then we need to convert it so
-                // that the FormData API can use it.
-                if (isBuffer(fileContents)) {
-                  form.append(
-                    param.name,
-                    new File([fileContents], param.fileName, {
-                      type: param.contentType || null,
-                    }),
-                    param.fileName
+                    return;
+                  } else if (isFile(fileContents)) {
+                    form.append(param.name, fileContents as Blob, param.fileName);
+                    return;
+                  }
+
+                  throw new TypeError(
+                    'An unknown object has been supplied into the `files` config for use. We only support instances of the File API and Node Buffer objects.'
                   );
-
-                  return;
-                } else if (isFile(fileContents)) {
-                  form.append(param.name, fileContents as Blob, param.fileName);
-                  return;
                 }
+              }
 
-                throw new TypeError(
-                  'An unknown object has been supplied into the `files` config for use. We only support instances of the File API and Node Buffer objects.'
-                );
-              } else if ('value' in param) {
+              if ('value' in param) {
                 let paramBlob;
                 const parsed = parseDataUrl(param.value);
                 if (parsed) {
@@ -321,22 +334,24 @@ export default function fetchHAR(har: Har, opts: FetchHAROptions = {}) {
         const parsed = parseDataUrl(request.postData.text) as DataURL;
         if (parsed) {
           if (parsed?.name && parsed.name in opts.files) {
-            const fileContents = opts.files[parsed.name];
-            if (isBuffer(fileContents)) {
-              options.body = fileContents;
-            } else if (isFile(fileContents)) {
-              // `Readable.from` isn't available in browsers but the browser `Request` object can
-              // handle `File` objects just fine without us having to mold it into shape.
-              if (isBrowser()) {
+            const fileContents = getFileFromSuppliedFiles(parsed.name, opts.files);
+            if (fileContents) {
+              if (isBuffer(fileContents)) {
                 options.body = fileContents;
-              } else {
-                // @ts-expect-error "Property 'from' does not exist on type 'typeof Readable'." but it does!
-                options.body = Readable.from((fileContents as File).stream());
+              } else if (isFile(fileContents)) {
+                // `Readable.from` isn't available in browsers but the browser `Request` object can
+                // handle `File` objects just fine without us having to mold it into shape.
+                if (isBrowser()) {
+                  options.body = fileContents;
+                } else {
+                  // @ts-expect-error "Property 'from' does not exist on type 'typeof Readable'." but it does!
+                  options.body = Readable.from((fileContents as File).stream());
 
-                // Supplying a polyfilled `File` stream into `Request.body` doesn't automatically
-                // add `Content-Length`.
-                if (!headers.has('content-length')) {
-                  headers.set('content-length', String((fileContents as File).size));
+                  // Supplying a polyfilled `File` stream into `Request.body` doesn't automatically
+                  // add `Content-Length`.
+                  if (!headers.has('content-length')) {
+                    headers.set('content-length', String((fileContents as File).size));
+                  }
                 }
               }
             }

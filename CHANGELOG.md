@@ -1,3 +1,10 @@
+## <small>8.1.3 (2022-07-29)</small>
+
+* chore: clenaing up some lengthy test comments ([7f797af](https://github.com/readmeio/fetch-har/commit/7f797af))
+* fix: postData filenames may be encoded so we should look for them in `opts.files` too (#308) ([f938ee3](https://github.com/readmeio/fetch-har/commit/f938ee3)), closes [#308](https://github.com/readmeio/fetch-har/issues/308)
+
+
+
 ## <small>8.1.2 (2022-07-27)</small>
 
 * fix: updating the data-urls package to fix a problem with file case sensititivity ([42cadff](https://github.com/readmeio/fetch-har/commit/42cadff))

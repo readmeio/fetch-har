@@ -66,8 +66,8 @@ describe('#fetchHAR (Node-only quirks)', function () {
     it('should support an `image/png` request that has a data URL with no file name', async function () {
       const har = JSON.parse(JSON.stringify(harExamples['image-png-no-filename']));
 
-      // Not only is this Owlbert image not what is in the HAR, but the HAR doesn't contain a file name so supplying
-      // this buffer to the fetch call will be ignored.
+      // Not only is this Owlbert image not what is in the HAR, but the HAR doesn't contain a file
+      // name so supplying this buffer to the fetch call will be ignored.
       const owlbert = await fs.readFile(`${__dirname}/fixtures/owlbert-shrub.png`);
       const res = await fetchHAR(har, { files: { 'owlbert.png': owlbert } }).then(r => r.json());
 
@@ -82,8 +82,9 @@ describe('#fetchHAR (Node-only quirks)', function () {
 
         expect(res.args).to.be.empty;
         expect(res.data).to.equal(
-          // Since we uploaded a raw file buffer it isn't going to have `image/png` in the data URL coming back from
-          // httpbin; that information will just exist within the `Content-Type` header.
+          // Since we uploaded a raw file buffer it isn't going to have `image/png` in the data URL
+          // coming back from HTTPBin; that information will just exist within the `Content-Type`
+          // header.
           har.log.entries[0].request.postData.text.replace(
             'data:image/png;name=owlbert.png',
             'data:application/octet-stream'
@@ -99,8 +100,8 @@ describe('#fetchHAR (Node-only quirks)', function () {
       });
 
       it('should support a File `files` mapping override for a raw payload data URL', async function () {
-        // In the HAR is `owlbert.png` but we want to adhoc override that with the contents of `owlbert-shrub.png` here
-        // to ensure that the override works.
+        // In the HAR is `owlbert.png` but we want to adhoc override that with the contents of
+        // `owlbert-shrub.png` here to ensure that the override works.
         const owlbert = new File([owlbertShrubDataURL], 'owlbert.png', { type: 'image/png' });
         const res = await fetchHAR(harExamples['image-png'], { files: { 'owlbert.png': owlbert } }).then(r => r.json());
 
@@ -159,7 +160,8 @@ describe('#fetchHAR (Node-only quirks)', function () {
         }).then(r => r.json());
 
         expect(res.files).to.deep.equal({
-          // This won't have `name=owlbert.png` in the data URL that comes back to us because we sent a raw file buffer.
+          // This won't have `name=owlbert.png` in the data URL that comes back to us because we
+          // sent a raw file buffer.
           foo: owlbertDataURL.replace('name=owlbert.png;', ''),
         });
 

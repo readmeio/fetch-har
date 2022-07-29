@@ -23,8 +23,8 @@ describe('#fetchHAR (Browser-only quirks)', function () {
   describe('binary handling', function () {
     describe('supplemental overrides', function () {
       it('should support a File `files` mapping override for a raw payload data URL', async function () {
-        // In the HAR is `owlbert.png` but we want to adhoc override that with the contents of `owlbert-shrub.png` here
-        // to ensure that the override works.
+        // In the HAR is `owlbert.png` but we want to adhoc override that with the contents of
+        // `owlbert-shrub.png` here to ensure that the override works.
         const res = await fetchHAR(harExamples['image-png'], {
           files: {
             'owlbert.png': new File([owlbertShrubDataURL], 'owlbert.png', { type: 'image/png' }),

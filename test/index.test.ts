@@ -138,11 +138,14 @@ describe('fetch-har', function () {
       const res = await fetchHAR(harExamples.cookies).then(r => r.json());
 
       if (host.browser) {
-        // This assertion looks funky but because we're making a cross-origin request here we aren't going to have
-        // cookies present here even despite us sending `credentials: include`. We'll only be able to detect cookies
-        // here if we mock the server out, which we can't do in the browser.
-        //
-        // @todo we should try mocking this request instead to make sure that cookies are sent
+        /**
+         * This assertion looks funky but because we're making a cross-origin request here we aren't
+         * going to have cookies present here even despite us sending `credentials: include`. We'll
+         * only be able to detect cookies here if we mock the server out, which we can't do in the
+         * browser.
+         *
+         * @todo we should try mocking this request instead to make sure that cookies are sent
+         */
         expect(res.cookies).to.be.empty;
       } else {
         expect(res.cookies).to.deep.equal({

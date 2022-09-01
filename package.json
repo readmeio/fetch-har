@@ -35,7 +35,7 @@
     "readable-stream": "^3.6.0"
   },
   "optionalDependencies": {
-    "formdata-node": "^4.3.2"
+    "formdata-node": "^5.0.0"
   },
   "devDependencies": {
     "@jsdevtools/host-environment": "^2.1.2",
@@ -54,7 +54,7 @@
     "fetch-mock": "^9.11.0",
     "form-data": "^4.0.0",
     "form-data-encoder": "^1.7.1",
-    "formdata-node": "^4.3.2",
+    "formdata-node": "^5.0.0",
     "har-examples": "^3.1.1",
     "isomorphic-fetch": "^3.0.0",
     "mocha": "^10.0.0",

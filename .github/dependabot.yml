@@ -34,6 +34,9 @@ updates:
           - "> 4"
 
       # node-fetch is now an ESM package and can't be used here without a rewrite.
+      - dependency-name: formdata-node
+        versions:
+          - ">= 5"
       - dependency-name: node-fetch
         versions:
           - ">= 3"

@@ -1,16 +1,17 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 import type { VersionInfo } from '@jsdevtools/host-environment';
-import 'isomorphic-fetch';
-import { host } from '@jsdevtools/host-environment';
 
 import { promises as fs } from 'fs';
-import { expect } from 'chai';
-import harExamples from 'har-examples';
-import { FormDataEncoder } from 'form-data-encoder';
 
-import owlbertDataURL from './fixtures/owlbert.dataurl.json';
+import { host } from '@jsdevtools/host-environment';
+import { expect } from 'chai';
+import { FormDataEncoder } from 'form-data-encoder';
+import harExamples from 'har-examples';
+import 'isomorphic-fetch';
+
 import owlbertScreenshotDataURL from './fixtures/owlbert-screenshot.dataurl.json';
 import owlbertShrubDataURL from './fixtures/owlbert-shrub.dataurl.json';
+import owlbertDataURL from './fixtures/owlbert.dataurl.json';
 
 const isNode18 = (host.node as VersionInfo).version >= 18;
 

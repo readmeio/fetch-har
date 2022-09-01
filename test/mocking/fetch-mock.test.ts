@@ -1,9 +1,8 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
-import 'isomorphic-fetch';
-
 import { expect } from 'chai';
 import fetchMock from 'fetch-mock';
 import harExamples from 'har-examples';
+import 'isomorphic-fetch';
 
 describe('#fetchHAR mocking (fetch-mock)', function () {
   it('should support mocking a request with `fetch-mock`', async function () {

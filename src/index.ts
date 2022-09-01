@@ -1,7 +1,8 @@
-import type { Har } from 'har-format';
 import type { DataURL as npmDataURL } from '@readme/data-urls';
-import { Readable } from 'readable-stream';
+import type { Har } from 'har-format';
+
 import { parse as parseDataUrl } from '@readme/data-urls';
+import { Readable } from 'readable-stream';
 
 if (!globalThis.Blob) {
   try {

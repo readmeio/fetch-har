@@ -1,15 +1,14 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 import type { VersionInfo } from '@jsdevtools/host-environment';
 import type { Har } from 'har-format';
-import 'isomorphic-fetch';
-import { host } from '@jsdevtools/host-environment';
 
+import { host } from '@jsdevtools/host-environment';
 import { expect } from 'chai';
 import harExamples from 'har-examples';
-
-import owlbertDataURL from './fixtures/owlbert.dataurl.json';
+import 'isomorphic-fetch';
 
 import invalidHeadersHAR from './fixtures/invalid-headers.har.json';
+import owlbertDataURL from './fixtures/owlbert.dataurl.json';
 import urlEncodedWithAuthHAR from './fixtures/urlencoded-with-auth.har.json';
 
 describe('fetch-har', function () {

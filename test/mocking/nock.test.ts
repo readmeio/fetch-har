@@ -1,11 +1,11 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 import type { VersionInfo } from '@jsdevtools/host-environment';
-import 'isomorphic-fetch';
-import { host } from '@jsdevtools/host-environment';
 
+import { host } from '@jsdevtools/host-environment';
 import { expect } from 'chai';
-import nock from 'nock';
 import harExamples from 'har-examples';
+import 'isomorphic-fetch';
+import nock from 'nock';
 
 describe('#fetchHAR mocking (nock)', function () {
   it('should support mocking a request with `nock`', async function () {

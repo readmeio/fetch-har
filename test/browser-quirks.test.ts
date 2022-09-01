@@ -1,11 +1,10 @@
-import 'isomorphic-fetch';
-
 import { host } from '@jsdevtools/host-environment';
 import { expect } from 'chai';
 import harExamples from 'har-examples';
+import 'isomorphic-fetch';
 
-import owlbert from './fixtures/owlbert.dataurl.json';
 import owlbertShrubDataURL from './fixtures/owlbert-shrub.dataurl.json';
+import owlbert from './fixtures/owlbert.dataurl.json';
 
 describe('#fetchHAR (Browser-only quirks)', function () {
   let fetchHAR;

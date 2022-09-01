@@ -2,21 +2,20 @@
 import type { VersionInfo } from '@jsdevtools/host-environment';
 import type { Express } from 'express';
 
-import 'isomorphic-fetch';
-import { host } from '@jsdevtools/host-environment';
+import { promises as fs } from 'fs';
 
+import { host } from '@jsdevtools/host-environment';
+import { expect } from 'chai';
+import DatauriParser from 'datauri/parser';
 import express from 'express';
+import { FormDataEncoder } from 'form-data-encoder';
+import 'isomorphic-fetch';
 import multer from 'multer';
 import tempDirectory from 'temp-dir';
-import DatauriParser from 'datauri/parser';
-import { promises as fs } from 'fs';
-import { expect } from 'chai';
-import { FormDataEncoder } from 'form-data-encoder';
-
-import owlbertDataURL from './fixtures/owlbert.dataurl.json';
-import owlbertShrubDataURL from './fixtures/owlbert-shrub.dataurl.json';
 
 import arrayOfOwlbertsHAR from './fixtures/array-of-owlberts.har.json';
+import owlbertShrubDataURL from './fixtures/owlbert-shrub.dataurl.json';
+import owlbertDataURL from './fixtures/owlbert.dataurl.json';
 
 const isNode18 = (host.node as VersionInfo).version >= 18;
 

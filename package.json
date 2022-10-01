@@ -32,7 +32,7 @@
   "dependencies": {
     "@readme/data-urls": "^1.0.1",
     "@types/har-format": "^1.2.8",
-    "readable-stream": "^3.6.0"
+    "readable-stream": "^4.2.0"
   },
   "optionalDependencies": {
     "formdata-node": "^4.3.2"

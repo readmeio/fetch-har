@@ -37,12 +37,12 @@ if (!globalThis.FormData) {
   }
 }
 
-export type FetchHAROptions = {
+export interface FetchHAROptions {
   userAgent?: string;
   files?: Record<string, Blob | Buffer>;
   multipartEncoder?: any; // form-data-encoder
   init?: RequestInit;
-};
+}
 
 type DataURL = npmDataURL & {
   // `parse-data-url` doesn't explicitly support `name` in data URLs but if it's there it'll be

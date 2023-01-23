@@ -1,3 +1,10 @@
+## <small>8.1.5 (2023-01-23)</small>
+
+* fix: support urls with hashes that also have query params (#363) ([7a51342](https://github.com/readmeio/fetch-har/commit/7a51342)), closes [#363](https://github.com/readmeio/fetch-har/issues/363)
+* chore(deps-dev): bumping deps (#362) ([3279246](https://github.com/readmeio/fetch-har/commit/3279246)), closes [#362](https://github.com/readmeio/fetch-har/issues/362)
+
+
+
 ## <small>8.1.4 (2023-01-03)</small>
 
 * chore(deps-dev): bump @readme/eslint-config from 10.1.0 to 10.1.1 (#331) ([75de615](https://github.com/readmeio/fetch-har/commit/75de615)), closes [#331](https://github.com/readmeio/fetch-har/issues/331)

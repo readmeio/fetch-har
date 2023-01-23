@@ -257,6 +257,47 @@ describe('fetch-har', function () {
           fetchHAR(har);
         }).not.to.throw("Cannot read property 'length' of undefined");
       });
+
+      it('should support urls with query parameters if the url has an anchor hash in it', async function () {
+        const har = {
+          log: {
+            entries: [
+              {
+                request: {
+                  cookies: [],
+                  headers: [
+                    {
+                      name: 'content-type',
+                      value: 'multipart/form-data',
+                    },
+                  ],
+                  headersSize: 0,
+                  queryString: [
+                    {
+                      name: 'dog_id',
+                      value: 'buster18',
+                    },
+                  ],
+                  postData: {
+                    mimeType: 'application/json',
+                    text: undefined,
+                  },
+                  bodySize: 0,
+                  method: 'GET',
+                  url: 'https://httpbin.org/anything#anything',
+                  httpVersion: 'HTTP/1.1',
+                },
+              },
+            ],
+          },
+        };
+
+        const res = await fetchHAR(har).then(r => r.json());
+
+        expect(res.args).to.deep.equal({ dog_id: 'buster18' });
+        // `#anything` isn't a part of this URL because web servers don't have access to hashes.
+        expect(res.url).to.equal('https://httpbin.org/anything?dog_id=buster18');
+      });
     });
   });
 });

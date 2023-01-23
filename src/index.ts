@@ -42,6 +42,7 @@ interface RequestInitWithDuplex extends RequestInit {
    * `RequestInit#duplex` does not yet exist in the TS `lib.dom.d.ts` definition yet the native
    * fetch implementation in Node 18+, `undici`, requires it for certain POST payloads.
    *
+   * @see {@link https://github.com/microsoft/TypeScript-DOM-lib-generator/issues/1483}
    * @see {@link https://github.com/nodejs/node/issues/46221}
    * @see {@link https://fetch.spec.whatwg.org/#request-class}
    * @see {@link https://github.com/microsoft/TypeScript/blob/main/lib/lib.dom.d.ts}
@@ -395,8 +396,9 @@ export default function fetchHAR(har: Har, opts: FetchHAROptions = {}) {
 
   // We automaticaly assume that the HAR that we have already has query parameters encoded within
   // it so we do **not** use the `URLSearchParams` API here for composing the query string.
+  let requestURL = url;
   if ('queryString' in request && request.queryString.length) {
-    const urlObj = new URL(url);
+    const urlObj = new URL(requestURL);
 
     const queryParams = Array.from(urlObj.searchParams).map(([k, v]) => `${k}=${v}`);
     request.queryString.forEach(q => {
@@ -404,6 +406,16 @@ export default function fetchHAR(har: Har, opts: FetchHAROptions = {}) {
     });
 
     querystring = queryParams.join('&');
+
+    // Because anchor hashes before query strings will prevent query strings from being delivered
+    // we need to pop them off and re-add them after.
+    const urlHashes = url.split('#');
+    requestURL = `${urlHashes[0].split('?')[0]}${querystring ? `?${querystring}` : ''}`;
+    if (urlHashes.length > 1) {
+      // Though web servers don't have access to hashes we might as well send it anyways as it
+      // was intentionally added to the URL.
+      requestURL += `#${urlHashes.join('#')}`;
+    }
   }
 
   if (opts.userAgent) {
@@ -412,5 +424,5 @@ export default function fetchHAR(har: Har, opts: FetchHAROptions = {}) {
 
   options.headers = headers;
 
-  return fetch(`${url.split('?')[0]}${querystring ? `?${querystring}` : ''}`, options);
+  return fetch(requestURL, options);
 }

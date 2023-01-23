@@ -11,6 +11,8 @@ import invalidHeadersHAR from './fixtures/invalid-headers.har.json';
 import owlbertDataURL from './fixtures/owlbert.dataurl.json';
 import urlEncodedWithAuthHAR from './fixtures/urlencoded-with-auth.har.json';
 
+const hasNativeFetch = (host.node as VersionInfo).version >= 18;
+
 describe('fetch-har', function () {
   let fetchHAR;
 
@@ -35,7 +37,6 @@ describe('fetch-har', function () {
         globalThis.FormData = require('formdata-node').FormData;
       }
 
-      const hasNativeFetch = (host.node as VersionInfo).version >= 18;
       if (hasNativeFetch) {
         globalThis.File = require('undici').File;
         globalThis.Blob = require('buffer').Blob;
@@ -295,7 +296,12 @@ describe('fetch-har', function () {
         const res = await fetchHAR(har).then(r => {
           // This URL with the hash will only be present here as HTTPBin's web server doesn't
           // support seeing hashes in incoming URLs.
-          expect(r.url).to.equal('https://httpbin.org/anything?dog=true&dog_id=buster18#anything');
+          if (hasNativeFetch) {
+            // `undici` in Node 18+ doesn't return the URL here with the hash.
+            expect(r.url).to.equal('https://httpbin.org/anything?dog=true&dog_id=buster18');
+          } else {
+            expect(r.url).to.equal('https://httpbin.org/anything?dog=true&dog_id=buster18#anything');
+          }
           return r.json();
         });
 

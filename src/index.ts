@@ -413,12 +413,12 @@ export default function fetchHAR(har: Har, opts: FetchHAROptions = {}) {
 
     // Because anchor hashes before query strings will prevent query strings from being delivered
     // we need to pop them off and re-add them after.
-    const urlHashes = url.split('#');
-    requestURL = `${urlHashes[0].split('?')[0]}${querystring ? `?${querystring}` : ''}`;
-    if (urlHashes.length > 1) {
-      // Though web servers don't have access to hashes we might as well send it anyways as it
-      // was intentionally added to the URL.
-      requestURL += `#${urlHashes.join('#')}`;
+    if (urlObj.hash) {
+      const urlWithoutHashes = requestURL.replace(urlObj.hash, '');
+      requestURL = `${urlWithoutHashes.split('?')[0]}${querystring ? `?${querystring}` : ''}`;
+      requestURL += urlObj.hash;
+    } else {
+      requestURL = `${requestURL.split('?')[0]}${querystring ? `?${querystring}` : ''}`;
     }
   }
 

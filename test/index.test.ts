@@ -284,7 +284,7 @@ describe('fetch-har', function () {
                   },
                   bodySize: 0,
                   method: 'GET',
-                  url: 'https://httpbin.org/anything#anything',
+                  url: 'https://httpbin.org/anything?dog=true#anything',
                   httpVersion: 'HTTP/1.1',
                 },
               },
@@ -292,11 +292,15 @@ describe('fetch-har', function () {
           },
         };
 
-        const res = await fetchHAR(har).then(r => r.json());
+        const res = await fetchHAR(har).then(r => {
+          // This URL with the hash will only be present here as HTTPBin's web server doesn't
+          // support seeing hashes in incoming URLs
+          expect(r.url).to.equal('https://httpbin.org/anything?dog=true&dog_id=buster18#anything');
+          return r.json();
+        });
 
-        expect(res.args).to.deep.equal({ dog_id: 'buster18' });
-        // `#anything` isn't a part of this URL because web servers don't have access to hashes.
-        expect(res.url).to.equal('https://httpbin.org/anything?dog_id=buster18');
+        expect(res.args).to.deep.equal({ dog: 'true', dog_id: 'buster18' });
+        expect(res.url).to.equal('https://httpbin.org/anything?dog=true&dog_id=buster18');
       });
     });
   });

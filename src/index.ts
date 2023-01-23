@@ -37,11 +37,24 @@ if (!globalThis.FormData) {
   }
 }
 
+interface RequestInitWithDuplex extends RequestInit {
+  /**
+   * `RequestInit#duplex` does not yet exist in the TS `lib.dom.d.ts` definition yet the native
+   * fetch implementation in Node 18+, `undici`, requires it for certain POST payloads.
+   *
+   * @see {@link https://github.com/microsoft/TypeScript-DOM-lib-generator/issues/1483}
+   * @see {@link https://github.com/nodejs/node/issues/46221}
+   * @see {@link https://fetch.spec.whatwg.org/#request-class}
+   * @see {@link https://github.com/microsoft/TypeScript/blob/main/lib/lib.dom.d.ts}
+   */
+  duplex?: 'half';
+}
+
 export interface FetchHAROptions {
   userAgent?: string;
   files?: Record<string, Blob | Buffer>;
   multipartEncoder?: any; // form-data-encoder
-  init?: RequestInit;
+  init?: RequestInitWithDuplex;
 }
 
 type DataURL = npmDataURL & {
@@ -117,8 +130,9 @@ export default function fetchHAR(har: Har, opts: FetchHAROptions = {}) {
   const { request } = har.log.entries[0];
   const { url } = request;
   let querystring = '';
+  let shouldSetDuplex = false;
 
-  const options: RequestInit = {
+  const options: RequestInitWithDuplex = {
     // If we have custom options for the `Request` API we need to add them in here now before we
     // fill it in with everything we need from the HAR.
     ...(opts.init ? opts.init : {}),
@@ -309,6 +323,7 @@ export default function fetchHAR(har: Har, opts: FetchHAROptions = {}) {
 
             // @ts-expect-error "Property 'from' does not exist on type 'typeof Readable'." but it does!
             options.body = Readable.from(encoder);
+            shouldSetDuplex = true;
           } else {
             options.body = form;
           }
@@ -347,6 +362,7 @@ export default function fetchHAR(har: Har, opts: FetchHAROptions = {}) {
                 } else {
                   // @ts-expect-error "Property 'from' does not exist on type 'typeof Readable'." but it does!
                   options.body = Readable.from((fileContents as File).stream());
+                  shouldSetDuplex = true;
 
                   // Supplying a polyfilled `File` stream into `Request.body` doesn't automatically
                   // add `Content-Length`.
@@ -364,12 +380,29 @@ export default function fetchHAR(har: Har, opts: FetchHAROptions = {}) {
         options.body = request.postData.text;
       }
     }
+
+    /**
+     * The fetch spec, which Node 18+ strictly abides by, now requires that `duplex` be sent with
+     * requests that have payloads.
+     *
+     * As `RequestInit#duplex` isn't supported by any browsers, or even mentioned on MDN, we aren't
+     * sending it in browser environments. This work is purely to support Node 18+ and `undici`
+     * environments.
+     *
+     * @see {@link https://github.com/nodejs/node/issues/46221}
+     * @see {@link https://github.com/whatwg/fetch/pull/1457}
+     * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/Request/Request}
+     */
+    if (shouldSetDuplex && !isBrowser()) {
+      options.duplex = 'half';
+    }
   }
 
   // We automaticaly assume that the HAR that we have already has query parameters encoded within
   // it so we do **not** use the `URLSearchParams` API here for composing the query string.
+  let requestURL = url;
   if ('queryString' in request && request.queryString.length) {
-    const urlObj = new URL(url);
+    const urlObj = new URL(requestURL);
 
     const queryParams = Array.from(urlObj.searchParams).map(([k, v]) => `${k}=${v}`);
     request.queryString.forEach(q => {
@@ -377,6 +410,16 @@ export default function fetchHAR(har: Har, opts: FetchHAROptions = {}) {
     });
 
     querystring = queryParams.join('&');
+
+    // Because anchor hashes before query strings will prevent query strings from being delivered
+    // we need to pop them off and re-add them after.
+    if (urlObj.hash) {
+      const urlWithoutHashes = requestURL.replace(urlObj.hash, '');
+      requestURL = `${urlWithoutHashes.split('?')[0]}${querystring ? `?${querystring}` : ''}`;
+      requestURL += urlObj.hash;
+    } else {
+      requestURL = `${requestURL.split('?')[0]}${querystring ? `?${querystring}` : ''}`;
+    }
   }
 
   if (opts.userAgent) {
@@ -385,5 +428,5 @@ export default function fetchHAR(har: Har, opts: FetchHAROptions = {}) {
 
   options.headers = headers;
 
-  return fetch(`${url.split('?')[0]}${querystring ? `?${querystring}` : ''}`, options);
+  return fetch(requestURL, options);
 }

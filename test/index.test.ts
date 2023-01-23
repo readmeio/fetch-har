@@ -11,6 +11,8 @@ import invalidHeadersHAR from './fixtures/invalid-headers.har.json';
 import owlbertDataURL from './fixtures/owlbert.dataurl.json';
 import urlEncodedWithAuthHAR from './fixtures/urlencoded-with-auth.har.json';
 
+const hasNativeFetch = (host.node as VersionInfo).version >= 18;
+
 describe('fetch-har', function () {
   let fetchHAR;
 
@@ -35,7 +37,6 @@ describe('fetch-har', function () {
         globalThis.FormData = require('formdata-node').FormData;
       }
 
-      const hasNativeFetch = (host.node as VersionInfo).version >= 18;
       if (hasNativeFetch) {
         globalThis.File = require('undici').File;
         globalThis.Blob = require('buffer').Blob;
@@ -256,6 +257,46 @@ describe('fetch-har', function () {
         expect(() => {
           fetchHAR(har);
         }).not.to.throw("Cannot read property 'length' of undefined");
+      });
+
+      it('should support urls with query parameters if the url has an anchor hash in it', async function () {
+        const har = {
+          log: {
+            entries: [
+              {
+                request: {
+                  cookies: [],
+                  headers: [
+                    {
+                      name: 'content-type',
+                      value: 'multipart/form-data',
+                    },
+                  ],
+                  headersSize: 0,
+                  queryString: [
+                    {
+                      name: 'dog_id',
+                      value: 'buster18',
+                    },
+                  ],
+                  postData: {
+                    mimeType: 'application/json',
+                    text: undefined,
+                  },
+                  bodySize: 0,
+                  method: 'GET',
+                  url: 'https://httpbin.org/anything?dog=true#anything',
+                  httpVersion: 'HTTP/1.1',
+                },
+              },
+            ],
+          },
+        };
+
+        const res = await fetchHAR(har).then(r => r.json());
+
+        expect(res.args).to.deep.equal({ dog: 'true', dog_id: 'buster18' });
+        expect(res.url).to.equal('https://httpbin.org/anything?dog=true&dog_id=buster18');
       });
     });
   });

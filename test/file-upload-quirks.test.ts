@@ -23,7 +23,6 @@ describe('#fetchHAR (Node-only quirks)', function () {
   let fetchHAR;
   let app: Express;
   let listener;
-  let initOptions: RequestInit = {};
 
   beforeEach(async function () {
     /**
@@ -41,17 +40,9 @@ describe('#fetchHAR (Node-only quirks)', function () {
     if (hasNativeFetch) {
       globalThis.File = require('undici').File;
       globalThis.Blob = require('buffer').Blob;
-
-      initOptions = {
-        // https://github.com/nodejs/node/issues/46221
-        // @ts-expect-error `duplex` is part of the Fetch standard, and is wanted by `undici`, but is not yet in the `RequestInit` types.
-        duplex: 'half',
-      };
     } else {
       globalThis.File = require('formdata-node').File;
       globalThis.Blob = require('formdata-node').Blob;
-
-      initOptions = {};
 
       // We only need to polyfill handlers for `multipart/form-data` requests below Node 18 as Node
       // 18 natively supports `fetch`.
@@ -94,7 +85,6 @@ describe('#fetchHAR (Node-only quirks)', function () {
         'owlbert.png': await fs.readFile(`${__dirname}/fixtures/owlbert.png`),
         'owlbert-shrub.png': await fs.readFile(`${__dirname}/fixtures/owlbert-shrub.png`),
       },
-      init: initOptions,
       multipartEncoder: FormDataEncoder,
     }).then(r => r.json());
 

@@ -37,11 +37,23 @@ if (!globalThis.FormData) {
   }
 }
 
+interface RequestInitWithDuplex extends RequestInit {
+  /**
+   * `RequestInit#duplex` does not yet exist in the TS `lib.dom.d.ts` definition yet the native
+   * fetch implementation in Node 18+, `undici`, requires it for certain POST payloads.
+   *
+   * @see {@link https://github.com/nodejs/node/issues/46221}
+   * @see {@link https://fetch.spec.whatwg.org/#request-class}
+   * @see {@link https://github.com/microsoft/TypeScript/blob/main/lib/lib.dom.d.ts}
+   */
+  duplex?: 'half';
+}
+
 export interface FetchHAROptions {
   userAgent?: string;
   files?: Record<string, Blob | Buffer>;
   multipartEncoder?: any; // form-data-encoder
-  init?: RequestInit;
+  init?: RequestInitWithDuplex;
 }
 
 type DataURL = npmDataURL & {
@@ -118,7 +130,7 @@ export default function fetchHAR(har: Har, opts: FetchHAROptions = {}) {
   const { url } = request;
   let querystring = '';
 
-  const options: RequestInit = {
+  const options: RequestInitWithDuplex = {
     // If we have custom options for the `Request` API we need to add them in here now before we
     // fill it in with everything we need from the HAR.
     ...(opts.init ? opts.init : {}),
@@ -363,6 +375,21 @@ export default function fetchHAR(har: Har, opts: FetchHAROptions = {}) {
       if (typeof options.body === 'undefined') {
         options.body = request.postData.text;
       }
+    }
+
+    /**
+     * The fetch spec, which Node 18+ strictly abides by, now requires that `duplex` be sent with
+     * requests that have payloads.
+     *
+     * We can't easily do Node version determinations within this code as this library can be used
+     * in browsers but it seems at least that sending `duplex` into the `RequetsInit` of
+     * `node-fetch@2` on <=Node 16 does not cause any problems.
+     *
+     * @see {@link https://github.com/nodejs/node/issues/46221}
+     * @see {@link https://github.com/whatwg/fetch/pull/1457}
+     */
+    if ('body' in options) {
+      options.duplex = 'half';
     }
   }
 

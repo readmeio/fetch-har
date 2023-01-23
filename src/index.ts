@@ -130,6 +130,7 @@ export default function fetchHAR(har: Har, opts: FetchHAROptions = {}) {
   const { request } = har.log.entries[0];
   const { url } = request;
   let querystring = '';
+  let shouldSetDuplex = false;
 
   const options: RequestInitWithDuplex = {
     // If we have custom options for the `Request` API we need to add them in here now before we
@@ -322,6 +323,7 @@ export default function fetchHAR(har: Har, opts: FetchHAROptions = {}) {
 
             // @ts-expect-error "Property 'from' does not exist on type 'typeof Readable'." but it does!
             options.body = Readable.from(encoder);
+            shouldSetDuplex = true;
           } else {
             options.body = form;
           }
@@ -360,6 +362,7 @@ export default function fetchHAR(har: Har, opts: FetchHAROptions = {}) {
                 } else {
                   // @ts-expect-error "Property 'from' does not exist on type 'typeof Readable'." but it does!
                   options.body = Readable.from((fileContents as File).stream());
+                  shouldSetDuplex = true;
 
                   // Supplying a polyfilled `File` stream into `Request.body` doesn't automatically
                   // add `Content-Length`.
@@ -382,14 +385,15 @@ export default function fetchHAR(har: Har, opts: FetchHAROptions = {}) {
      * The fetch spec, which Node 18+ strictly abides by, now requires that `duplex` be sent with
      * requests that have payloads.
      *
-     * We can't easily do Node version determinations within this code as this library can be used
-     * in browsers but it seems at least that sending `duplex` into the `RequetsInit` of
-     * `node-fetch@2` on <=Node 16 does not cause any problems.
+     * As `RequestInit#duplex` isn't supported by any browsers, or even mentioned on MDN, we aren't
+     * sending it in browser environments. This work is purely to support Node 18+ and `undici`
+     * environments.
      *
      * @see {@link https://github.com/nodejs/node/issues/46221}
      * @see {@link https://github.com/whatwg/fetch/pull/1457}
+     * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/Request/Request}
      */
-    if ('body' in options) {
+    if (shouldSetDuplex && !isBrowser()) {
       options.duplex = 'half';
     }
   }

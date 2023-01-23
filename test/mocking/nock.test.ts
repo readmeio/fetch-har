@@ -9,11 +9,11 @@ import nock from 'nock';
 
 describe('#fetchHAR mocking (nock)', function () {
   it('should support mocking a request with `nock`', async function () {
-    const isNode18 = (host.node as VersionInfo).version >= 18;
+    const hasNativeFetch = (host.node as VersionInfo).version >= 18;
     const fetchHAR = require('../../src').default;
 
     // Nock does not support Node 18's native `fetch` implementation.
-    if (isNode18) {
+    if (hasNativeFetch) {
       this.skip();
     }
 

@@ -35,8 +35,8 @@ describe('fetch-har', function () {
         globalThis.FormData = require('formdata-node').FormData;
       }
 
-      const isNode18 = (host.node as VersionInfo).version >= 18;
-      if (isNode18) {
+      const hasNativeFetch = (host.node as VersionInfo).version >= 18;
+      if (hasNativeFetch) {
         globalThis.File = require('undici').File;
         globalThis.Blob = require('buffer').Blob;
       } else {

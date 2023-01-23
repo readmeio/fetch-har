@@ -17,12 +17,13 @@ import arrayOfOwlbertsHAR from './fixtures/array-of-owlberts.har.json';
 import owlbertShrubDataURL from './fixtures/owlbert-shrub.dataurl.json';
 import owlbertDataURL from './fixtures/owlbert.dataurl.json';
 
-const isNode18 = (host.node as VersionInfo).version >= 18;
+const hasNativeFetch = (host.node as VersionInfo).version >= 18;
 
 describe('#fetchHAR (Node-only quirks)', function () {
   let fetchHAR;
   let app: Express;
   let listener;
+  let initOptions: RequestInit = {};
 
   beforeEach(async function () {
     /**
@@ -37,15 +38,21 @@ describe('#fetchHAR (Node-only quirks)', function () {
      * with `formdata-node` behaves differently than the `Blob` that is part of the Node `buffer`
      * module, which Undici wants you to use.
      */
-    if (isNode18) {
+    if (hasNativeFetch) {
       globalThis.File = require('undici').File;
       globalThis.Blob = require('buffer').Blob;
+
+      initOptions = {
+        // https://github.com/nodejs/node/issues/46221
+        // @ts-expect-error `duplex` is part of the Fetch standard, and is wanted by `undici`, but is not yet in the `RequestInit` types.
+        duplex: 'half',
+      };
     } else {
       globalThis.File = require('formdata-node').File;
       globalThis.Blob = require('formdata-node').Blob;
-    }
 
-    if (!isNode18) {
+      initOptions = {};
+
       // We only need to polyfill handlers for `multipart/form-data` requests below Node 18 as Node
       // 18 natively supports `fetch`.
       if (!globalThis.FormData) {
@@ -87,6 +94,7 @@ describe('#fetchHAR (Node-only quirks)', function () {
         'owlbert.png': await fs.readFile(`${__dirname}/fixtures/owlbert.png`),
         'owlbert-shrub.png': await fs.readFile(`${__dirname}/fixtures/owlbert-shrub.png`),
       },
+      init: initOptions,
       multipartEncoder: FormDataEncoder,
     }).then(r => r.json());
 

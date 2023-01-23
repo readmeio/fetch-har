@@ -293,17 +293,7 @@ describe('fetch-har', function () {
           },
         };
 
-        const res = await fetchHAR(har).then(r => {
-          // This URL with the hash will only be present here as HTTPBin's web server doesn't
-          // support seeing hashes in incoming URLs.
-          if (hasNativeFetch) {
-            // `undici` in Node 18+ doesn't return the URL here with the hash.
-            expect(r.url).to.equal('https://httpbin.org/anything?dog=true&dog_id=buster18');
-          } else {
-            expect(r.url).to.equal('https://httpbin.org/anything?dog=true&dog_id=buster18#anything');
-          }
-          return r.json();
-        });
+        const res = await fetchHAR(har).then(r => r.json());
 
         expect(res.args).to.deep.equal({ dog: 'true', dog_id: 'buster18' });
         expect(res.url).to.equal('https://httpbin.org/anything?dog=true&dog_id=buster18');

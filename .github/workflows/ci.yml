@@ -43,11 +43,6 @@ jobs:
           node-version: ${{ matrix.node }}
           cache: 'npm'
 
-      # Node 14 still ships with npm@6 which doesn't install peerDeps by default.
-      - name: Install npm@7
-        if: matrix.node == '14'
-        run: npm install -g npm@7
-
       - run: npm ci
       - run: npm run build
       - run: npm run test --ignore-scripts

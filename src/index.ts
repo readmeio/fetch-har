@@ -51,10 +51,10 @@ interface RequestInitWithDuplex extends RequestInit {
 }
 
 export interface FetchHAROptions {
-  userAgent?: string;
   files?: Record<string, Blob | Buffer>;
-  multipartEncoder?: any; // form-data-encoder
   init?: RequestInitWithDuplex;
+  multipartEncoder?: any; // form-data-encoder
+  userAgent?: string;
 }
 
 type DataURL = npmDataURL & {

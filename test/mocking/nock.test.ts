@@ -1,21 +1,19 @@
-/* eslint-disable @typescript-eslint/no-var-requires */
 import type { VersionInfo } from '@jsdevtools/host-environment';
 
 import { host } from '@jsdevtools/host-environment';
-import { expect } from 'chai';
 import harExamples from 'har-examples';
 import 'isomorphic-fetch';
 import nock from 'nock';
+import { describe, it, expect } from 'vitest';
+
+const hasNativeFetch = (host.node as VersionInfo).version >= 18;
 
 describe('#fetchHAR mocking (nock)', function () {
-  it('should support mocking a request with `nock`', async function () {
-    const hasNativeFetch = (host.node as VersionInfo).version >= 18;
-    const fetchHAR = require('../../src').default;
-
-    // Nock does not support Node 18's native `fetch` implementation.
-    if (hasNativeFetch) {
-      this.skip();
-    }
+  // eslint-disable-next-line vitest/require-hook
+  it.skipIf(
+    hasNativeFetch, // Nock does not support Node 18's native `fetch` implementation.
+  )('should support mocking a request with `nock`', async function () {
+    const { default: fetchHAR } = await import('../../src');
 
     nock('https://httpbin.org')
       .post('/post')

@@ -10,7 +10,7 @@ if (!globalThis.Blob) {
     globalThis.Blob = require('formdata-node').Blob;
   } catch (e) {
     throw new Error(
-      'Since you do not have the Blob API available in this environment you must install the optional `formdata-node` dependency.'
+      'Since you do not have the Blob API available in this environment you must install the optional `formdata-node` dependency.',
     );
   }
 }
@@ -21,7 +21,7 @@ if (!globalThis.File) {
     globalThis.File = require('formdata-node').File;
   } catch (e) {
     throw new Error(
-      'Since you do not have the File API available in this environment you must install the optional `formdata-node` dependency.'
+      'Since you do not have the File API available in this environment you must install the optional `formdata-node` dependency.',
     );
   }
 }
@@ -32,7 +32,7 @@ if (!globalThis.FormData) {
     globalThis.FormData = require('formdata-node').FormData;
   } catch (e) {
     throw new Error(
-      'Since you do not have the FormData API available in this environment you must install the optional `formdata-node` dependency.'
+      'Since you do not have the FormData API available in this environment you must install the optional `formdata-node` dependency.',
     );
   }
 }
@@ -180,7 +180,7 @@ export default function fetchHAR(har: Har, opts: FetchHAROptions = {}) {
         'cookie',
         request.cookies
           .map(cookie => `${encodeURIComponent(cookie.name)}=${encodeURIComponent(cookie.value)}`)
-          .join('; ')
+          .join('; '),
       );
     }
   }
@@ -251,7 +251,7 @@ export default function fetchHAR(har: Har, opts: FetchHAROptions = {}) {
              * @see {@link https://github.com/form-data/form-data/issues/124}
              */
             throw new Error(
-              "We've detected you're using a non-spec compliant FormData library. We recommend polyfilling FormData with https://npm.im/formdata-node"
+              "We've detected you're using a non-spec compliant FormData library. We recommend polyfilling FormData with https://npm.im/formdata-node",
             );
           }
 
@@ -268,7 +268,7 @@ export default function fetchHAR(har: Har, opts: FetchHAROptions = {}) {
                       new File([fileContents], param.fileName, {
                         type: param.contentType || null,
                       }),
-                      param.fileName
+                      param.fileName,
                     );
 
                     return;
@@ -278,7 +278,7 @@ export default function fetchHAR(har: Har, opts: FetchHAROptions = {}) {
                   }
 
                   throw new TypeError(
-                    'An unknown object has been supplied into the `files` config for use. We only support instances of the File API and Node Buffer objects.'
+                    'An unknown object has been supplied into the `files` config for use. We only support instances of the File API and Node Buffer objects.',
                   );
                 }
               }
@@ -299,7 +299,7 @@ export default function fetchHAR(har: Har, opts: FetchHAROptions = {}) {
               }
 
               throw new Error(
-                "The supplied HAR has a postData parameter with `fileName`, but neither `value` content within the HAR or any file buffers were supplied with the `files` option. Since this library doesn't have access to the filesystem, it can't fetch that file."
+                "The supplied HAR has a postData parameter with `fileName`, but neither `value` content within the HAR or any file buffers were supplied with the `files` option. Since this library doesn't have access to the filesystem, it can't fetch that file.",
               );
             }
 

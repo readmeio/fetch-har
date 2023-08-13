@@ -1,6 +1,6 @@
 {
-  "extends": ["@readme/eslint-config/testing-mocha"],
+  "extends": "@readme/eslint-config/testing/vitest",
   "rules": {
-    "func-names": "off"
+    "no-unused-expressions": "off"
   }
 }

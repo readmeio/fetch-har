@@ -3,9 +3,9 @@ import type { VersionInfo } from '@jsdevtools/host-environment';
 import type { Har } from 'har-format';
 
 import { host } from '@jsdevtools/host-environment';
-import { expect } from 'chai';
 import harExamples from 'har-examples';
 import 'isomorphic-fetch';
+import { describe, beforeEach, it, expect } from 'vitest';
 
 import invalidHeadersHAR from './fixtures/invalid-headers.har.json';
 import owlbertDataURL from './fixtures/owlbert.dataurl.json';
@@ -13,10 +13,10 @@ import urlEncodedWithAuthHAR from './fixtures/urlencoded-with-auth.har.json';
 
 const hasNativeFetch = (host.node as VersionInfo).version >= 18;
 
-describe('fetch-har', function () {
+describe('fetch-har', () => {
   let fetchHAR;
 
-  beforeEach(function () {
+  beforeEach(async () => {
     /**
      * Under Node 18's native `fetch` implementation if a `File` global doesn't exist it'll polyfill
      * its own implementation. Normally this works fine, but its implementation is **different**
@@ -46,33 +46,31 @@ describe('fetch-har', function () {
       }
     }
 
-    fetchHAR = require('../src').default;
+    ({ default: fetchHAR } = await import('../src'));
   });
 
-  it('should throw if it looks like you are missing a valid HAR definition', function () {
+  it('should throw if it looks like you are missing a valid HAR definition', () => {
     expect(fetchHAR).to.throw('Missing HAR definition');
     expect(fetchHAR.bind(null, { log: {} })).to.throw('Missing log.entries array');
     expect(fetchHAR.bind(null, { log: { entries: [] } })).to.throw('Missing log.entries array');
   });
 
-  it('should make a request with a custom user agent if specified', async function () {
-    if (!host.node) {
-      // Custom user agents are not supported in browser environments.
-      this.skip();
-    }
-
+  // eslint-disable-next-line vitest/require-hook
+  it.skipIf(
+    !host.node, // Custom user agents are not supported in browser environments.
+  )('should make a request with a custom user agent if specified', async () => {
     const res = await fetchHAR(harExamples.short, { userAgent: 'test-app/1.0' }).then(r => r.json());
     expect(res.headers['User-Agent']).to.equal('test-app/1.0');
   });
 
-  it('should catch and toss invalid headers present in a HAR', async function () {
+  it('should catch and toss invalid headers present in a HAR', async () => {
     const res = await fetchHAR(invalidHeadersHAR as Har).then(r => r.json());
     expect(res.headers['X-Api-Key']).to.equal('asdf1234');
     expect(res.headers['X-Api-Key (invalid)']).to.be.undefined;
   });
 
-  describe('custom options', function () {
-    it('should support supplying custom headers in a `Headers` instance', async function () {
+  describe('custom options', () => {
+    it('should support supplying custom headers in a `Headers` instance', async () => {
       const res = await fetchHAR(harExamples['text-plain'], {
         init: {
           headers: new Headers({
@@ -84,7 +82,7 @@ describe('fetch-har', function () {
       expect(res.headers['X-Custom-Header']).to.equal('buster');
     });
 
-    it('should support supplying custom headers as an object', async function () {
+    it('should support supplying custom headers as an object', async () => {
       const res = await fetchHAR(harExamples['text-plain'], {
         init: {
           headers: {
@@ -97,8 +95,8 @@ describe('fetch-har', function () {
     });
   });
 
-  describe('integrations', function () {
-    it('should support `text/plain` requests', async function () {
+  describe('integrations', () => {
+    it('should support `text/plain` requests', async () => {
       const res = await fetchHAR(harExamples['text-plain']).then(r => r.json());
 
       expect(res.args).to.be.empty;
@@ -111,14 +109,14 @@ describe('fetch-har', function () {
       expect(res.url).to.equal('https://httpbin.org/post');
     });
 
-    it('should support requests with array query parameters', async function () {
+    it('should support requests with array query parameters', async () => {
       const res = await fetchHAR(harExamples.query).then(r => r.json());
 
       expect(res.args).to.deep.equal({ baz: 'abc', foo: ['bar', 'baz'], key: 'value' });
       expect(res.url).to.equal('https://httpbin.org/get?key=value&foo=bar&foo=baz&baz=abc');
     });
 
-    it('should not double encode query parameters', async function () {
+    it('should not double encode query parameters', async () => {
       const res = await fetchHAR(harExamples['query-encoded']).then(r => r.json());
 
       expect(res.args).to.deep.equal({
@@ -130,11 +128,11 @@ describe('fetch-har', function () {
       });
 
       expect(res.url).to.equal(
-        'https://httpbin.org/anything?stringPound=something%26nothing%3Dtrue&stringHash=hash%23data&stringArray=where[4]%3D10&stringWeird=properties["%24email"] %3D%3D "testing"&array=something%26nothing%3Dtrue&array=nothing%26something%3Dfalse&array=another item'
+        'https://httpbin.org/anything?stringPound=something%26nothing%3Dtrue&stringHash=hash%23data&stringArray=where[4]%3D10&stringWeird=properties["%24email"] %3D%3D "testing"&array=something%26nothing%3Dtrue&array=nothing%26something%3Dfalse&array=another item',
       );
     });
 
-    it('should support requests with cookies', async function () {
+    it('should support requests with cookies', async () => {
       const res = await fetchHAR(harExamples.cookies).then(r => r.json());
 
       if (host.browser) {
@@ -155,7 +153,7 @@ describe('fetch-har', function () {
       }
     });
 
-    it('should support `application/x-www-form-urlencoded` requests with auth', async function () {
+    it('should support `application/x-www-form-urlencoded` requests with auth', async () => {
       const res = await fetchHAR(urlEncodedWithAuthHAR as unknown as Har).then(r => r.json());
 
       expect(res.args).to.deep.equal({ a: '1', b: '2' });
@@ -169,7 +167,7 @@ describe('fetch-har', function () {
       expect(res.url).to.equal('https://httpbin.org/post?a=1&b=2');
     });
 
-    it('should support requests that cover the entire HAR spec', async function () {
+    it('should support requests that cover the entire HAR spec', async () => {
       const res = await fetchHAR(harExamples.full).then(r => r.json());
 
       expect(res.args).to.deep.equal({ baz: 'abc', foo: ['bar', 'baz'], key: 'value' });
@@ -188,8 +186,8 @@ describe('fetch-har', function () {
       expect(res.url).to.equal('https://httpbin.org/post?key=value&foo=bar&foo=baz&baz=abc');
     });
 
-    describe('binary handling', function () {
-      it('should support a `image/png` request', async function () {
+    describe('binary handling', () => {
+      it('should support a `image/png` request', async () => {
         const har = harExamples['image-png'];
         const res = await fetchHAR(har).then(r => r.json());
 
@@ -204,15 +202,15 @@ describe('fetch-har', function () {
       });
     });
 
-    describe('multipart/form-data', function () {
-      it('should throw an error if `fileName` is present without `value` or a mapping', function () {
+    describe('multipart/form-data', () => {
+      it('should throw an error if `fileName` is present without `value` or a mapping', () => {
         expect(() => {
           fetchHAR(harExamples['multipart-file']);
         }).to.throw(/doesn't have access to the filesystem/);
       });
 
-      describe('`files` option', function () {
-        it('should throw on an unsupported type', function () {
+      describe('`files` option', () => {
+        it('should throw on an unsupported type', () => {
           expect(() => {
             fetchHAR(harExamples['multipart-data-dataurl'], {
               files: {
@@ -224,8 +222,8 @@ describe('fetch-har', function () {
       });
     });
 
-    describe('quirks', function () {
-      it('should not fail if `postData.text` is `undefined`', function () {
+    describe('quirks', () => {
+      it('should not fail if `postData.text` is `undefined`', () => {
         const har = {
           log: {
             entries: [
@@ -259,7 +257,7 @@ describe('fetch-har', function () {
         }).not.to.throw("Cannot read property 'length' of undefined");
       });
 
-      it('should support urls with query parameters if the url has an anchor hash in it', async function () {
+      it('should support urls with query parameters if the url has an anchor hash in it', async () => {
         const har = {
           log: {
             entries: [

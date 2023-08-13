@@ -4,10 +4,10 @@ import type { VersionInfo } from '@jsdevtools/host-environment';
 import { promises as fs } from 'fs';
 
 import { host } from '@jsdevtools/host-environment';
-import { expect } from 'chai';
 import { FormDataEncoder } from 'form-data-encoder';
 import harExamples from 'har-examples';
 import 'isomorphic-fetch';
+import { describe, beforeEach, it, expect } from 'vitest';
 
 import owlbertScreenshotDataURL from './fixtures/owlbert-screenshot.dataurl.json';
 import owlbertShrubDataURL from './fixtures/owlbert-shrub.dataurl.json';
@@ -15,10 +15,10 @@ import owlbertDataURL from './fixtures/owlbert.dataurl.json';
 
 const hasNativeFetch = (host.node as VersionInfo).version >= 18;
 
-describe('#fetchHAR (Node-only quirks)', function () {
+describe('#fetchHAR (Node-only quirks)', () => {
   let fetchHAR;
 
-  beforeEach(function () {
+  beforeEach(async () => {
     /**
      * Under Node 18's native `fetch` implementation if a `File` global doesn't exist it'll polyfill
      * its own implementation. Normally this works fine, but its implementation is **different**
@@ -47,10 +47,10 @@ describe('#fetchHAR (Node-only quirks)', function () {
       }
     }
 
-    fetchHAR = require('../src').default;
+    ({ default: fetchHAR } = await import('../src'));
   });
 
-  it('should throw if you are using a non-compliant FormData polyfill', function () {
+  it('should throw if you are using a non-compliant FormData polyfill', () => {
     const ogFormData = globalThis.FormData;
     globalThis.FormData = require('form-data');
 
@@ -63,8 +63,8 @@ describe('#fetchHAR (Node-only quirks)', function () {
     globalThis.FormData = ogFormData;
   });
 
-  describe('binary handling', function () {
-    it('should support an `image/png` request that has a data URL with no file name', async function () {
+  describe('binary handling', () => {
+    it('should support an `image/png` request that has a data URL with no file name', async () => {
       const har = JSON.parse(JSON.stringify(harExamples['image-png-no-filename']));
 
       // Not only is this Owlbert image not what is in the HAR, but the HAR doesn't contain a file
@@ -75,8 +75,8 @@ describe('#fetchHAR (Node-only quirks)', function () {
       expect(res.data).to.equal(har.log.entries[0].request.postData.text);
     });
 
-    describe('supplemental overrides', function () {
-      it('should support a Buffer `files` mapping override for a raw payload data URL', async function () {
+    describe('supplemental overrides', () => {
+      it('should support a Buffer `files` mapping override for a raw payload data URL', async () => {
         const har = JSON.parse(JSON.stringify(harExamples['image-png']));
         const owlbert = await fs.readFile(`${__dirname}/fixtures/owlbert.png`);
         const res = await fetchHAR(har, { files: { 'owlbert.png': owlbert } }).then(r => r.json());
@@ -88,8 +88,8 @@ describe('#fetchHAR (Node-only quirks)', function () {
           // header.
           har.log.entries[0].request.postData.text.replace(
             'data:image/png;name=owlbert.png',
-            'data:application/octet-stream'
-          )
+            'data:application/octet-stream',
+          ),
         );
 
         expect(res.files).to.be.empty;
@@ -100,7 +100,7 @@ describe('#fetchHAR (Node-only quirks)', function () {
         expect(res.url).to.equal('https://httpbin.org/post');
       });
 
-      it('should support a File `files` mapping override for a raw payload data URL', async function () {
+      it('should support a File `files` mapping override for a raw payload data URL', async () => {
         // In the HAR is `owlbert.png` but we want to adhoc override that with the contents of
         // `owlbert-shrub.png` here to ensure that the override works.
         const owlbert = new File([owlbertShrubDataURL], 'owlbert.png', { type: 'image/png' });
@@ -118,7 +118,7 @@ describe('#fetchHAR (Node-only quirks)', function () {
         expect(res.url).to.equal('https://httpbin.org/post');
       });
 
-      it("should ignore a `files` mapping override if it's neither a Buffer or a File", async function () {
+      it("should ignore a `files` mapping override if it's neither a Buffer or a File", async () => {
         const res = await fetchHAR(harExamples['image-png'], {
           files: {
             'owlbert.png': 'owlbert.png',
@@ -130,8 +130,8 @@ describe('#fetchHAR (Node-only quirks)', function () {
     });
   });
 
-  describe('`multipartEncoder` option', function () {
-    it("should support a `multipart/form-data` request that's a standard object", async function () {
+  describe('`multipartEncoder` option', () => {
+    it("should support a `multipart/form-data` request that's a standard object", async () => {
       const res = await fetchHAR(harExamples['multipart-form-data'], {
         multipartEncoder: FormDataEncoder,
       }).then(r => r.json());
@@ -141,7 +141,7 @@ describe('#fetchHAR (Node-only quirks)', function () {
       expect(res.headers['Content-Type']).to.match(/^multipart\/form-data; boundary=(.*)$/);
     });
 
-    it('should support a `multipart/form-data` request with a plaintext file encoded in the HAR', async function () {
+    it('should support a `multipart/form-data` request with a plaintext file encoded in the HAR', async () => {
       const res = await fetchHAR(harExamples['multipart-data'], {
         multipartEncoder: FormDataEncoder,
       }).then(r => r.json());
@@ -151,8 +151,8 @@ describe('#fetchHAR (Node-only quirks)', function () {
       expect(res.headers['Content-Type']).to.match(/^multipart\/form-data; boundary=(.*)$/);
     });
 
-    describe('`files` option', function () {
-      it('should support Buffers', async function () {
+    describe('`files` option', () => {
+      it('should support Buffers', async () => {
         const owlbert = await fs.readFile(`${__dirname}/fixtures/owlbert.png`);
 
         const res = await fetchHAR(harExamples['multipart-data-dataurl'], {
@@ -172,7 +172,7 @@ describe('#fetchHAR (Node-only quirks)', function () {
         expect(res.headers['Content-Type']).to.match(/^multipart\/form-data; boundary=form-data-boundary-(.*)$/);
       });
 
-      it('should support File objects', async function () {
+      it('should support File objects', async () => {
         const res = await fetchHAR(harExamples['multipart-data-dataurl'], {
           files: {
             'owlbert.png': new File([owlbertDataURL], 'owlbert.png', { type: 'image/png' }),
@@ -185,7 +185,7 @@ describe('#fetchHAR (Node-only quirks)', function () {
         expect(res.headers['Content-Type']).to.match(/^multipart\/form-data; boundary=(.*)$/);
       });
 
-      it('should support filenames with characters that are encoded with `encodeURIComponent`', async function () {
+      it('should support filenames with characters that are encoded with `encodeURIComponent`', async () => {
         const encodedFilename = encodeURIComponent('owlbert screen shot 2022-07-29 at 11.05.56 AM.png');
 
         // We're intentionally corrupting the data URL with a junk base64 payload in order to test
@@ -199,7 +199,7 @@ describe('#fetchHAR (Node-only quirks)', function () {
             'owlbert screen shot 2022-07-29 at 11.05.56 AM.png': new File(
               [owlbertScreenshotDataURL],
               'owlbert screen shot 2022-07-29 at 11.05.56 AM.png.png',
-              { type: 'image/png' }
+              { type: 'image/png' },
             ),
           },
           multipartEncoder: FormDataEncoder,
@@ -211,8 +211,8 @@ describe('#fetchHAR (Node-only quirks)', function () {
       });
     });
 
-    describe('data URLs', function () {
-      it('should be able to handle a `multipart/form-data` payload with a base64-encoded data URL file', async function () {
+    describe('data URLs', () => {
+      it('should be able to handle a `multipart/form-data` payload with a base64-encoded data URL file', async () => {
         const res = await fetchHAR(harExamples['multipart-data-dataurl'], {
           multipartEncoder: FormDataEncoder,
         }).then(r => r.json());
@@ -222,13 +222,13 @@ describe('#fetchHAR (Node-only quirks)', function () {
         expect(res.headers['Content-Type']).to.match(/^multipart\/form-data; boundary=form-data-boundary-(.*)$/);
       });
 
-      it('should be able to handle a `multipart/form-data` payload with a base64-encoded data URL filename that contains parentheses', async function () {
+      it('should be able to handle a `multipart/form-data` payload with a base64-encoded data URL filename that contains parentheses', async () => {
         const har = JSON.parse(JSON.stringify(harExamples['multipart-data-dataurl']));
         har.log.entries[0].request.postData.params[0].fileName = 'owlbert (1).png';
         har.log.entries[0].request.postData.params[0].value =
           har.log.entries[0].request.postData.params[0].value.replace(
             'name=owlbert.png;',
-            `name=${encodeURIComponent('owlbert (1).png')};`
+            `name=${encodeURIComponent('owlbert (1).png')};`,
           );
 
         const res = await fetchHAR(har, { multipartEncoder: FormDataEncoder }).then(r => r.json());

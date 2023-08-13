@@ -47,47 +47,50 @@ jobs:
       - run: npm run build
       - run: npm run test --ignore-scripts
 
-  browser_tests:
-    name: Browser
-    runs-on: ${{ matrix.os }}
-    timeout-minutes: 5
-    strategy:
-      fail-fast: true
-      matrix:
-        browser:
-          - chrome
-          - firefox
-        os:
-          - ubuntu-latest
-          - windows-latest
+  ###
+  ### Temporarily skipping these until browser testing in Vitest is a bit more stable.
+  ###
+  # browser_tests:
+  #   name: Browser
+  #   runs-on: ${{ matrix.os }}
+  #   timeout-minutes: 5
+  #   strategy:
+  #     fail-fast: true
+  #     matrix:
+  #       browser:
+  #         - chrome
+  #         - firefox
+  #       os:
+  #         - ubuntu-latest
+  #         - windows-latest
 
-    steps:
-      - name: Checkout source
-        uses: actions/checkout@v3
+  #   steps:
+  #     - name: Checkout source
+  #       uses: actions/checkout@v3
 
-      - name: Install Node
-        uses: actions/setup-node@v3
-        with:
-          node-version: 16
-          cache: 'npm'
+  #     - name: Install Node
+  #       uses: actions/setup-node@v3
+  #       with:
+  #         node-version: 16
+  #         cache: 'npm'
 
-      - run: npm ci
-      - run: npm run build
+  #     - run: npm ci
+  #     - run: npm run build
 
-      # Chrome
-      - uses: browser-actions/setup-chrome@latest
-        if: matrix.browser == 'chrome'
+  #     # Chrome
+  #     - uses: browser-actions/setup-chrome@latest
+  #       if: matrix.browser == 'chrome'
 
-      - name: Run tests on Chrome
-        if: matrix.browser == 'chrome'
-        run: |
-          npm run test:browser -- --browsers=ChromeHeadless
+  #     - name: Run tests on Chrome
+  #       if: matrix.browser == 'chrome'
+  #       run: |
+  #         npm run test:browser -- --browsers=ChromeHeadless
 
-      # Firefox
-      - uses: browser-actions/setup-chrome@latest
-        if: matrix.browser == 'firefox'
+  #     # Firefox
+  #     - uses: browser-actions/setup-chrome@latest
+  #       if: matrix.browser == 'firefox'
 
-      - name: Run tests on Firefox
-        if: matrix.browser == 'firefox'
-        run: |
-          npm run test:browser -- --browsers=FirefoxHeadless
+  #     - name: Run tests on Firefox
+  #       if: matrix.browser == 'firefox'
+  #       run: |
+  #         npm run test:browser -- --browsers=FirefoxHeadless

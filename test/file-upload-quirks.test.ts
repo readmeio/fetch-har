@@ -5,13 +5,13 @@ import type { Express } from 'express';
 import { promises as fs } from 'fs';
 
 import { host } from '@jsdevtools/host-environment';
-import { expect } from 'chai';
 import DatauriParser from 'datauri/parser';
 import express from 'express';
 import { FormDataEncoder } from 'form-data-encoder';
 import 'isomorphic-fetch';
 import multer from 'multer';
 import tempDirectory from 'temp-dir';
+import { describe, beforeEach, afterEach, it, expect } from 'vitest';
 
 import arrayOfOwlbertsHAR from './fixtures/array-of-owlberts.har.json';
 import owlbertShrubDataURL from './fixtures/owlbert-shrub.dataurl.json';
@@ -19,12 +19,12 @@ import owlbertDataURL from './fixtures/owlbert.dataurl.json';
 
 const hasNativeFetch = (host.node as VersionInfo).version >= 18;
 
-describe('#fetchHAR (Node-only quirks)', function () {
+describe('#fetchHAR (Node-only quirks)', () => {
   let fetchHAR;
   let app: Express;
   let listener;
 
-  beforeEach(async function () {
+  beforeEach(async () => {
     /**
      * Under Node 18's native `fetch` implementation if a `File` global doesn't exist it'll polyfill
      * its own implementation. Normally this works fine, but its implementation is **different**
@@ -51,7 +51,7 @@ describe('#fetchHAR (Node-only quirks)', function () {
       }
     }
 
-    fetchHAR = require('../src').default;
+    ({ default: fetchHAR } = await import('../src'));
 
     /**
      * Due to a bug with `multipart/form-data` handling on multiple files in HTTPBin we need to
@@ -69,11 +69,11 @@ describe('#fetchHAR (Node-only quirks)', function () {
     listener = await app.listen();
   });
 
-  afterEach(function () {
+  afterEach(() => {
     return listener.close();
   });
 
-  it('should support sending multiple images to the same parameter', async function () {
+  it('should support sending multiple images to the same parameter', async () => {
     const har = JSON.parse(JSON.stringify(arrayOfOwlbertsHAR));
     har.log.entries[0].request.url = `http://localhost:${listener.address().port}/`;
 
@@ -97,11 +97,11 @@ describe('#fetchHAR (Node-only quirks)', function () {
      * metadata into ones it generates so we need to pop those off before we do our assertions.
      */
     expect(parser.format('.png', await fs.readFile(res[0].path)).base64).to.equal(
-      owlbertDataURL.replace('data:image/png;name=owlbert.png;base64,', '')
+      owlbertDataURL.replace('data:image/png;name=owlbert.png;base64,', ''),
     );
 
     expect(parser.format('.png', await fs.readFile(res[1].path)).base64).to.equal(
-      owlbertShrubDataURL.replace('data:image/png;name=owlbert-shrub.png;base64,', '')
+      owlbertShrubDataURL.replace('data:image/png;name=owlbert-shrub.png;base64,', ''),
     );
   });
 });

@@ -1,68 +1,15 @@
-/* eslint-disable @typescript-eslint/no-var-requires */
-import type { VersionInfo } from '@jsdevtools/host-environment';
+import fs from 'node:fs/promises';
 
-import { promises as fs } from 'fs';
-
-import { host } from '@jsdevtools/host-environment';
-import { FormDataEncoder } from 'form-data-encoder';
 import harExamples from 'har-examples';
-import 'isomorphic-fetch';
-import { describe, beforeEach, it, expect } from 'vitest';
+import { describe, it, expect } from 'vitest';
+
+import fetchHAR from '../src';
 
 import owlbertScreenshotDataURL from './fixtures/owlbert-screenshot.dataurl.json';
 import owlbertShrubDataURL from './fixtures/owlbert-shrub.dataurl.json';
 import owlbertDataURL from './fixtures/owlbert.dataurl.json';
 
-const hasNativeFetch = (host.node as VersionInfo).version >= 18;
-
 describe('#fetchHAR (Node-only quirks)', () => {
-  let fetchHAR;
-
-  beforeEach(async () => {
-    /**
-     * Under Node 18's native `fetch` implementation if a `File` global doesn't exist it'll polyfill
-     * its own implementation. Normally this works fine, but its implementation is **different**
-     * than the one that `formdata-node` ships and when we use the `formdata-node` one under Node
-     * 18 `type` options that we set into `File` instances don't get picked up, resulting in
-     * multipart payloads being sent as `application/octet-stream` instead of whatever content type
-     * was attached to that file.
-     *
-     * This behavior also extends to Undici's usage of `Blob` as well where the `Blob` that ships
-     * with `formdata-node` behaves differently than the `Blob` that is part of the Node `buffer`
-     * module, which Undici wants you to use.
-     */
-    if (hasNativeFetch) {
-      globalThis.File = require('undici').File;
-      globalThis.Blob = require('buffer').Blob;
-    } else {
-      globalThis.File = require('formdata-node').File;
-      globalThis.Blob = require('formdata-node').Blob;
-    }
-
-    if (!hasNativeFetch) {
-      // We only need to polyfill handlers for `multipart/form-data` requests below Node 18 as Node
-      // 18 natively supports `fetch`.
-      if (!globalThis.FormData) {
-        globalThis.FormData = require('formdata-node').FormData;
-      }
-    }
-
-    ({ default: fetchHAR } = await import('../src'));
-  });
-
-  it('should throw if you are using a non-compliant FormData polyfill', () => {
-    const ogFormData = globalThis.FormData;
-    globalThis.FormData = require('form-data');
-
-    expect(() => {
-      fetchHAR(harExamples['multipart-form-data']);
-    }).to.throw("We've detected you're using a non-spec compliant FormData library.");
-
-    // Reset this to whatever it was originally so we don't corrupt any Node 18+ tests that use a
-    // native `FormData` API.
-    globalThis.FormData = ogFormData;
-  });
-
   describe('binary handling', () => {
     it('should support an `image/png` request that has a data URL with no file name', async () => {
       const har = JSON.parse(JSON.stringify(harExamples['image-png-no-filename']));
@@ -72,7 +19,7 @@ describe('#fetchHAR (Node-only quirks)', () => {
       const owlbert = await fs.readFile(`${__dirname}/fixtures/owlbert-shrub.png`);
       const res = await fetchHAR(har, { files: { 'owlbert.png': owlbert } }).then(r => r.json());
 
-      expect(res.data).to.equal(har.log.entries[0].request.postData.text);
+      expect(res.data).toBe(har.log.entries[0].request.postData.text);
     });
 
     describe('supplemental overrides', () => {
@@ -81,8 +28,8 @@ describe('#fetchHAR (Node-only quirks)', () => {
         const owlbert = await fs.readFile(`${__dirname}/fixtures/owlbert.png`);
         const res = await fetchHAR(har, { files: { 'owlbert.png': owlbert } }).then(r => r.json());
 
-        expect(res.args).to.be.empty;
-        expect(res.data).to.equal(
+        expect(res.args).toStrictEqual({});
+        expect(res.data).toBe(
           // Since we uploaded a raw file buffer it isn't going to have `image/png` in the data URL
           // coming back from HTTPBin; that information will just exist within the `Content-Type`
           // header.
@@ -92,12 +39,12 @@ describe('#fetchHAR (Node-only quirks)', () => {
           ),
         );
 
-        expect(res.files).to.be.empty;
-        expect(res.form).to.be.empty;
-        expect(parseInt(res.headers['Content-Length'], 10)).to.equal(400);
-        expect(res.headers['Content-Type']).to.equal('image/png');
-        expect(res.json).to.be.null;
-        expect(res.url).to.equal('https://httpbin.org/post');
+        expect(res.files).toStrictEqual({});
+        expect(res.form).toStrictEqual({});
+        expect(parseInt(res.headers['Content-Length'], 10)).toBe(400);
+        expect(res.headers['Content-Type']).toBe('image/png');
+        expect(res.json).toBeNull();
+        expect(res.url).toBe('https://httpbin.org/post');
       });
 
       it('should support a File `files` mapping override for a raw payload data URL', async () => {
@@ -108,47 +55,44 @@ describe('#fetchHAR (Node-only quirks)', () => {
           files: { 'owlbert.png': owlbert },
         }).then(r => r.json());
 
-        expect(res.args).to.be.empty;
-        expect(res.data).to.equal(owlbertShrubDataURL);
-        expect(res.files).to.be.empty;
-        expect(res.form).to.be.empty;
-        expect(parseInt(res.headers['Content-Length'], 10)).to.equal(877);
-        expect(res.headers['Content-Type']).to.equal('image/png');
-        expect(res.json).to.be.null;
-        expect(res.url).to.equal('https://httpbin.org/post');
+        expect(res.args).toStrictEqual({});
+        expect(res.data).toBe(owlbertShrubDataURL);
+        expect(res.files).toStrictEqual({});
+        expect(res.form).toStrictEqual({});
+        expect(parseInt(res.headers['Content-Length'], 10)).toBe(877);
+        expect(res.headers['Content-Type']).toBe('image/png');
+        expect(res.json).toBeNull();
+        expect(res.url).toBe('https://httpbin.org/post');
       });
 
       it("should ignore a `files` mapping override if it's neither a Buffer or a File", async () => {
         const res = await fetchHAR(harExamples['image-png'], {
           files: {
+            // @ts-expect-error Intentional mistyping.
             'owlbert.png': 'owlbert.png',
           },
         }).then(r => r.json());
 
-        expect(res.data).to.equal(harExamples['image-png'].log.entries[0].request.postData.text);
+        expect(res.data).toBe(harExamples['image-png'].log.entries[0].request.postData.text);
       });
     });
   });
 
-  describe('`multipartEncoder` option', () => {
+  describe('multipart requests option', () => {
     it("should support a `multipart/form-data` request that's a standard object", async () => {
-      const res = await fetchHAR(harExamples['multipart-form-data'], {
-        multipartEncoder: FormDataEncoder,
-      }).then(r => r.json());
+      const res = await fetchHAR(harExamples['multipart-form-data']).then(r => r.json());
 
-      expect(res.form).to.deep.equal({ foo: 'bar' });
-      expect(parseInt(res.headers['Content-Length'], 10)).to.equal(133);
-      expect(res.headers['Content-Type']).to.match(/^multipart\/form-data; boundary=(.*)$/);
+      expect(res.form).toStrictEqual({ foo: 'bar' });
+      expect(parseInt(res.headers['Content-Length'], 10)).toBe(123);
+      expect(res.headers['Content-Type']).toMatch(/^multipart\/form-data; boundary=(.*)$/);
     });
 
     it('should support a `multipart/form-data` request with a plaintext file encoded in the HAR', async () => {
-      const res = await fetchHAR(harExamples['multipart-data'], {
-        multipartEncoder: FormDataEncoder,
-      }).then(r => r.json());
+      const res = await fetchHAR(harExamples['multipart-data']).then(r => r.json());
 
-      expect(res.files).to.deep.equal({ foo: 'Hello World' });
-      expect(parseInt(res.headers['Content-Length'], 10)).to.equal(189);
-      expect(res.headers['Content-Type']).to.match(/^multipart\/form-data; boundary=(.*)$/);
+      expect(res.files).toStrictEqual({ foo: 'Hello World' });
+      expect(parseInt(res.headers['Content-Length'], 10)).toBe(179);
+      expect(res.headers['Content-Type']).toMatch(/^multipart\/form-data; boundary=(.*)$/);
     });
 
     describe('`files` option', () => {
@@ -159,17 +103,16 @@ describe('#fetchHAR (Node-only quirks)', () => {
           files: {
             'owlbert.png': owlbert,
           },
-          multipartEncoder: FormDataEncoder,
         }).then(r => r.json());
 
-        expect(res.files).to.deep.equal({
+        expect(res.files).toStrictEqual({
           // This won't have `name=owlbert.png` in the data URL that comes back to us because we
           // sent a raw file buffer.
           foo: owlbertDataURL.replace('name=owlbert.png;', ''),
         });
 
-        expect(parseInt(res.headers['Content-Length'], 10)).to.equal(579);
-        expect(res.headers['Content-Type']).to.match(/^multipart\/form-data; boundary=form-data-boundary-(.*)$/);
+        expect(parseInt(res.headers['Content-Length'], 10)).toBe(569);
+        expect(res.headers['Content-Type']).toMatch(/^multipart\/form-data; boundary=(.*)$/);
       });
 
       it('should support File objects', async () => {
@@ -177,12 +120,11 @@ describe('#fetchHAR (Node-only quirks)', () => {
           files: {
             'owlbert.png': new File([owlbertDataURL], 'owlbert.png', { type: 'image/png' }),
           },
-          multipartEncoder: FormDataEncoder,
         }).then(r => r.json());
 
-        expect(res.files).to.deep.equal({ foo: owlbertDataURL });
-        expect(parseInt(res.headers['Content-Length'], 10)).to.equal(754);
-        expect(res.headers['Content-Type']).to.match(/^multipart\/form-data; boundary=(.*)$/);
+        expect(res.files).toStrictEqual({ foo: owlbertDataURL });
+        expect(parseInt(res.headers['Content-Length'], 10)).toBe(744);
+        expect(res.headers['Content-Type']).toMatch(/^multipart\/form-data; boundary=(.*)$/);
       });
 
       it('should support filenames with characters that are encoded with `encodeURIComponent`', async () => {
@@ -202,24 +144,21 @@ describe('#fetchHAR (Node-only quirks)', () => {
               { type: 'image/png' },
             ),
           },
-          multipartEncoder: FormDataEncoder,
         }).then(r => r.json());
 
-        expect(res.files).to.deep.equal({ foo: owlbertScreenshotDataURL });
-        expect(parseInt(res.headers['Content-Length'], 10)).to.equal(36368);
-        expect(res.headers['Content-Type']).to.match(/^multipart\/form-data; boundary=(.*)$/);
+        expect(res.files).toStrictEqual({ foo: owlbertScreenshotDataURL });
+        expect(parseInt(res.headers['Content-Length'], 10)).toBe(36358);
+        expect(res.headers['Content-Type']).toMatch(/^multipart\/form-data; boundary=(.*)$/);
       });
     });
 
     describe('data URLs', () => {
       it('should be able to handle a `multipart/form-data` payload with a base64-encoded data URL file', async () => {
-        const res = await fetchHAR(harExamples['multipart-data-dataurl'], {
-          multipartEncoder: FormDataEncoder,
-        }).then(r => r.json());
+        const res = await fetchHAR(harExamples['multipart-data-dataurl']).then(r => r.json());
 
-        expect(res.files).to.deep.equal({ foo: owlbertDataURL });
-        expect(parseInt(res.headers['Content-Length'], 10)).to.equal(754);
-        expect(res.headers['Content-Type']).to.match(/^multipart\/form-data; boundary=form-data-boundary-(.*)$/);
+        expect(res.files).toStrictEqual({ foo: owlbertDataURL });
+        expect(parseInt(res.headers['Content-Length'], 10)).toBe(744);
+        expect(res.headers['Content-Type']).toMatch(/^multipart\/form-data; boundary=(.*)$/);
       });
 
       it('should be able to handle a `multipart/form-data` payload with a base64-encoded data URL filename that contains parentheses', async () => {
@@ -231,13 +170,13 @@ describe('#fetchHAR (Node-only quirks)', () => {
             `name=${encodeURIComponent('owlbert (1).png')};`,
           );
 
-        const res = await fetchHAR(har, { multipartEncoder: FormDataEncoder }).then(r => r.json());
-        expect(res.files).to.deep.equal({
+        const res = await fetchHAR(har).then(r => r.json());
+        expect(res.files).toStrictEqual({
           foo: owlbertDataURL.replace('owlbert.png', encodeURIComponent('owlbert (1).png')),
         });
 
-        expect(parseInt(res.headers['Content-Length'], 10)).to.equal(764);
-        expect(res.headers['Content-Type']).to.match(/^multipart\/form-data; boundary=form-data-boundary-(.*)$/);
+        expect(parseInt(res.headers['Content-Length'], 10)).toBe(754);
+        expect(res.headers['Content-Type']).toMatch(/^multipart\/form-data; boundary=(.*)$/);
       });
     });
   });

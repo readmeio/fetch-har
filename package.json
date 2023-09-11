@@ -5,7 +5,7 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "engines": {
-    "node": ">=16"
+    "node": ">=18"
   },
   "scripts": {
     "build": "tsc",
@@ -29,10 +29,8 @@
   "dependencies": {
     "@readme/data-urls": "^1.0.1",
     "@types/har-format": "^1.2.12",
-    "readable-stream": "^3.6.0"
-  },
-  "optionalDependencies": {
-    "formdata-node": "^4.3.2"
+    "readable-stream": "^3.6.0",
+    "undici": "^5.24.0"
   },
   "devDependencies": {
     "@jsdevtools/host-environment": "^2.1.2",
@@ -47,18 +45,11 @@
     "eslint": "^8.48.0",
     "express": "^4.18.1",
     "fetch-mock": "^9.11.0",
-    "form-data": "^4.0.0",
-    "form-data-encoder": "^1.7.1",
-    "formdata-node": "^4.3.2",
     "har-examples": "^3.1.1",
-    "isomorphic-fetch": "^3.0.0",
     "multer": "^1.4.5-lts.1",
-    "nock": "^13.3.3",
-    "node-fetch": "^2.6.0",
     "prettier": "^3.0.3",
     "temp-dir": "^2.0.0",
     "typescript": "^5.2.2",
-    "undici": "^5.22.1",
     "vitest": "^0.34.3",
     "webdriverio": "^8.15.10"
   },

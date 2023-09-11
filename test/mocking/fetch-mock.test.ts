@@ -1,12 +1,11 @@
 import fetchMock from 'fetch-mock';
 import harExamples from 'har-examples';
-import 'isomorphic-fetch';
 import { describe, it, expect } from 'vitest';
+
+import fetchHAR from '../../src';
 
 describe('#fetchHAR mocking (fetch-mock)', () => {
   it('should support mocking a request with `fetch-mock`', async () => {
-    const { default: fetchHAR } = await import('../../src');
-
     fetchMock.mock(
       {
         url: 'https://httpbin.org/get',
@@ -16,7 +15,7 @@ describe('#fetchHAR mocking (fetch-mock)', () => {
     );
 
     const res = await fetchHAR(harExamples.short);
-    expect(res.status).to.equal(429);
+    expect(res.status).toBe(429);
 
     fetchMock.restore();
   });

@@ -1,19 +1,14 @@
 import { host } from '@jsdevtools/host-environment';
 import harExamples from 'har-examples';
-import 'isomorphic-fetch';
-import { describe, beforeEach, it, expect } from 'vitest';
+import { describe, it, expect } from 'vitest';
+
+import fetchHAR from '../src';
 
 import owlbertShrubDataURL from './fixtures/owlbert-shrub.dataurl.json';
 import owlbert from './fixtures/owlbert.dataurl.json';
 
 // eslint-disable-next-line vitest/require-hook
 describe.skipIf(host.node)('#fetchHAR (Browser-only quirks)', () => {
-  let fetchHAR;
-
-  beforeEach(async () => {
-    ({ default: fetchHAR } = await import('../src'));
-  });
-
   describe('binary handling', () => {
     describe('supplemental overrides', () => {
       it('should support a File `files` mapping override for a raw payload data URL', async () => {
@@ -25,14 +20,14 @@ describe.skipIf(host.node)('#fetchHAR (Browser-only quirks)', () => {
           },
         }).then(r => r.json());
 
-        expect(res.args).to.be.empty;
-        expect(res.data).to.equal(owlbertShrubDataURL);
-        expect(res.files).to.be.empty;
-        expect(res.form).to.be.empty;
-        expect(parseInt(res.headers['Content-Length'], 10)).to.equal(877);
-        expect(res.headers['Content-Type']).to.equal('image/png');
-        expect(res.json).to.be.null;
-        expect(res.url).to.equal('https://httpbin.org/post');
+        expect(res.args).toStrictEqual({});
+        expect(res.data).toBe(owlbertShrubDataURL);
+        expect(res.files).toStrictEqual({});
+        expect(res.form).toStrictEqual({});
+        expect(parseInt(res.headers['Content-Length'], 10)).toBe(877);
+        expect(res.headers['Content-Type']).toBe('image/png');
+        expect(res.json).toBeNull();
+        expect(res.url).toBe('https://httpbin.org/post');
       });
     });
   });
@@ -41,23 +36,23 @@ describe.skipIf(host.node)('#fetchHAR (Browser-only quirks)', () => {
     it("should support a `multipart/form-data` request that's a standard object", async () => {
       const res = await fetchHAR(harExamples['multipart-form-data']).then(r => r.json());
 
-      expect(res.form).to.deep.equal({ foo: 'bar' });
-      expect(parseInt(res.headers['Content-Length'], 10)).to.be.at.least(133);
-      expect(res.headers['Content-Type']).to.match(/^multipart\/form-data; boundary=(.*)$/);
+      expect(res.form).toStrictEqual({ foo: 'bar' });
+      expect(parseInt(res.headers['Content-Length'], 10)).toBeGreaterThanOrEqual(133);
+      expect(res.headers['Content-Type']).toMatch(/^multipart\/form-data; boundary=(.*)$/);
     });
 
     it('should support a `multipart/form-data` request with a plaintext file encoded in the HAR', async () => {
       const res = await fetchHAR(harExamples['multipart-data']).then(r => r.json());
-      expect(res.files).to.deep.equal({ foo: 'Hello World' });
+      expect(res.files).toStrictEqual({ foo: 'Hello World' });
 
-      expect(parseInt(res.headers['Content-Length'], 10)).to.be.at.least(189);
-      expect(res.headers['Content-Type']).to.match(/^multipart\/form-data; boundary=(.*)$/);
+      expect(parseInt(res.headers['Content-Length'], 10)).toBeGreaterThanOrEqual(189);
+      expect(res.headers['Content-Type']).toMatch(/^multipart\/form-data; boundary=(.*)$/);
     });
 
     it('should throw an error if `fileName` is present without `value` or a mapping', () => {
       expect(() => {
         fetchHAR(harExamples['multipart-file']);
-      }).to.throw(/doesn't have access to the filesystem/);
+      }).toThrow(/doesn't have access to the filesystem/);
     });
 
     describe('`files` option', () => {
@@ -68,9 +63,9 @@ describe.skipIf(host.node)('#fetchHAR (Browser-only quirks)', () => {
           },
         }).then(r => r.json());
 
-        expect(res.files).to.deep.equal({ foo: owlbert });
-        expect(parseInt(res.headers['Content-Length'], 10)).to.be.at.least(737);
-        expect(res.headers['Content-Type']).to.match(/^multipart\/form-data; boundary=(.*)$/);
+        expect(res.files).toStrictEqual({ foo: owlbert });
+        expect(parseInt(res.headers['Content-Length'], 10)).toBeGreaterThanOrEqual(737);
+        expect(res.headers['Content-Type']).toMatch(/^multipart\/form-data; boundary=(.*)$/);
       });
 
       it('should throw on an unsupported type', () => {
@@ -80,7 +75,7 @@ describe.skipIf(host.node)('#fetchHAR (Browser-only quirks)', () => {
               'owlbert.png': new Blob([owlbert], { type: 'image/png' }),
             },
           });
-        }).to.throw('An unknown object has been supplied into the `files` config for use.');
+        }).toThrow('An unknown object has been supplied into the `files` config for use.');
       });
     });
 
@@ -88,9 +83,9 @@ describe.skipIf(host.node)('#fetchHAR (Browser-only quirks)', () => {
       it('should be able to handle a `multipart/form-data` payload with a base64-encoded data URL file', async () => {
         const res = await fetchHAR(harExamples['multipart-data-dataurl']).then(r => r.json());
 
-        expect(res.files).to.deep.equal({ foo: owlbert });
-        expect(parseInt(res.headers['Content-Length'], 10)).to.be.at.least(758);
-        expect(res.headers['Content-Type']).to.match(/^multipart\/form-data; boundary=(.*)$/);
+        expect(res.files).toStrictEqual({ foo: owlbert });
+        expect(parseInt(res.headers['Content-Length'], 10)).toBeGreaterThanOrEqual(758);
+        expect(res.headers['Content-Type']).toMatch(/^multipart\/form-data; boundary=(.*)$/);
       });
 
       it('should be able to handle a `multipart/form-data` payload with a base64-encoded data URL filename that contains parentheses', async () => {
@@ -103,9 +98,9 @@ describe.skipIf(host.node)('#fetchHAR (Browser-only quirks)', () => {
           );
 
         const res = await fetchHAR(har).then(r => r.json());
-        expect(res.files).to.deep.equal({ foo: owlbert.replace('owlbert.png', encodeURIComponent('owlbert (1).png')) });
-        expect(parseInt(res.headers['Content-Length'], 10)).to.be.at.least(768);
-        expect(res.headers['Content-Type']).to.match(/^multipart\/form-data; boundary=(.*)$/);
+        expect(res.files).toStrictEqual({ foo: owlbert.replace('owlbert.png', encodeURIComponent('owlbert (1).png')) });
+        expect(parseInt(res.headers['Content-Length'], 10)).toBeGreaterThanOrEqual(768);
+        expect(res.headers['Content-Type']).toMatch(/^multipart\/form-data; boundary=(.*)$/);
       });
     });
   });

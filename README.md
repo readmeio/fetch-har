@@ -9,10 +9,10 @@ Make a [fetch](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API) reque
 
 ## Features
 
-- Supports Node 14+ (including the native `fetch` implementation in Node 18!).
+- Supports Node 18+
 - Natively works in all browsers that support [fetch](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API) without having to use any polyfils.
 - [Tested](https://github.com/readmeio/fetch-har/actions) across Chrome, Safari, Firefox on Mac, Windows, and Linux.
-- Requests can be mocked with [nock](https://npm.im/nock) or [fetch-mock](https://npm.im/fetch-mock).
+- Requests can be mocked with [fetch-mock](https://npm.im/fetch-mock) or [msw](https://npm.im/msw).
 
 ## Installation
 
@@ -22,13 +22,8 @@ npm install --save fetch-har
 
 ## Usage
 ```js
-require('isomorphic-fetch');
-
-// If executing from an environment that doesn't normally provide `fetch()` we'll automatically
-// polyfill in the `Blob`, `File`, and `FormData` APIs with the optional `formdata-node` package
-// (provided you've installed it).
-const fetchHAR = require('fetch-har').default;
-// import fetchHAR from 'fetch-har'); // Or if you're in an ESM codebase.
+import fetchHAR from 'fetch-har';
+// const fetchHAR = require('fetch-har').default;
 
 const har = {
   log: {
@@ -67,12 +62,6 @@ fetchHAR(har)
 ```
 
 ### API
-If you are executing `fetch-har` in a browser environment that supports the [FormData API](https://developer.mozilla.org/en-US/docs/Web/API/FormData) then you don't need to do anything. If you arent, however, you'll need to polyfill it.
-
-Unfortunately the most popular NPM package [form-data](https://npm.im/form-data) ships with a [non-spec compliant API](https://github.com/form-data/form-data/issues/124), and for this we don't recommend you use it, as if you use `fetch-har` to upload files it may not work.
-
-Though we recommend either [formdata-node](https://npm.im/formdata-node) or [formdata-polyfill](https://npm.im/formdata-polyfill) we prefer [formdata-node](https://npm.im/formdata-node) right now as it's CJS-compatible.
-
 #### Options
 ##### userAgent
 A custom `User-Agent` header to apply to your request. Please note that browsers have their own handling for these headers in `fetch()` calls so it may not work everywhere; it will always be sent in Node however.
@@ -92,21 +81,6 @@ await fetchHAR(har, { files: {
 ```
 
 If you don't supply this option `fetch-har` will fallback to the data URL present within the supplied HAR. If no `files` option is present, and no data URL (via `param.value`) is present in the HAR, a fatal exception will be thrown.
-
-##### multipartEncoder
-> ❗ If you are using `fetch-har` in Node you may need this option to execute `multipart/form-data` requests!
-
-If you are running `fetch-har` within a Node environment and you're using `node-fetch@2`, or another `fetch` polyfill that does not support a spec-compliant `FormData` API, you will need to specify an encoder that will transform your `FormData` object into something that can be used with [Request.body](https://developer.mozilla.org/en-US/docs/Web/API/Request/body).
-
-We recommend [form-data-encoder](https://npm.im/form-data-encoder).
-
-```js
-const { FormDataEncoder } = require('form-data-encoder');
-
-await fetchHAR(har, { multipartEncoder: FormDataEncoder });
-```
-
-You do **not**, and shouldn't, need to use this option in browser environments.
 
 ##### init
 This optional argument lets you supply any option that's available to supply to the [Request constructor](https://developer.mozilla.org/en-US/docs/Web/API/Request/Request).

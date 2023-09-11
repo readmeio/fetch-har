@@ -1,58 +1,24 @@
-/* eslint-disable @typescript-eslint/no-var-requires */
-import type { VersionInfo } from '@jsdevtools/host-environment';
 import type { Express } from 'express';
 
-import { promises as fs } from 'fs';
+import fs from 'node:fs/promises';
 
-import { host } from '@jsdevtools/host-environment';
 import DatauriParser from 'datauri/parser';
 import express from 'express';
-import { FormDataEncoder } from 'form-data-encoder';
-import 'isomorphic-fetch';
 import multer from 'multer';
 import tempDirectory from 'temp-dir';
 import { describe, beforeEach, afterEach, it, expect } from 'vitest';
+
+import fetchHAR from '../src';
 
 import arrayOfOwlbertsHAR from './fixtures/array-of-owlberts.har.json';
 import owlbertShrubDataURL from './fixtures/owlbert-shrub.dataurl.json';
 import owlbertDataURL from './fixtures/owlbert.dataurl.json';
 
-const hasNativeFetch = (host.node as VersionInfo).version >= 18;
-
 describe('#fetchHAR (Node-only quirks)', () => {
-  let fetchHAR;
   let app: Express;
   let listener;
 
   beforeEach(async () => {
-    /**
-     * Under Node 18's native `fetch` implementation if a `File` global doesn't exist it'll polyfill
-     * its own implementation. Normally this works fine, but its implementation is **different**
-     * than the one that `formdata-node` ships and when we use the `formdata-node` one under Node
-     * 18 `type` options that we set into `File` instances don't get picked up, resulting in
-     * multipart payloads being sent as `application/octet-stream` instead of whatever content type
-     * was attached to that file.
-     *
-     * This behavior also extends to Undici's usage of `Blob` as well where the `Blob` that ships
-     * with `formdata-node` behaves differently than the `Blob` that is part of the Node `buffer`
-     * module, which Undici wants you to use.
-     */
-    if (hasNativeFetch) {
-      globalThis.File = require('undici').File;
-      globalThis.Blob = require('buffer').Blob;
-    } else {
-      globalThis.File = require('formdata-node').File;
-      globalThis.Blob = require('formdata-node').Blob;
-
-      // We only need to polyfill handlers for `multipart/form-data` requests below Node 18 as Node
-      // 18 natively supports `fetch`.
-      if (!globalThis.FormData) {
-        globalThis.FormData = require('formdata-node').FormData;
-      }
-    }
-
-    ({ default: fetchHAR } = await import('../src'));
-
     /**
      * Due to a bug with `multipart/form-data` handling on multiple files in HTTPBin we need to
      * spin up our own server for these tests.
@@ -85,7 +51,6 @@ describe('#fetchHAR (Node-only quirks)', () => {
         'owlbert.png': await fs.readFile(`${__dirname}/fixtures/owlbert.png`),
         'owlbert-shrub.png': await fs.readFile(`${__dirname}/fixtures/owlbert-shrub.png`),
       },
-      multipartEncoder: FormDataEncoder,
     }).then(r => r.json());
 
     const parser = new DatauriParser();
@@ -96,11 +61,11 @@ describe('#fetchHAR (Node-only quirks)', () => {
      * data URI. Unfortunately the `datauri` package that we're using doesn't add filename `name`
      * metadata into ones it generates so we need to pop those off before we do our assertions.
      */
-    expect(parser.format('.png', await fs.readFile(res[0].path)).base64).to.equal(
+    expect(parser.format('.png', await fs.readFile(res[0].path)).base64).toBe(
       owlbertDataURL.replace('data:image/png;name=owlbert.png;base64,', ''),
     );
 
-    expect(parser.format('.png', await fs.readFile(res[1].path)).base64).to.equal(
+    expect(parser.format('.png', await fs.readFile(res[1].path)).base64).toBe(
       owlbertShrubDataURL.replace('data:image/png;name=owlbert-shrub.png;base64,', ''),
     );
   });

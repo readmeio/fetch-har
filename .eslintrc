@@ -10,7 +10,8 @@
   "rules": {
     "@typescript-eslint/no-explicit-any": "off",
     "global-require": "off",
-    "no-case-declarations": "off"
+    "no-case-declarations": "off",
+    "unicorn/prefer-node-protocol": "error"
   },
   "settings": {
     "polyfills": [

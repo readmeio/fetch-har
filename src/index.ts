@@ -6,34 +6,21 @@ import { Readable } from 'readable-stream';
 
 if (!globalThis.Blob) {
   try {
-    // eslint-disable-next-line @typescript-eslint/no-var-requires, import/no-extraneous-dependencies
-    globalThis.Blob = require('formdata-node').Blob;
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    globalThis.Blob = require('node:buffer').Blob;
   } catch (e) {
-    throw new Error(
-      'Since you do not have the Blob API available in this environment you must install the optional `formdata-node` dependency.',
-    );
+    throw new Error('The Blob API is required for this library. https://developer.mozilla.org/en-US/docs/Web/API/Blob');
   }
 }
 
 if (!globalThis.File) {
   try {
-    // eslint-disable-next-line @typescript-eslint/no-var-requires, import/no-extraneous-dependencies
-    globalThis.File = require('formdata-node').File;
+    // Node's native `fetch` implementation unfortunately does not make this API global so we need
+    // to pull it in if we don't have it.
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    globalThis.File = require('undici').File;
   } catch (e) {
-    throw new Error(
-      'Since you do not have the File API available in this environment you must install the optional `formdata-node` dependency.',
-    );
-  }
-}
-
-if (!globalThis.FormData) {
-  try {
-    // eslint-disable-next-line @typescript-eslint/no-var-requires, import/no-extraneous-dependencies
-    globalThis.FormData = require('formdata-node').FormData;
-  } catch (e) {
-    throw new Error(
-      'Since you do not have the FormData API available in this environment you must install the optional `formdata-node` dependency.',
-    );
+    throw new Error('The File API is required for this library. https://developer.mozilla.org/en-US/docs/Web/API/File');
   }
 }
 
@@ -53,7 +40,6 @@ interface RequestInitWithDuplex extends RequestInit {
 export interface FetchHAROptions {
   files?: Record<string, Blob | Buffer>;
   init?: RequestInitWithDuplex;
-  multipartEncoder?: any; // form-data-encoder
   userAgent?: string;
 }
 
@@ -83,34 +69,6 @@ function isFile(value: any) {
   }
 
   return false;
-}
-
-/**
- * @license MIT
- * @see {@link https://github.com/octet-stream/form-data-encoder/blob/master/lib/util/isFunction.ts}
- */
-function isFunction(value: any) {
-  return typeof value === 'function';
-}
-
-/**
- * We're using this library in here instead of loading it from `form-data-encoder` because that
- * uses lookbehind regex in its main encoder that Safari doesn't support so it throws a fatal page
- * exception.
- *
- * @license MIT
- * @see {@link https://github.com/octet-stream/form-data-encoder/blob/master/lib/util/isFormData.ts}
- */
-function isFormData(value: any) {
-  return (
-    value &&
-    isFunction(value.constructor) &&
-    value[Symbol.toStringTag] === 'FormData' &&
-    isFunction(value.append) &&
-    isFunction(value.getAll) &&
-    isFunction(value.entries) &&
-    isFunction(value[Symbol.iterator])
-  );
 }
 
 function getFileFromSuppliedFiles(filename: string, files: FetchHAROptions['files']) {
@@ -227,33 +185,6 @@ export default function fetchHAR(har: Har, opts: FetchHAROptions = {}) {
           }
 
           const form = new FormData();
-          if (!isFormData(form)) {
-            /**
-             * The `form-data` NPM module returns one of two things: a native `FormData` API or its
-             * own polyfill. Unfortunately this polyfill does not support the full API of the native
-             * FormData object so when you load `form-data` within a browser environment you'll
-             * have two major differences in API:
-             *
-             *  - The `.append()` API in `form-data` requires that the third argument is an object
-             *    containing various, undocumented, options. In the browser, `.append()`'s third
-             *    argument should only be present when the second is a `Blob` or `USVString`, and
-             *    when it is present, it should be a filename string.
-             *  - `form-data` does not expose an `.entries()` API, so the only way to retrieve data
-             *    out of it for construction of boundary-separated payload content is to use its
-             *    `.pipe()` API. Since the browser doesn't have this API, you'll be unable to
-             * retrieve data out of it.
-             *
-             * Now since the native `FormData` API is iterable, and has the `.entries()` iterator,
-             * we can easily detect if we have a native copy of the FormData API. It's for all of
-             * these reasons that we're opting to hard crash here because supporting this
-             * non-compliant API is more trouble than its worth.
-             *
-             * @see {@link https://github.com/form-data/form-data/issues/124}
-             */
-            throw new Error(
-              "We've detected you're using a non-spec compliant FormData library. We recommend polyfilling FormData with https://npm.im/formdata-node",
-            );
-          }
 
           request.postData.params.forEach(param => {
             if ('fileName' in param) {
@@ -306,27 +237,7 @@ export default function fetchHAR(har: Har, opts: FetchHAROptions = {}) {
             form.append(param.name, param.value);
           });
 
-          /**
-           * If a the `fetch` polyfill that's being used here doesn't have spec-compliant handling
-           * for the `FormData` API (like `node-fetch@2`), then you should pass in a handler (like
-           * the `form-data-encoder` library) to transform its contents into something that can be
-           * used with the `Request` object.
-           *
-           * @see {@link https://www.npmjs.com/package/formdata-node}
-           */
-          if (opts.multipartEncoder) {
-            // eslint-disable-next-line new-cap
-            const encoder = new opts.multipartEncoder(form);
-            Object.keys(encoder.headers).forEach(header => {
-              headers.set(header, encoder.headers[header]);
-            });
-
-            // @ts-expect-error "Property 'from' does not exist on type 'typeof Readable'." but it does!
-            options.body = Readable.from(encoder);
-            shouldSetDuplex = true;
-          } else {
-            options.body = form;
-          }
+          options.body = form;
           break;
 
         default:

@@ -4,10 +4,12 @@
     "baseUrl": "./src",
     "declaration": true,
     "esModuleInterop": true,
-    "lib": ["dom", "es2020"],
+    "lib": ["DOM", "ES2022"],
+    "module": "NodeNext",
     "noImplicitAny": true,
     "outDir": "dist/",
-    "strict": true
+    "strict": true,
+    "target": "ES2022"
   },
   "include": ["./src/**/*"]
 }

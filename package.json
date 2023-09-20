@@ -9,7 +9,12 @@
     ".": {
       "import": "./dist/index.mjs",
       "require": "./dist/index.js"
-    }
+    },
+    "./types": {
+      "import": "./dist/types.mjs",
+      "require": "./dist/types.js"
+    },
+    "./package.json": "./package.json"
   },
   "engines": {
     "node": ">=18"

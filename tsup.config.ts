@@ -8,7 +8,7 @@ export default defineConfig((options: Options) => ({
 
   clean: true,
   dts: true,
-  entry: ['src/index.ts'],
+  entry: ['src/index.ts', 'src/types.ts'],
   format: ['esm', 'cjs'],
   minify: false,
   shims: true,

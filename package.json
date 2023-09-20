@@ -4,13 +4,21 @@
   "description": "Make a fetch request from a HAR definition",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "module": "dist/index.mjs",
+  "exports": {
+    ".": {
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js"
+    }
+  },
   "engines": {
     "node": ">=18"
   },
   "scripts": {
-    "build": "tsc",
-    "lint": "eslint . --ext .js,.ts",
-    "prebuild": "rm -rf dist/",
+    "build": "tsup",
+    "lint": "npm run lint:types && npm run lint:ts",
+    "lint:ts": "eslint . --ext .js,.ts",
+    "lint:types": "tsc",
     "prepack": "npm run build",
     "pretest": "npm run lint",
     "prettier": "prettier --list-different --write \"./**/**.{js,ts}\"",
@@ -49,6 +57,7 @@
     "multer": "^1.4.5-lts.1",
     "prettier": "^3.0.3",
     "temp-dir": "^2.0.0",
+    "tsup": "^7.2.0",
     "typescript": "^5.2.2",
     "vitest": "^0.34.3",
     "webdriverio": "^8.15.10"

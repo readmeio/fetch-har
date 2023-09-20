@@ -1,4 +1,4 @@
-const fetchHAR = require('.').default;
+const fetchHAR = require('.');
 
 const har = {
   log: {

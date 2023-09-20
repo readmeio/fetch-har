@@ -14,7 +14,6 @@ jobs:
           cache: 'npm'
 
       - run: npm ci
-      - run: npm run build
       - run: npm run lint
 
   node_tests:
@@ -42,8 +41,7 @@ jobs:
           cache: 'npm'
 
       - run: npm ci
-      - run: npm run build
-      - run: npm run test --ignore-scripts
+      - run: npm run test
 
   ###
   ### Temporarily skipping these until browser testing in Vitest is a bit more stable.

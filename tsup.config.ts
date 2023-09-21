@@ -6,6 +6,7 @@ import { defineConfig } from 'tsup';
 export default defineConfig((options: Options) => ({
   ...options,
 
+  cjsInterop: true,
   clean: true,
   dts: true,
   entry: ['src/index.ts', 'src/types.ts'],
@@ -15,5 +16,4 @@ export default defineConfig((options: Options) => ({
   silent: !options.watch,
   sourcemap: true,
   splitting: true,
-  treeshake: true,
 }));

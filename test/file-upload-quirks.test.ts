@@ -8,7 +8,7 @@ import multer from 'multer';
 import tempDirectory from 'temp-dir';
 import { describe, beforeEach, afterEach, it, expect } from 'vitest';
 
-import fetchHAR from '../src';
+import fetchHAR from '../src/index.js';
 
 import arrayOfOwlbertsHAR from './fixtures/array-of-owlberts.har.json';
 import owlbertShrubDataURL from './fixtures/owlbert-shrub.dataurl.json';

@@ -2,13 +2,16 @@ import type { FetchHAROptions, RequestInitWithDuplex } from './types.js';
 import type { DataURL as npmDataURL } from '@readme/data-urls';
 import type { Har } from 'har-format';
 
+import { Blob as NodeBlob } from 'node:buffer';
+
 import { parse as parseDataUrl } from '@readme/data-urls';
 import { Readable } from 'readable-stream';
+import { File as UndiciFile } from 'undici';
 
 if (!globalThis.Blob) {
   try {
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    globalThis.Blob = require('node:buffer').Blob;
+    // @ts-expect-error the types don't match exactly, which is expected!
+    globalThis.Blob = NodeBlob;
   } catch (e) {
     throw new Error('The Blob API is required for this library. https://developer.mozilla.org/en-US/docs/Web/API/Blob');
   }
@@ -18,8 +21,8 @@ if (!globalThis.File) {
   try {
     // Node's native `fetch` implementation unfortunately does not make this API global so we need
     // to pull it in if we don't have it.
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    globalThis.File = require('undici').File;
+    // @ts-expect-error the types don't match exactly, which is expected!
+    globalThis.File = UndiciFile;
   } catch (e) {
     throw new Error('The File API is required for this library. https://developer.mozilla.org/en-US/docs/Web/API/File');
   }

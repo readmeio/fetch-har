@@ -1,4 +1,4 @@
-const fetchHAR = require('.');
+import fetchHAR from './dist/index.js';
 
 const har = {
   log: {

@@ -40,20 +40,20 @@
   },
   "homepage": "https://github.com/readmeio/fetch-har#readme",
   "dependencies": {
-    "@readme/data-urls": "^1.0.1",
-    "@types/har-format": "^1.2.12",
-    "readable-stream": "^3.6.0",
-    "undici": "^5.24.0"
+    "@readme/data-urls": "^3.0.0",
+    "@types/har-format": "^1.2.13",
+    "readable-stream": "^4.4.2",
+    "undici": "^5.25.1"
   },
   "devDependencies": {
     "@jsdevtools/host-environment": "^2.1.2",
     "@readme/eslint-config": "^13.0.1",
     "@types/express": "^4.17.17",
     "@types/multer": "^1.4.7",
-    "@types/node": "^20.5.7",
-    "@types/readable-stream": "^2.3.15",
+    "@types/node": "^20.6.3",
+    "@types/readable-stream": "^4.0.2",
     "@vitest/browser": "^0.34.3",
-    "@vitest/coverage-v8": "^0.34.3",
+    "@vitest/coverage-v8": "^0.34.5",
     "datauri": "^4.1.0",
     "eslint": "^8.48.0",
     "express": "^4.18.1",
@@ -61,10 +61,10 @@
     "har-examples": "^3.1.1",
     "multer": "^1.4.5-lts.1",
     "prettier": "^3.0.3",
-    "temp-dir": "^2.0.0",
+    "temp-dir": "^3.0.0",
     "tsup": "^7.2.0",
     "typescript": "^5.2.2",
-    "vitest": "^0.34.3"
+    "vitest": "^0.34.5"
   },
   "browserslist": [
     "last 2 versions"

@@ -1,4 +1,3 @@
-// eslint-disable-next-line import/extensions, @typescript-eslint/no-var-requires, import/no-commonjs
 const fetchHAR = require('.');
 
 const har = {

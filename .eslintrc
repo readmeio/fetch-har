@@ -14,9 +14,11 @@
   },
   "overrides": [
     {
-      "files": ["example.js"],
+      "files": ["example.{c,m}js"],
       "rules": {
         "@typescript-eslint/no-var-requires": "off",
+        "import/extensions": "off",
+        "import/no-commonjs": "off",
         "import/no-extraneous-dependencies": "off",
         "no-console": "off"
       }

@@ -4,7 +4,7 @@
     "baseUrl": "./src",
     "declaration": true,
     "esModuleInterop": true,
-    "lib": ["dom", "ES2023"],
+    "lib": ["DOM", "ES2022"],
     "module": "NodeNext",
     "noEmit": true,
     "noImplicitAny": true,

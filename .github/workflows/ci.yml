@@ -40,8 +40,7 @@ jobs:
           node-version: ${{ matrix.node }}
           cache: 'npm'
 
-      - run: npm ci
-      - run: npm run test
+      - run: npm cit
 
   ###
   ### Temporarily skipping these until browser testing in Vitest is a bit more stable.

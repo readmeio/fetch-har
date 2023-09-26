@@ -25,7 +25,7 @@
     "lint:ts": "eslint . --ext .js,.ts",
     "lint:types": "tsc",
     "prepack": "npm run build",
-    "prettier": "prettier --check --write .",
+    "prettier": "prettier --check .",
     "prettier:write": "prettier --check --write .",
     "test": "vitest --coverage",
     "test:browser": "vitest --browser.name=chrome --browser.headless"

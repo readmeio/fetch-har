@@ -9,9 +9,6 @@
     "global-require": "off",
     "no-case-declarations": "off"
   },
-  "settings": {
-    "polyfills": ["fetch", "Headers", "Request"]
-  },
   "overrides": [
     {
       "files": ["example.{c,m}js"],

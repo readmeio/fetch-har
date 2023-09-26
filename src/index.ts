@@ -1,9 +1,29 @@
-import type { FetchHAROptions, RequestInitWithDuplex } from './types.js';
+import type { FetchHAROptions, RequestInitWithDuplex } from './types';
 import type { DataURL as npmDataURL } from '@readme/data-urls';
 import type { Har } from 'har-format';
 
 import { parse as parseDataUrl } from '@readme/data-urls';
 import { Readable } from 'readable-stream';
+
+if (!globalThis.Blob) {
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    globalThis.Blob = require('node:buffer').Blob;
+  } catch (e) {
+    throw new Error('The Blob API is required for this library. https://developer.mozilla.org/en-US/docs/Web/API/Blob');
+  }
+}
+
+if (!globalThis.File) {
+  try {
+    // Node's native `fetch` implementation unfortunately does not make this API global so we need
+    // to pull it in if we don't have it.
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    globalThis.File = require('undici').File;
+  } catch (e) {
+    throw new Error('The File API is required for this library. https://developer.mozilla.org/en-US/docs/Web/API/File');
+  }
+}
 
 type DataURL = npmDataURL & {
   // `parse-data-url` doesn't explicitly support `name` in data URLs but if it's there it'll be
@@ -43,35 +63,9 @@ function getFileFromSuppliedFiles(filename: string, files: FetchHAROptions['file
   return false;
 }
 
-export default async function fetchHAR(har: Har, opts: FetchHAROptions = {}) {
+export default function fetchHAR(har: Har, opts: FetchHAROptions = {}) {
   if (!har) throw new Error('Missing HAR definition');
   if (!har.log || !har.log.entries || !har.log.entries.length) throw new Error('Missing log.entries array');
-
-  if (!globalThis.Blob) {
-    try {
-      const NodeBlob = (await import('node:buffer')).Blob;
-      // @ts-expect-error the types don't match exactly, which is expected!
-      globalThis.Blob = NodeBlob;
-    } catch (e) {
-      throw new Error(
-        'The Blob API is required for this library. https://developer.mozilla.org/en-US/docs/Web/API/Blob',
-      );
-    }
-  }
-
-  if (!globalThis.File) {
-    try {
-      // Node's native `fetch` implementation unfortunately does not make this API global so we need
-      // to pull it in if we don't have it.
-      const UndiciFile = (await import('undici')).File;
-      // @ts-expect-error the types don't match exactly, which is expected!
-      globalThis.File = UndiciFile;
-    } catch (e) {
-      throw new Error(
-        'The File API is required for this library. https://developer.mozilla.org/en-US/docs/Web/API/File',
-      );
-    }
-  }
 
   const { request } = har.log.entries[0];
   const { url } = request;

@@ -4,7 +4,7 @@ import { host } from '@jsdevtools/host-environment';
 import harExamples from 'har-examples';
 import { describe, it, expect } from 'vitest';
 
-import fetchHAR from '../src/index.js';
+import fetchHAR from '../src';
 
 import invalidHeadersHAR from './fixtures/invalid-headers.har.json';
 import owlbertDataURL from './fixtures/owlbert.dataurl.json';

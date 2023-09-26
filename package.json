@@ -22,11 +22,12 @@
   },
   "scripts": {
     "build": "tsup",
-    "lint": "npm run lint:types && npm run lint:ts",
+    "lint": "npm run lint:types && npm run lint:ts && npm run prettier",
     "lint:ts": "eslint . --ext .js,.ts",
     "lint:types": "tsc",
     "prepack": "npm run build",
-    "prettier": "prettier --list-different --write \"./**/**.{js,ts}\"",
+    "prettier": "prettier --check --write .",
+    "prettier:write": "prettier --check --write .",
     "test": "vitest --coverage",
     "test:browser": "vitest --browser.name=chrome --browser.headless"
   },

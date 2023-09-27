@@ -25,7 +25,7 @@ npm install --save fetch-har
 
 ```js
 import fetchHAR from 'fetch-har';
-// const fetchHAR = require('fetch-har').default;
+// const fetchHAR = require('fetch-har');
 
 const har = {
   log: {

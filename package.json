@@ -28,6 +28,7 @@
     "lint": "npm run lint:types && npm run lint:ts && npm run prettier",
     "lint:ts": "eslint . --ext .js,.ts",
     "lint:types": "tsc",
+    "prebuild": "rm -rf dist/",
     "prepack": "npm run build",
     "prettier": "prettier --check .",
     "prettier:write": "prettier --check --write .",

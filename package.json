@@ -37,7 +37,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git@github.com:readmeio/fetch-har.git"
+    "url": "git+ssh://git@github.com/readmeio/fetch-har.git"
   },
   "license": "ISC",
   "bugs": {

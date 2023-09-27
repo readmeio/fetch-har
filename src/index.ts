@@ -3,7 +3,6 @@ import type { DataURL as npmDataURL } from '@readme/data-urls';
 import type { Har } from 'har-format';
 
 import { parse as parseDataUrl } from '@readme/data-urls';
-import { Readable } from 'readable-stream';
 
 if (!globalThis.Blob) {
   try {
@@ -255,8 +254,7 @@ export default function fetchHAR(har: Har, opts: FetchHAROptions = {}) {
                 if (isBrowser()) {
                   options.body = fileContents;
                 } else {
-                  // @ts-expect-error "Property 'from' does not exist on type 'typeof Readable'." but it does!
-                  options.body = Readable.from((fileContents as File).stream());
+                  options.body = (fileContents as File).stream();
                   shouldSetDuplex = true;
 
                   // Supplying a polyfilled `File` stream into `Request.body` doesn't automatically

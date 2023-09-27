@@ -19,6 +19,9 @@
   "engines": {
     "node": ">=18"
   },
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "tsup",
     "lint": "npm run lint:types && npm run lint:ts && npm run prettier",

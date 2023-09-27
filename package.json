@@ -53,7 +53,6 @@
     "@types/express": "^4.17.17",
     "@types/multer": "^1.4.7",
     "@types/node": "^20.6.3",
-    "@types/readable-stream": "^4.0.2",
     "@vitest/browser": "^0.34.3",
     "@vitest/coverage-v8": "^0.34.5",
     "datauri": "^4.1.0",

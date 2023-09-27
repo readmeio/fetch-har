@@ -13,7 +13,7 @@ Make a [fetch](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API) reque
 - Supports Node 18+
 - Natively works in all browsers that support [fetch](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API) without having to use any polyfils.
 - [Tested](https://github.com/readmeio/fetch-har/actions) across Chrome, Safari, Firefox on Mac, Windows, and Linux.
-- Requests can be mocked with [fetch-mock](https://npm.im/fetch-mock) or [msw](https://npm.im/msw).
+- Requests can be mocked with [`msw`](https://npm.im/msw) or [`fetch-mock`](https://npm.im/fetch-mock) (though the latter does not appear to be maintained).
 
 ## Installation
 

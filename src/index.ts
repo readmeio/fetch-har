@@ -62,7 +62,7 @@ function getFileFromSuppliedFiles(filename: string, files: FetchHAROptions['file
   return false;
 }
 
-export default function fetchHAR(har: Har, opts: FetchHAROptions = {}) {
+export default function fetchHAR(har: Har, opts: FetchHAROptions = {}): Promise<Response> {
   if (!har) throw new Error('Missing HAR definition');
   if (!har.log || !har.log.entries || !har.log.entries.length) throw new Error('Missing log.entries array');
 

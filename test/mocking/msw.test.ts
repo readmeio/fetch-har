@@ -3,7 +3,7 @@ import { rest } from 'msw';
 import { setupServer } from 'msw/node';
 import { describe, it, expect } from 'vitest';
 
-import fetchHAR from '../../src';
+import fetchHAR from '../../src/index.js';
 
 describe('#fetchHAR mocking (msw)', () => {
   it('should support mocking a request with `msw`', async () => {

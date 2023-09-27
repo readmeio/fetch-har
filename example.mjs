@@ -1,4 +1,4 @@
-import fetchHAR from './dist/index.mjs';
+import fetchHAR from './dist/index.js';
 
 const har = {
   log: {

@@ -3,7 +3,7 @@ import fs from 'node:fs/promises';
 import harExamples from 'har-examples';
 import { describe, it, expect } from 'vitest';
 
-import fetchHAR from '../src';
+import fetchHAR from '../src/index.js';
 
 import owlbertScreenshotDataURL from './fixtures/owlbert-screenshot.dataurl.json';
 import owlbertShrubDataURL from './fixtures/owlbert-shrub.dataurl.json';

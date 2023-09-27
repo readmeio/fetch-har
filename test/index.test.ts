@@ -4,7 +4,7 @@ import { host } from '@jsdevtools/host-environment';
 import harExamples from 'har-examples';
 import { describe, it, expect } from 'vitest';
 
-import fetchHAR from '../src';
+import fetchHAR from '../src/index.js';
 
 import invalidHeadersHAR from './fixtures/invalid-headers.har.json';
 import owlbertDataURL from './fixtures/owlbert.dataurl.json';
@@ -12,11 +12,11 @@ import urlEncodedWithAuthHAR from './fixtures/urlencoded-with-auth.har.json';
 
 describe('fetch-har', () => {
   it('should throw if it looks like you are missing a valid HAR definition', () => {
-    expect(fetchHAR).toThrow('Missing HAR definition');
+    expect(fetchHAR).rejects.toThrow('Missing HAR definition');
     // @ts-expect-error deliberately bad data
-    expect(fetchHAR.bind(null, { log: {} })).toThrow('Missing log.entries array');
+    expect(fetchHAR.bind(null, { log: {} })).rejects.toThrow('Missing log.entries array');
     // @ts-expect-error deliberately bad data
-    expect(fetchHAR.bind(null, { log: { entries: [] } })).toThrow('Missing log.entries array');
+    expect(fetchHAR.bind(null, { log: { entries: [] } })).rejects.toThrow('Missing log.entries array');
   });
 
   // eslint-disable-next-line vitest/require-hook
@@ -169,20 +169,18 @@ describe('fetch-har', () => {
 
     describe('multipart/form-data', () => {
       it('should throw an error if `fileName` is present without `value` or a mapping', () => {
-        expect(() => {
-          fetchHAR(harExamples['multipart-file']);
-        }).toThrow(/doesn't have access to the filesystem/);
+        expect(fetchHAR(harExamples['multipart-file'])).rejects.toThrow(/doesn't have access to the filesystem/);
       });
 
       describe('`files` option', () => {
         it('should throw on an unsupported type', () => {
-          expect(() => {
+          expect(
             fetchHAR(harExamples['multipart-data-dataurl'], {
               files: {
                 'owlbert.png': new Blob([owlbertDataURL], { type: 'image/png' }),
               },
-            });
-          }).toThrow('An unknown object has been supplied into the `files` config for use.');
+            }),
+          ).rejects.toThrow('An unknown object has been supplied into the `files` config for use.');
         });
       });
     });

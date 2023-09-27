@@ -6,7 +6,7 @@ import { describe, it, expect } from 'vitest';
 import fetchHAR from '../../src';
 
 describe('#fetchHAR mocking (msw)', () => {
-  it('should support mocking a request with `msw` (server)', async () => {
+  it('should support mocking a request with `msw`', async () => {
     const server = setupServer(
       rest.get('https://httpbin.org/get', (req, res, ctx) => {
         return res(ctx.status(429));

@@ -42,7 +42,6 @@
   "dependencies": {
     "@readme/data-urls": "^3.0.0",
     "@types/har-format": "^1.2.13",
-    "readable-stream": "^4.4.2",
     "undici": "^5.25.1"
   },
   "devDependencies": {

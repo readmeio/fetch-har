@@ -13,7 +13,9 @@ import urlEncodedWithAuthHAR from './fixtures/urlencoded-with-auth.har.json';
 describe('fetch-har', () => {
   it('should throw if it looks like you are missing a valid HAR definition', () => {
     expect(fetchHAR).toThrow('Missing HAR definition');
+    // @ts-expect-error deliberately bad data
     expect(fetchHAR.bind(null, { log: {} })).toThrow('Missing log.entries array');
+    // @ts-expect-error deliberately bad data
     expect(fetchHAR.bind(null, { log: { entries: [] } })).toThrow('Missing log.entries array');
   });
 
@@ -213,9 +215,10 @@ describe('fetch-har', () => {
               },
             ],
           },
-        } as Har;
+        };
 
         expect(() => {
+          // @ts-expect-error deliberately sending non-conforming data
           fetchHAR(har);
         }).not.toThrow("Cannot read property 'length' of undefined");
       });
@@ -252,8 +255,9 @@ describe('fetch-har', () => {
               },
             ],
           },
-        } as Har;
+        };
 
+        // @ts-expect-error deliberately sending non-conforming data
         const res = await fetchHAR(har).then(r => r.json());
 
         expect(res.args).toStrictEqual({ dog: 'true', dog_id: 'buster18' });

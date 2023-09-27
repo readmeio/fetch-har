@@ -72,9 +72,9 @@ function isFile(value: any) {
 }
 
 function getFileFromSuppliedFiles(filename: string, files: FetchHAROptions['files']) {
-  if (filename in files) {
+  if (files && filename in files) {
     return files[filename];
-  } else if (decodeURIComponent(filename) in files) {
+  } else if (files && decodeURIComponent(filename) in files) {
     return files[decodeURIComponent(filename)];
   }
 
@@ -144,7 +144,7 @@ export default function fetchHAR(har: Har, opts: FetchHAROptions = {}) {
   }
 
   if ('postData' in request) {
-    if ('params' in request.postData) {
+    if (request.postData && 'params' in request.postData) {
       if (!('mimeType' in request.postData)) {
         // @ts-expect-error HAR spec requires that `mimeType` is always present but it might not be.
         request.postData.mimeType = 'application/octet-stream';
@@ -163,7 +163,9 @@ export default function fetchHAR(har: Har, opts: FetchHAROptions = {}) {
           headers.set('Content-Type', request.postData.mimeType);
 
           const encodedParams = new URLSearchParams();
-          request.postData.params.forEach(param => encodedParams.set(param.name, param.value));
+          request.postData.params?.forEach(param => {
+            if (param.value) encodedParams.set(param.name, param.value);
+          });
 
           options.body = encodedParams.toString();
           break;
@@ -186,8 +188,8 @@ export default function fetchHAR(har: Har, opts: FetchHAROptions = {}) {
 
           const form = new FormData();
 
-          request.postData.params.forEach(param => {
-            if ('fileName' in param) {
+          request.postData.params?.forEach(param => {
+            if ('fileName' in param && param.fileName) {
               if (opts.files) {
                 const fileContents = getFileFromSuppliedFiles(param.fileName, opts.files);
                 if (fileContents) {
@@ -197,7 +199,7 @@ export default function fetchHAR(har: Har, opts: FetchHAROptions = {}) {
                     form.append(
                       param.name,
                       new File([fileContents], param.fileName, {
-                        type: param.contentType || null,
+                        type: param.contentType || undefined,
                       }),
                       param.fileName,
                     );
@@ -214,15 +216,15 @@ export default function fetchHAR(har: Har, opts: FetchHAROptions = {}) {
                 }
               }
 
-              if ('value' in param) {
+              if ('value' in param && param.value) {
                 let paramBlob;
                 const parsed = parseDataUrl(param.value);
                 if (parsed) {
                   // If we were able to parse out this data URL we don't need to transform its data
                   // into a buffer for `Blob` because that supports data URLs already.
-                  paramBlob = new Blob([param.value], { type: parsed.contentType || param.contentType || null });
+                  paramBlob = new Blob([param.value], { type: parsed.contentType || param.contentType || undefined });
                 } else {
-                  paramBlob = new Blob([param.value], { type: param.contentType || null });
+                  paramBlob = new Blob([param.value], { type: param.contentType || undefined });
                 }
 
                 form.append(param.name, paramBlob, param.fileName);
@@ -234,7 +236,7 @@ export default function fetchHAR(har: Har, opts: FetchHAROptions = {}) {
               );
             }
 
-            form.append(param.name, param.value);
+            if (param.value) form.append(param.name, param.value);
           });
 
           options.body = form;
@@ -242,9 +244,9 @@ export default function fetchHAR(har: Har, opts: FetchHAROptions = {}) {
 
         default:
           const formBody: Record<string, unknown> = {};
-          request.postData.params.map(param => {
+          request.postData.params?.map(param => {
             try {
-              formBody[param.name] = JSON.parse(param.value);
+              formBody[param.name] = JSON.parse(param.value || '');
             } catch (e) {
               formBody[param.name] = param.value;
             }
@@ -254,7 +256,7 @@ export default function fetchHAR(har: Har, opts: FetchHAROptions = {}) {
 
           options.body = JSON.stringify(formBody);
       }
-    } else if (request.postData.text?.length) {
+    } else if (request.postData?.text?.length) {
       // If we've got `files` map content present, and this post data content contains a valid data
       // URL then we can substitute the payload with that file instead of the using data URL.
       if (opts.files) {

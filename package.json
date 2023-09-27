@@ -1,6 +1,6 @@
 {
   "name": "fetch-har",
-  "version": "11.0.0",
+  "version": "11.0.1",
   "description": "Make a fetch request from a HAR definition",
   "main": "dist/index.cjs",
   "types": "dist/index.d.cts",

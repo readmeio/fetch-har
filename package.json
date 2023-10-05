@@ -2,21 +2,14 @@
   "name": "fetch-har",
   "version": "11.0.1",
   "description": "Make a fetch request from a HAR definition",
-  "main": "dist/index.cjs",
-  "types": "dist/index.d.cts",
-  "module": "dist/index.js",
   "type": "module",
   "sideEffects": false,
-  "exports": {
-    ".": {
-      "import": "./dist/index.js",
-      "require": "./dist/index.cjs"
-    },
-    "./types": {
-      "import": "./dist/types.js",
-      "require": "./dist/types.cjs"
-    },
-    "./package.json": "./package.json"
+  "tshy": {
+    "exports": {
+      ".": "./src/index.ts",
+      "./types": "./src/types.ts",
+      "./package.json": "./package.json"
+    }
   },
   "engines": {
     "node": ">=18"
@@ -25,12 +18,12 @@
     "dist"
   ],
   "scripts": {
-    "build": "tsup",
+    "build": "tshy",
     "lint": "npm run lint:types && npm run lint:ts && npm run prettier",
     "lint:ts": "eslint . --ext .js,.ts",
     "lint:types": "tsc",
     "prebuild": "rm -rf dist/",
-    "prepack": "npm run build",
+    "prepare": "npm run build",
     "prettier": "prettier --check .",
     "prettier:write": "prettier --check --write .",
     "test": "vitest --coverage",
@@ -67,6 +60,7 @@
     "multer": "^1.4.5-lts.1",
     "prettier": "^3.0.3",
     "temp-dir": "^3.0.0",
+    "tshy": "^1.2.2",
     "tsup": "^7.2.0",
     "typescript": "^5.2.2",
     "vitest": "^0.34.5",

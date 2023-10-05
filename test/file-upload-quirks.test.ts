@@ -5,7 +5,6 @@ import fs from 'node:fs/promises';
 import DatauriParser from 'datauri/parser';
 import express from 'express';
 import multer from 'multer';
-// @ts-expect-error this file is ESM
 import tempDirectory from 'temp-dir';
 import { describe, beforeEach, afterEach, it, expect } from 'vitest';
 

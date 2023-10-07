@@ -6,7 +6,7 @@ Make a [fetch](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API) reque
 [![](https://img.shields.io/npm/v/fetch-har)](https://npm.im/fetch-har)
 [![License](https://img.shields.io/npm/l/fetch-har.svg)](LICENSE)
 
-[![](https://d3vv6lp55qjaqc.cloudfront.net/items/1M3C3j0I0s0j3T362344/Untitled-2.png)](https://readme.io)
+[![](https://raw.githubusercontent.com/readmeio/.github/main/oss-header.png)](https://readme.io)
 
 ## Features
 

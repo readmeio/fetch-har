@@ -1,5 +1,5 @@
 import harExamples from 'har-examples';
-import { rest } from 'msw';
+import { http } from 'msw';
 import { setupServer } from 'msw/node';
 import { describe, it, expect } from 'vitest';
 
@@ -8,8 +8,8 @@ import fetchHAR from '../../src/index.js';
 describe('#fetchHAR mocking (msw)', () => {
   it('should support mocking a request with `msw`', async () => {
     const server = setupServer(
-      rest.get('https://httpbin.org/get', (req, res, ctx) => {
-        return res(ctx.status(429));
+      http.get('https://httpbin.org/get', () => {
+        return new Response(null, { status: 429 });
       }),
     );
 

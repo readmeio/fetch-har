@@ -1,5 +1,8 @@
 import harExamples from 'har-examples';
 import { http } from 'msw';
+// not sure why this isn't being picked up by ESLint,
+// it definitely is resolving!
+// eslint-disable-next-line import/no-unresolved
 import { setupServer } from 'msw/node';
 import { describe, it, expect } from 'vitest';
 

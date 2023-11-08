@@ -19,7 +19,7 @@
     "./package.json": "./package.json"
   },
   "engines": {
-    "node": ">=18"
+    "node": ">=18.13.0"
   },
   "files": [
     "dist"
@@ -47,8 +47,7 @@
   "homepage": "https://github.com/readmeio/fetch-har#readme",
   "dependencies": {
     "@readme/data-urls": "^3.0.0",
-    "@types/har-format": "^1.2.13",
-    "undici": "^5.25.1"
+    "@types/har-format": "^1.2.13"
   },
   "devDependencies": {
     "@jsdevtools/host-environment": "^2.1.2",

@@ -60,11 +60,9 @@ export default async function fetchHAR(har: Har, opts: FetchHAROptions = {}): Pr
 
   if (!globalThis.File) {
     try {
-      // Node's native `fetch` implementation unfortunately does not make this API global so we need
-      // to pull it in if we don't have it.
-      const UndiciFile = (await import('undici')).File;
+      const NodeFile = (await import('node:buffer')).File;
       // @ts-expect-error the types don't match exactly, which is expected!
-      globalThis.File = UndiciFile;
+      globalThis.File = NodeFile;
     } catch (e) {
       throw new Error(
         'The File API is required for this library. https://developer.mozilla.org/en-US/docs/Web/API/File',

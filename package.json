@@ -51,11 +51,11 @@
   },
   "devDependencies": {
     "@jsdevtools/host-environment": "^2.1.2",
-    "@readme/eslint-config": "^13.4.0",
+    "@readme/eslint-config": "^13.4.1",
     "@types/express": "^4.17.17",
     "@types/multer": "^1.4.7",
     "@types/node": "^20.6.3",
-    "@vitest/browser": "^0.34.3",
+    "@vitest/browser": "^1.1.1",
     "@vitest/coverage-v8": "^1.1.1",
     "datauri": "^4.1.0",
     "eslint": "^8.48.0",

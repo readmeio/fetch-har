@@ -19,12 +19,10 @@ describe('fetch-har', () => {
     expect(fetchHAR.bind(null, { log: { entries: [] } })).rejects.toThrow('Missing log.entries array');
   });
 
-  // eslint-disable-next-line vitest/require-hook
   it.skipIf(
     !host.node, // Custom user agents are not supported in browser environments.
   )('should make a request with a custom user agent if specified', async () => {
     const res = await fetchHAR(harExamples.short, { userAgent: 'test-app/1.0' }).then(r => r.json());
-    // eslint-disable-next-line vitest/no-standalone-expect
     expect(res.headers['User-Agent']).toBe('test-app/1.0');
   });
 

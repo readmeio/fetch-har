@@ -7,7 +7,6 @@ import fetchHAR from '../src/index.js';
 import owlbertShrubDataURL from './fixtures/owlbert-shrub.dataurl.json';
 import owlbert from './fixtures/owlbert.dataurl.json';
 
-// eslint-disable-next-line vitest/require-hook
 describe.skipIf(host.node)('#fetchHAR (Browser-only quirks)', () => {
   describe('binary handling', () => {
     describe('supplemental overrides', () => {

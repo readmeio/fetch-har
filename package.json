@@ -33,8 +33,7 @@
     "prepack": "npm run build",
     "prettier": "prettier --check .",
     "prettier:write": "prettier --check --write .",
-    "test": "vitest --coverage",
-    "test:browser": "vitest --browser.name=chrome --browser.headless"
+    "test": "vitest --coverage"
   },
   "repository": {
     "type": "git",
@@ -55,7 +54,7 @@
     "@types/express": "^4.17.17",
     "@types/multer": "^1.4.7",
     "@types/node": "^22.0.2",
-    "@vitest/coverage-v8": "^1.1.1",
+    "@vitest/coverage-v8": "^2.0.5",
     "datauri": "^4.1.0",
     "eslint": "^8.57.0",
     "express": "^4.18.1",

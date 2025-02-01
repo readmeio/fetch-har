@@ -11,12 +11,12 @@ import owlbertDataURL from './fixtures/owlbert.dataurl.json';
 import urlEncodedWithAuthHAR from './fixtures/urlencoded-with-auth.har.json';
 
 describe('fetch-har', () => {
-  it('should throw if it looks like you are missing a valid HAR definition', () => {
-    expect(fetchHAR).rejects.toThrow('Missing HAR definition');
+  it('should throw if it looks like you are missing a valid HAR definition', async () => {
+    await expect(fetchHAR).rejects.toThrow('Missing HAR definition');
     // @ts-expect-error deliberately bad data
-    expect(fetchHAR.bind(null, { log: {} })).rejects.toThrow('Missing log.entries array');
+    await expect(fetchHAR.bind(null, { log: {} })).rejects.toThrow('Missing log.entries array');
     // @ts-expect-error deliberately bad data
-    expect(fetchHAR.bind(null, { log: { entries: [] } })).rejects.toThrow('Missing log.entries array');
+    await expect(fetchHAR.bind(null, { log: { entries: [] } })).rejects.toThrow('Missing log.entries array');
   });
 
   it.skipIf(
@@ -166,13 +166,13 @@ describe('fetch-har', () => {
     });
 
     describe('multipart/form-data', () => {
-      it('should throw an error if `fileName` is present without `value` or a mapping', () => {
-        expect(fetchHAR(harExamples['multipart-file'])).rejects.toThrow(/doesn't have access to the filesystem/);
+      it('should throw an error if `fileName` is present without `value` or a mapping', async () => {
+        await expect(fetchHAR(harExamples['multipart-file'])).rejects.toThrow(/doesn't have access to the filesystem/);
       });
 
       describe('`files` option', () => {
-        it('should throw on an unsupported type', () => {
-          expect(
+        it('should throw on an unsupported type', async () => {
+          await expect(
             fetchHAR(harExamples['multipart-data-dataurl'], {
               files: {
                 'owlbert.png': new Blob([owlbertDataURL], { type: 'image/png' }),

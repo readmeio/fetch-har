@@ -11,9 +11,9 @@ Make a [fetch](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API) reque
 ## Features
 
 - Supports Node 18+
-- Natively works in all browsers that support [fetch](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API) without having to use any polyfils.
+- Natively works in all browsers that support [fetch](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API) without having to use any polyfills.
 - [Tested](https://github.com/readmeio/fetch-har/actions) across Chrome, Safari, Firefox on Mac, Windows, and Linux.
-- Requests can be mocked with [`msw`](https://npm.im/msw) or [`fetch-mock`](https://npm.im/fetch-mock) (though the latter does not appear to be maintained).
+- Requests can be mocked with HTTP mocking libraries like [`nock`](https://npm.im/nock), [`msw`](https://npm.im/msw), or [`fetch-mock`](https://npm.im/fetch-mock).
 
 ## Installation
 
@@ -25,7 +25,6 @@ npm install --save fetch-har
 
 ```js
 import fetchHAR from 'fetch-har';
-// const fetchHAR = require('fetch-har');
 
 const har = {
   log: {
@@ -104,4 +103,5 @@ await fetchHAR(har, {
 });
 ```
 
-> ❗ Note that if you supply `body` or `credentials` to this option they may be overridden by what your HAR requires.
+> [!CAUTION]
+> If you supply `body` or `credentials` to this option they may be overridden by what your HAR requires.

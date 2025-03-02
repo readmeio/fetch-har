@@ -50,7 +50,7 @@
   },
   "devDependencies": {
     "@jsdevtools/host-environment": "^2.1.2",
-    "@readme/eslint-config": "^14.0.0",
+    "@readme/eslint-config": "^14.4.2",
     "@types/express": "^5.0.0",
     "@types/multer": "^1.4.7",
     "@types/node": "^22.0.2",

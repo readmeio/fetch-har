@@ -51,6 +51,7 @@ export default async function fetchHAR(har: Har, opts: FetchHAROptions = {}): Pr
       const NodeBlob = (await import('node:buffer')).Blob;
       // @ts-expect-error the types don't match exactly, which is expected!
       globalThis.Blob = NodeBlob;
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (e) {
       throw new Error(
         'The Blob API is required for this library. https://developer.mozilla.org/en-US/docs/Web/API/Blob',
@@ -63,6 +64,7 @@ export default async function fetchHAR(har: Har, opts: FetchHAROptions = {}): Pr
       const NodeFile = (await import('node:buffer')).File;
       // @ts-expect-error the types don't match exactly, which is expected!
       globalThis.File = NodeFile;
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (e) {
       throw new Error(
         'The File API is required for this library. https://developer.mozilla.org/en-US/docs/Web/API/File',
@@ -94,6 +96,7 @@ export default async function fetchHAR(har: Har, opts: FetchHAROptions = {}): Pr
     request.headers.forEach(header => {
       try {
         return headers.append(header.name, header.value);
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
       } catch (err) {
         /**
          * `Headers.append()` will throw errors if the header name is not a legal HTTP header name,
@@ -232,6 +235,7 @@ export default async function fetchHAR(har: Har, opts: FetchHAROptions = {}): Pr
           request.postData.params?.map(param => {
             try {
               formBody[param.name] = JSON.parse(param.value || '');
+              // eslint-disable-next-line @typescript-eslint/no-unused-vars
             } catch (e) {
               formBody[param.name] = param.value;
             }

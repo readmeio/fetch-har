@@ -107,8 +107,10 @@ describe('fetch-har', () => {
          *
          * @todo we should try mocking this request instead to make sure that cookies are sent
          */
+        // eslint-disable-next-line @vitest/no-conditional-expect
         expect(res.cookies).toStrictEqual({});
       } else {
+        // eslint-disable-next-line @vitest/no-conditional-expect
         expect(res.cookies).toStrictEqual({
           bar: 'baz',
           foo: 'bar',
@@ -142,6 +144,7 @@ describe('fetch-har', () => {
 
       // We can't set cookies in the browser within this test environment.
       if (host.node) {
+        // eslint-disable-next-line @vitest/no-conditional-expect
         expect(res.headers.Cookie).toBe('foo=bar; bar=baz');
       }
 

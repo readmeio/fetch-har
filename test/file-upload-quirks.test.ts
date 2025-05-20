@@ -1,11 +1,11 @@
 import type { Express } from 'express';
 
 import fs from 'node:fs/promises';
+import os from 'node:os';
 
 import DatauriParser from 'datauri/parser';
 import express from 'express';
 import multer from 'multer';
-import tempDirectory from 'temp-dir';
 import { describe, beforeEach, afterEach, it, expect } from 'vitest';
 
 import fetchHAR from '../src/index.js';
@@ -25,7 +25,7 @@ describe('#fetchHAR (Node-only quirks)', () => {
      *
      * @see {@link https://github.com/postmanlabs/httpbin/issues/682}
      */
-    const upload = multer({ dest: tempDirectory });
+    const upload = multer({ dest: os.tmpdir() });
     app = express();
 
     app.post('/', upload.array('files', 12), function (req, res) {

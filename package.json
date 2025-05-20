@@ -61,7 +61,7 @@
     "fetch-mock": "^12.2.1",
     "har-examples": "^4.0.2",
     "msw": "^2.8.4",
-    "multer": "^1.4.5-lts.1",
+    "multer": "^2.0.0",
     "nock": "^14.0.0",
     "prettier": "^3.0.3",
     "tsup": "^8.5.0",

@@ -1,13 +1,16 @@
 import fs from 'node:fs/promises';
 
 import harExamples from 'har-examples';
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
 
 import fetchHAR from '../src/index.js';
-
+import owlbertDataURL from './fixtures/owlbert.dataurl.json';
 import owlbertScreenshotDataURL from './fixtures/owlbert-screenshot.dataurl.json';
 import owlbertShrubDataURL from './fixtures/owlbert-shrub.dataurl.json';
-import owlbertDataURL from './fixtures/owlbert.dataurl.json';
+
+function isNode24() {
+  return process.version.startsWith('v24');
+}
 
 describe('#fetchHAR (Node-only quirks)', () => {
   describe('binary handling', () => {
@@ -73,7 +76,7 @@ describe('#fetchHAR (Node-only quirks)', () => {
           },
         }).then(r => r.json());
 
-        expect(res.data).toBe(harExamples['image-png'].log.entries[0].request.postData.text);
+        expect(res.data).toBe(harExamples['image-png'].log.entries[0].request.postData?.text);
       });
     });
   });
@@ -83,7 +86,7 @@ describe('#fetchHAR (Node-only quirks)', () => {
       const res = await fetchHAR(harExamples['multipart-form-data']).then(r => r.json());
 
       expect(res.form).toStrictEqual({ foo: 'bar' });
-      expect(parseInt(res.headers['Content-Length'], 10)).toBe(123);
+      expect(parseInt(res.headers['Content-Length'], 10)).toBe(isNode24() ? 125 : 123);
       expect(res.headers['Content-Type']).toMatch(/^multipart\/form-data; boundary=(.*)$/);
     });
 
@@ -91,7 +94,7 @@ describe('#fetchHAR (Node-only quirks)', () => {
       const res = await fetchHAR(harExamples['multipart-data']).then(r => r.json());
 
       expect(res.files).toStrictEqual({ foo: 'Hello World' });
-      expect(parseInt(res.headers['Content-Length'], 10)).toBe(179);
+      expect(parseInt(res.headers['Content-Length'], 10)).toBe(isNode24() ? 181 : 179);
       expect(res.headers['Content-Type']).toMatch(/^multipart\/form-data; boundary=(.*)$/);
     });
 
@@ -111,7 +114,7 @@ describe('#fetchHAR (Node-only quirks)', () => {
           foo: owlbertDataURL.replace('name=owlbert.png;', ''),
         });
 
-        expect(parseInt(res.headers['Content-Length'], 10)).toBe(569);
+        expect(parseInt(res.headers['Content-Length'], 10)).toBe(isNode24() ? 571 : 569);
         expect(res.headers['Content-Type']).toMatch(/^multipart\/form-data; boundary=(.*)$/);
       });
 
@@ -123,7 +126,7 @@ describe('#fetchHAR (Node-only quirks)', () => {
         }).then(r => r.json());
 
         expect(res.files).toStrictEqual({ foo: owlbertDataURL });
-        expect(parseInt(res.headers['Content-Length'], 10)).toBe(744);
+        expect(parseInt(res.headers['Content-Length'], 10)).toBe(isNode24() ? 746 : 744);
         expect(res.headers['Content-Type']).toMatch(/^multipart\/form-data; boundary=(.*)$/);
       });
 
@@ -147,7 +150,7 @@ describe('#fetchHAR (Node-only quirks)', () => {
         }).then(r => r.json());
 
         expect(res.files).toStrictEqual({ foo: owlbertScreenshotDataURL });
-        expect(parseInt(res.headers['Content-Length'], 10)).toBe(36358);
+        expect(parseInt(res.headers['Content-Length'], 10)).toBe(isNode24() ? 36360 : 36358);
         expect(res.headers['Content-Type']).toMatch(/^multipart\/form-data; boundary=(.*)$/);
       });
     });
@@ -157,7 +160,7 @@ describe('#fetchHAR (Node-only quirks)', () => {
         const res = await fetchHAR(harExamples['multipart-data-dataurl']).then(r => r.json());
 
         expect(res.files).toStrictEqual({ foo: owlbertDataURL });
-        expect(parseInt(res.headers['Content-Length'], 10)).toBe(744);
+        expect(parseInt(res.headers['Content-Length'], 10)).toBe(isNode24() ? 746 : 744);
         expect(res.headers['Content-Type']).toMatch(/^multipart\/form-data; boundary=(.*)$/);
       });
 
@@ -175,7 +178,7 @@ describe('#fetchHAR (Node-only quirks)', () => {
           foo: owlbertDataURL.replace('owlbert.png', encodeURIComponent('owlbert (1).png')),
         });
 
-        expect(parseInt(res.headers['Content-Length'], 10)).toBe(754);
+        expect(parseInt(res.headers['Content-Length'], 10)).toBe(isNode24() ? 756 : 754);
         expect(res.headers['Content-Type']).toMatch(/^multipart\/form-data; boundary=(.*)$/);
       });
     });

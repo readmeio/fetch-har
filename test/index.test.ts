@@ -2,10 +2,9 @@ import type { Har } from 'har-format';
 
 import { host } from '@jsdevtools/host-environment';
 import harExamples from 'har-examples';
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
 
 import fetchHAR from '../src/index.js';
-
 import invalidHeadersHAR from './fixtures/invalid-headers.har.json';
 import owlbertDataURL from './fixtures/owlbert.dataurl.json';
 import urlEncodedWithAuthHAR from './fixtures/urlencoded-with-auth.har.json';
@@ -107,10 +106,8 @@ describe('fetch-har', () => {
          *
          * @todo we should try mocking this request instead to make sure that cookies are sent
          */
-        // eslint-disable-next-line @vitest/no-conditional-expect
         expect(res.cookies).toStrictEqual({});
       } else {
-        // eslint-disable-next-line @vitest/no-conditional-expect
         expect(res.cookies).toStrictEqual({
           bar: 'baz',
           foo: 'bar',
@@ -144,7 +141,6 @@ describe('fetch-har', () => {
 
       // We can't set cookies in the browser within this test environment.
       if (host.node) {
-        // eslint-disable-next-line @vitest/no-conditional-expect
         expect(res.headers.Cookie).toBe('foo=bar; bar=baz');
       }
 
@@ -158,7 +154,7 @@ describe('fetch-har', () => {
         const res = await fetchHAR(har).then(r => r.json());
 
         expect(res.args).toStrictEqual({});
-        expect(res.data).toBe(har.log.entries[0].request.postData.text);
+        expect(res.data).toBe(har.log.entries[0].request.postData?.text);
         expect(res.files).toStrictEqual({});
         expect(res.form).toStrictEqual({});
         expect(parseInt(res.headers['Content-Length'], 10)).toBe(575);

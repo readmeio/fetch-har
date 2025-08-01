@@ -1,6 +1,6 @@
 import fetchMock from 'fetch-mock';
 import harExamples from 'har-examples';
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
 
 import fetchHAR from '../../src/index.js';
 

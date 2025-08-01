@@ -1,6 +1,6 @@
-import type { FetchHAROptions, RequestInitWithDuplex } from './types.js';
 import type { DataURL as npmDataURL } from '@readme/data-urls';
 import type { Har } from 'har-format';
+import type { FetchHAROptions, RequestInitWithDuplex } from './types.js';
 
 import { parse as parseDataUrl } from '@readme/data-urls';
 
@@ -14,11 +14,11 @@ function isBrowser() {
   return typeof window !== 'undefined' && typeof document !== 'undefined';
 }
 
-function isBuffer(value: any) {
+function isBuffer(value: unknown): value is Buffer {
   return typeof Buffer !== 'undefined' && Buffer.isBuffer(value);
 }
 
-function isFile(value: any) {
+function isFile(value: unknown): value is File {
   if (value instanceof File) {
     /**
      * The `Blob` polyfill on Node comes back as being an instanceof `File`. Because passing a Blob
@@ -88,12 +88,11 @@ export default async function fetchHAR(har: Har, opts: FetchHAROptions = {}): Pr
     options.headers = new Headers(options.headers);
   }
 
-  const headers = options.headers as Headers;
+  const headers: Headers = options.headers;
   if ('headers' in request && request.headers.length) {
-    // eslint-disable-next-line consistent-return
     request.headers.forEach(header => {
       try {
-        return headers.append(header.name, header.value);
+        headers.append(header.name, header.value);
       } catch (err) {
         /**
          * `Headers.append()` will throw errors if the header name is not a legal HTTP header name,
@@ -136,7 +135,7 @@ export default async function fetchHAR(har: Har, opts: FetchHAROptions = {}): Pr
       }
 
       switch (request.postData.mimeType) {
-        case 'application/x-www-form-urlencoded':
+        case 'application/x-www-form-urlencoded': {
           /**
            * Since the content we're handling here is to be encoded as
            * `application/x-www-form-urlencoded`, this should override any other `Content-Type`
@@ -154,11 +153,12 @@ export default async function fetchHAR(har: Har, opts: FetchHAROptions = {}): Pr
 
           options.body = encodedParams.toString();
           break;
+        }
 
         case 'multipart/alternative':
         case 'multipart/form-data':
         case 'multipart/mixed':
-        case 'multipart/related':
+        case 'multipart/related': {
           /**
            * If there's a `Content-Type` header set we need to remove it. We're doing this because
            * when we pass the form data object into `fetch` that'll set a proper `Content-Type`
@@ -202,7 +202,7 @@ export default async function fetchHAR(har: Har, opts: FetchHAROptions = {}): Pr
               }
 
               if ('value' in param && param.value) {
-                let paramBlob;
+                let paramBlob: Blob;
                 const parsed = parseDataUrl(param.value);
                 if (parsed) {
                   // If we were able to parse out this data URL we don't need to transform its data
@@ -226,8 +226,9 @@ export default async function fetchHAR(har: Har, opts: FetchHAROptions = {}): Pr
 
           options.body = form;
           break;
+        }
 
-        default:
+        default: {
           const formBody: Record<string, unknown> = {};
           request.postData.params?.map(param => {
             try {
@@ -240,6 +241,7 @@ export default async function fetchHAR(har: Har, opts: FetchHAROptions = {}): Pr
           });
 
           options.body = JSON.stringify(formBody);
+        }
       }
     } else if (request.postData?.text?.length) {
       // If we've got `files` map content present, and this post data content contains a valid data

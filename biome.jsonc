@@ -1,0 +1,21 @@
+{
+  "$schema": "./node_modules/@biomejs/biome/configuration_schema.json",
+  "extends": ["@readme/standards/biome"],
+  "files": {
+    "ignoreUnknown": false,
+    "includes": ["**/*.{cjs,mjs,js,mts,ts}", "!coverage/**", "!dist/**"],
+  },
+  "linter": {
+    "enabled": true,
+    "domains": {
+      "project": "all",
+      "test": "all",
+    },
+    "rules": {
+      "suspicious": {
+        // This library makes fetch requests in the browser and needs to be able to set cookies.
+        "noDocumentCookie": "off",
+      },
+    },
+  },
+}

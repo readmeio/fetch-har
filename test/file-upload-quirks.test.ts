@@ -1,3 +1,5 @@
+import type { Server } from 'node:http';
+import type { AddressInfo } from 'node:net';
 import type { Express } from 'express';
 
 import fs from 'node:fs/promises';
@@ -6,17 +8,16 @@ import os from 'node:os';
 import DatauriParser from 'datauri/parser';
 import express from 'express';
 import multer from 'multer';
-import { describe, beforeEach, afterEach, it, expect } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
 import fetchHAR from '../src/index.js';
-
 import arrayOfOwlbertsHAR from './fixtures/array-of-owlberts.har.json';
-import owlbertShrubDataURL from './fixtures/owlbert-shrub.dataurl.json';
 import owlbertDataURL from './fixtures/owlbert.dataurl.json';
+import owlbertShrubDataURL from './fixtures/owlbert-shrub.dataurl.json';
 
 describe('#fetchHAR (Node-only quirks)', () => {
   let app: Express;
-  let listener;
+  let listener: Server;
 
   beforeEach(async () => {
     /**
@@ -28,8 +29,8 @@ describe('#fetchHAR (Node-only quirks)', () => {
     const upload = multer({ dest: os.tmpdir() });
     app = express();
 
-    app.post('/', upload.array('files', 12), function (req, res) {
-      return res.status(200).json(req.files);
+    app.post('/', upload.array('files', 12), (req, res) => {
+      res.status(200).json(req.files);
     });
 
     listener = await app.listen();
@@ -41,7 +42,8 @@ describe('#fetchHAR (Node-only quirks)', () => {
 
   it('should support sending multiple images to the same parameter', async () => {
     const har = JSON.parse(JSON.stringify(arrayOfOwlbertsHAR));
-    har.log.entries[0].request.url = `http://localhost:${listener.address().port}/`;
+    // biome-ignore lint/style/noNonNullAssertion: This is fine.
+    har.log.entries[0].request.url = `http://localhost:${(listener.address() as AddressInfo)!.port}/`;
 
     const res = await fetchHAR(har, {
       files: {

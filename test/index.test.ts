@@ -5,9 +5,9 @@ import harExamples from 'har-examples';
 import { describe, expect, it } from 'vitest';
 
 import fetchHAR from '../src/index.js';
-import invalidHeadersHAR from './fixtures/invalid-headers.har.json';
-import owlbertDataURL from './fixtures/owlbert.dataurl.json';
-import urlEncodedWithAuthHAR from './fixtures/urlencoded-with-auth.har.json';
+import invalidHeadersHAR from './fixtures/invalid-headers.har.json' with { type: 'json' };
+import owlbertDataURL from './fixtures/owlbert.dataurl.json' with { type: 'json' };
+import urlEncodedWithAuthHAR from './fixtures/urlencoded-with-auth.har.json' with { type: 'json' };
 
 describe('fetch-har', () => {
   it('should throw if it looks like you are missing a valid HAR definition', async () => {
@@ -183,7 +183,7 @@ describe('fetch-har', () => {
     });
 
     describe('quirks', () => {
-      it('should not fail if `postData.text` is `undefined`', () => {
+      it('should not fail if `postData.text` is `undefined`', async () => {
         const har = {
           log: {
             entries: [
@@ -210,12 +210,9 @@ describe('fetch-har', () => {
               },
             ],
           },
-        };
+        } as unknown as Har;
 
-        expect(() => {
-          // @ts-expect-error deliberately sending non-conforming data
-          fetchHAR(har);
-        }).not.toThrow("Cannot read property 'length' of undefined");
+        await expect(fetchHAR(har)).resolves.not.toThrow("Cannot read property 'length' of undefined");
       });
 
       it('should support urls with query parameters if the url has an anchor hash in it', async () => {
@@ -250,9 +247,8 @@ describe('fetch-har', () => {
               },
             ],
           },
-        };
+        } as unknown as Har;
 
-        // @ts-expect-error deliberately sending non-conforming data
         const res = await fetchHAR(har).then(r => r.json());
 
         expect(res.args).toStrictEqual({ dog: 'true', dog_id: 'buster18' });

@@ -1,9 +1,9 @@
 {
   "$schema": "./node_modules/@biomejs/biome/configuration_schema.json",
-  "extends": ["@readme/standards/biome"],
+  "extends": ["@readme/standards/biome", "@readme/standards/biome/esm"],
   "files": {
     "ignoreUnknown": false,
-    "includes": ["**/*.{cjs,mjs,js,mts,ts}", "!coverage/**", "!dist/**"],
+    "includes": ["**/*.{cjs,mjs,js,mts,ts}", "!coverage", "!dist"],
   },
   "linter": {
     "enabled": true,

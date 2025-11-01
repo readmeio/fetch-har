@@ -42,6 +42,7 @@ function getFileFromSuppliedFiles(filename: string, files: FetchHAROptions['file
   return false;
 }
 
+// biome-ignore lint/style/noDefaultExport: This is the only export of this module so a default is fine.
 export default async function fetchHAR(har: Har, opts: FetchHAROptions = {}): Promise<Response> {
   if (!har) throw new Error('Missing HAR definition');
   if (!har.log || !har.log.entries || !har.log.entries.length) throw new Error('Missing log.entries array');
@@ -51,7 +52,7 @@ export default async function fetchHAR(har: Har, opts: FetchHAROptions = {}): Pr
       const NodeBlob = (await import('node:buffer')).Blob;
       // @ts-expect-error the types don't match exactly, which is expected!
       globalThis.Blob = NodeBlob;
-    } catch (e) {
+    } catch {
       throw new Error(
         'The Blob API is required for this library. https://developer.mozilla.org/en-US/docs/Web/API/Blob',
       );
@@ -63,7 +64,7 @@ export default async function fetchHAR(har: Har, opts: FetchHAROptions = {}): Pr
       const NodeFile = (await import('node:buffer')).File;
       // @ts-expect-error the types don't match exactly, which is expected!
       globalThis.File = NodeFile;
-    } catch (e) {
+    } catch {
       throw new Error(
         'The File API is required for this library. https://developer.mozilla.org/en-US/docs/Web/API/File',
       );
@@ -93,7 +94,7 @@ export default async function fetchHAR(har: Har, opts: FetchHAROptions = {}): Pr
     request.headers.forEach(header => {
       try {
         headers.append(header.name, header.value);
-      } catch (err) {
+      } catch {
         /**
          * `Headers.append()` will throw errors if the header name is not a legal HTTP header name,
          * like `X-API-KEY (Header)`. If that happens instead of tossing the error back out, we
@@ -183,7 +184,7 @@ export default async function fetchHAR(har: Har, opts: FetchHAROptions = {}): Pr
                   if (isBuffer(fileContents)) {
                     form.append(
                       param.name,
-                      new File([fileContents], param.fileName, {
+                      new File([new Uint8Array(fileContents)], param.fileName, {
                         type: param.contentType || undefined,
                       }),
                       param.fileName,
@@ -233,14 +234,12 @@ export default async function fetchHAR(har: Har, opts: FetchHAROptions = {}): Pr
           request.postData.params?.map(param => {
             try {
               formBody[param.name] = JSON.parse(param.value || '');
-            } catch (e) {
+            } catch {
               formBody[param.name] = param.value;
             }
 
             return true;
           });
-
-          options.body = JSON.stringify(formBody);
         }
       }
     } else if (request.postData?.text?.length) {
@@ -253,7 +252,7 @@ export default async function fetchHAR(har: Har, opts: FetchHAROptions = {}): Pr
             const fileContents = getFileFromSuppliedFiles(parsed.name, opts.files);
             if (fileContents) {
               if (isBuffer(fileContents)) {
-                options.body = fileContents;
+                options.body = new Uint8Array(fileContents);
               } else if (isFile(fileContents)) {
                 // `Readable.from` isn't available in browsers but the browser `Request` object can
                 // handle `File` objects just fine without us having to mold it into shape.

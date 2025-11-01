@@ -29,7 +29,9 @@ jobs:
         node:
           - lts/-1
           - lts/*
-          - latest
+          # Temporarily skipping latest until a `localStorage` regression is resolved.
+          # https://github.com/mswjs/msw/issues/2615
+          # - latest
 
     steps:
       - name: Checkout source

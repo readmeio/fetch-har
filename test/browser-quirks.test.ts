@@ -3,8 +3,8 @@ import harExamples from 'har-examples';
 import { describe, expect, it } from 'vitest';
 
 import fetchHAR from '../src/index.js';
-import owlbert from './fixtures/owlbert.dataurl.json';
-import owlbertShrubDataURL from './fixtures/owlbert-shrub.dataurl.json';
+import owlbert from './fixtures/owlbert.dataurl.json' with { type: 'json' };
+import owlbertShrubDataURL from './fixtures/owlbert-shrub.dataurl.json' with { type: 'json' };
 
 describe.skipIf(host.node)('#fetchHAR (Browser-only quirks)', () => {
   describe('binary handling', () => {
@@ -47,10 +47,8 @@ describe.skipIf(host.node)('#fetchHAR (Browser-only quirks)', () => {
       expect(res.headers['Content-Type']).toMatch(/^multipart\/form-data; boundary=(.*)$/);
     });
 
-    it('should throw an error if `fileName` is present without `value` or a mapping', () => {
-      expect(() => {
-        fetchHAR(harExamples['multipart-file']);
-      }).toThrow(/doesn't have access to the filesystem/);
+    it('should throw an error if `fileName` is present without `value` or a mapping', async () => {
+      await expect(fetchHAR(harExamples['multipart-file'])).rejects.toThrow(/doesn't have access to the filesystem/);
     });
 
     describe('`files` option', () => {
@@ -66,14 +64,14 @@ describe.skipIf(host.node)('#fetchHAR (Browser-only quirks)', () => {
         expect(res.headers['Content-Type']).toMatch(/^multipart\/form-data; boundary=(.*)$/);
       });
 
-      it('should throw on an unsupported type', () => {
-        expect(() => {
+      it('should throw on an unsupported type', async () => {
+        await expect(
           fetchHAR(harExamples['multipart-data-dataurl'], {
             files: {
               'owlbert.png': new Blob([owlbert], { type: 'image/png' }),
             },
-          });
-        }).toThrow('An unknown object has been supplied into the `files` config for use.');
+          }),
+        ).rejects.toThrow('An unknown object has been supplied into the `files` config for use.');
       });
     });
 

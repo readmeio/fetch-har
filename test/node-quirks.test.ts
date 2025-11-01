@@ -4,13 +4,9 @@ import harExamples from 'har-examples';
 import { describe, expect, it } from 'vitest';
 
 import fetchHAR from '../src/index.js';
-import owlbertDataURL from './fixtures/owlbert.dataurl.json';
-import owlbertScreenshotDataURL from './fixtures/owlbert-screenshot.dataurl.json';
-import owlbertShrubDataURL from './fixtures/owlbert-shrub.dataurl.json';
-
-function isNode24() {
-  return process.version.startsWith('v24');
-}
+import owlbertDataURL from './fixtures/owlbert.dataurl.json' with { type: 'json' };
+import owlbertScreenshotDataURL from './fixtures/owlbert-screenshot.dataurl.json' with { type: 'json' };
+import owlbertShrubDataURL from './fixtures/owlbert-shrub.dataurl.json' with { type: 'json' };
 
 describe('#fetchHAR (Node-only quirks)', () => {
   describe('binary handling', () => {
@@ -86,7 +82,7 @@ describe('#fetchHAR (Node-only quirks)', () => {
       const res = await fetchHAR(harExamples['multipart-form-data']).then(r => r.json());
 
       expect(res.form).toStrictEqual({ foo: 'bar' });
-      expect(parseInt(res.headers['Content-Length'], 10)).toBe(isNode24() ? 125 : 123);
+      expect(parseInt(res.headers['Content-Length'], 10)).toBe(125);
       expect(res.headers['Content-Type']).toMatch(/^multipart\/form-data; boundary=(.*)$/);
     });
 
@@ -94,7 +90,7 @@ describe('#fetchHAR (Node-only quirks)', () => {
       const res = await fetchHAR(harExamples['multipart-data']).then(r => r.json());
 
       expect(res.files).toStrictEqual({ foo: 'Hello World' });
-      expect(parseInt(res.headers['Content-Length'], 10)).toBe(isNode24() ? 181 : 179);
+      expect(parseInt(res.headers['Content-Length'], 10)).toBe(181);
       expect(res.headers['Content-Type']).toMatch(/^multipart\/form-data; boundary=(.*)$/);
     });
 
@@ -114,7 +110,7 @@ describe('#fetchHAR (Node-only quirks)', () => {
           foo: owlbertDataURL.replace('name=owlbert.png;', ''),
         });
 
-        expect(parseInt(res.headers['Content-Length'], 10)).toBe(isNode24() ? 571 : 569);
+        expect(parseInt(res.headers['Content-Length'], 10)).toBe(571);
         expect(res.headers['Content-Type']).toMatch(/^multipart\/form-data; boundary=(.*)$/);
       });
 
@@ -126,7 +122,7 @@ describe('#fetchHAR (Node-only quirks)', () => {
         }).then(r => r.json());
 
         expect(res.files).toStrictEqual({ foo: owlbertDataURL });
-        expect(parseInt(res.headers['Content-Length'], 10)).toBe(isNode24() ? 746 : 744);
+        expect(parseInt(res.headers['Content-Length'], 10)).toBe(746);
         expect(res.headers['Content-Type']).toMatch(/^multipart\/form-data; boundary=(.*)$/);
       });
 
@@ -150,7 +146,7 @@ describe('#fetchHAR (Node-only quirks)', () => {
         }).then(r => r.json());
 
         expect(res.files).toStrictEqual({ foo: owlbertScreenshotDataURL });
-        expect(parseInt(res.headers['Content-Length'], 10)).toBe(isNode24() ? 36360 : 36358);
+        expect(parseInt(res.headers['Content-Length'], 10)).toBe(36_360);
         expect(res.headers['Content-Type']).toMatch(/^multipart\/form-data; boundary=(.*)$/);
       });
     });
@@ -160,7 +156,7 @@ describe('#fetchHAR (Node-only quirks)', () => {
         const res = await fetchHAR(harExamples['multipart-data-dataurl']).then(r => r.json());
 
         expect(res.files).toStrictEqual({ foo: owlbertDataURL });
-        expect(parseInt(res.headers['Content-Length'], 10)).toBe(isNode24() ? 746 : 744);
+        expect(parseInt(res.headers['Content-Length'], 10)).toBe(746);
         expect(res.headers['Content-Type']).toMatch(/^multipart\/form-data; boundary=(.*)$/);
       });
 
@@ -178,7 +174,7 @@ describe('#fetchHAR (Node-only quirks)', () => {
           foo: owlbertDataURL.replace('owlbert.png', encodeURIComponent('owlbert (1).png')),
         });
 
-        expect(parseInt(res.headers['Content-Length'], 10)).toBe(isNode24() ? 756 : 754);
+        expect(parseInt(res.headers['Content-Length'], 10)).toBe(756);
         expect(res.headers['Content-Type']).toMatch(/^multipart\/form-data; boundary=(.*)$/);
       });
     });

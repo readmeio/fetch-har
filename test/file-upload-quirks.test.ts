@@ -11,9 +11,9 @@ import multer from 'multer';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
 import fetchHAR from '../src/index.js';
-import arrayOfOwlbertsHAR from './fixtures/array-of-owlberts.har.json';
-import owlbertDataURL from './fixtures/owlbert.dataurl.json';
-import owlbertShrubDataURL from './fixtures/owlbert-shrub.dataurl.json';
+import arrayOfOwlbertsHAR from './fixtures/array-of-owlberts.har.json' with { type: 'json' };
+import owlbertDataURL from './fixtures/owlbert.dataurl.json' with { type: 'json' };
+import owlbertShrubDataURL from './fixtures/owlbert-shrub.dataurl.json' with { type: 'json' };
 
 describe('#fetchHAR (Node-only quirks)', () => {
   let app: Express;

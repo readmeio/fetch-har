@@ -27,7 +27,7 @@
   "scripts": {
     "build": "tsup",
     "format": "npm run prettier:write && npx biome check --write",
-    "lint": "npm run lint:types && npm run lint:ts && npm run prettier",
+    "lint": "knip && npm run lint:types && npm run lint:ts && npm run prettier",
     "lint:ts": "biome check",
     "lint:types": "tsc",
     "prebuild": "rm -rf dist/",
@@ -61,6 +61,7 @@
     "express": "^5.1.0",
     "fetch-mock": "^12.2.1",
     "har-examples": "^4.0.2",
+    "knip": "^5.66.4",
     "msw": "^2.8.4",
     "multer": "^1.4.5-lts.1",
     "nock": "^14.0.0",

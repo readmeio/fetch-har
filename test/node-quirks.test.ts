@@ -9,6 +9,8 @@ import owlbertScreenshotDataURL from './fixtures/owlbert-screenshot.dataurl.json
 import owlbertShrubDataURL from './fixtures/owlbert-shrub.dataurl.json' with { type: 'json' };
 
 describe('#fetchHAR (Node-only quirks)', () => {
+  const __dirname = import.meta.dirname;
+
   describe('binary handling', () => {
     it('should support an `image/png` request that has a data URL with no file name', async () => {
       const har = JSON.parse(JSON.stringify(harExamples['image-png-no-filename']));

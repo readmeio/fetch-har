@@ -19,6 +19,8 @@ describe('#fetchHAR (Node-only quirks)', () => {
   let app: Express;
   let listener: Server;
 
+  const __dirname = import.meta.dirname;
+
   beforeEach(async () => {
     /**
      * Due to a bug with `multipart/form-data` handling on multiple files in HTTPBin we need to

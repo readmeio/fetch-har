@@ -45,7 +45,7 @@ function getFileFromSuppliedFiles(filename: string, files: FetchHAROptions['file
 // biome-ignore lint/style/noDefaultExport: This is the only export of this module so a default is fine.
 export default async function fetchHAR(har: Har, opts: FetchHAROptions = {}): Promise<Response> {
   if (!har) throw new Error('Missing HAR definition');
-  if (!har.log || !har.log.entries || !har.log.entries.length) throw new Error('Missing log.entries array');
+  if (!har.log?.entries?.length) throw new Error('Missing log.entries array');
 
   if (!globalThis.Blob) {
     try {

@@ -9,23 +9,35 @@
   "sideEffects": false,
   "exports": {
     ".": {
-      "import": "./dist/index.js",
-      "require": "./dist/index.cjs"
+      "import": {
+        "types": "./dist/index.d.mts",
+        "default": "./dist/index.mjs"
+      },
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
+      }
     },
     "./types": {
-      "import": "./dist/types.js",
-      "require": "./dist/types.cjs"
+      "import": {
+        "types": "./dist/types.d.mts",
+        "default": "./dist/types.mjs"
+      },
+      "require": {
+        "types": "./dist/types.d.cts",
+        "default": "./dist/types.cjs"
+      }
     },
     "./package.json": "./package.json"
   },
   "engines": {
-    "node": ">=18.13.0"
+    "node": ">=22"
   },
   "files": [
     "dist"
   ],
   "scripts": {
-    "build": "tsup",
+    "build": "tsdown",
     "format": "npm run prettier:write && npx biome check --write",
     "lint": "knip && npm run lint:types && npm run lint:ts && npm run prettier",
     "lint:ts": "biome check",
@@ -46,29 +58,29 @@
   },
   "homepage": "https://github.com/readmeio/fetch-har#readme",
   "dependencies": {
-    "@readme/data-urls": "^3.0.0",
+    "@readme/data-urls": "^4.0.1",
     "@types/har-format": "^1.2.13"
   },
   "devDependencies": {
-    "@biomejs/biome": "^2.4.5",
+    "@biomejs/biome": "^2.4.10",
     "@jsdevtools/host-environment": "^2.1.2",
     "@readme/standards": "^2.2.0",
     "@types/express": "^5.0.2",
-    "@types/multer": "^2.0.0",
-    "@types/node": "^25.0.3",
-    "@vitest/coverage-v8": "^4.0.6",
+    "@types/multer": "^2.1.0",
+    "@types/node": "^25.5.0",
+    "@vitest/coverage-v8": "^4.1.2",
     "datauri": "^4.1.0",
     "express": "^5.1.0",
     "fetch-mock": "^12.2.1",
     "har-examples": "^5.0.0",
     "knip": "^6.1.1",
-    "msw": "^2.8.4",
+    "msw": "^2.12.14",
     "multer": "^2.0.2",
     "nock": "^15.0.0",
     "prettier": "^3.0.3",
-    "tsup": "^8.5.0",
-    "typescript": "^5.2.2",
-    "vitest": "^4.0.6"
+    "tsdown": "^0.21.7",
+    "typescript": "^6.0.2",
+    "vitest": "^4.1.2"
   },
   "browserslist": [
     "last 2 versions"

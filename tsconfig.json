@@ -1,7 +1,6 @@
 {
   "compilerOptions": {
     "allowJs": true,
-    "baseUrl": "./src",
     "declaration": true,
     "esModuleInterop": true,
     "lib": ["DOM", "ES2022"],
@@ -9,9 +8,11 @@
     "moduleResolution": "Bundler",
     "noEmit": true,
     "noImplicitAny": true,
+    "rootDir": "./src",
     "outDir": "dist/",
     "strict": true,
-    "target": "ES6"
+    "target": "ES6",
+    "types": ["node"]
   },
   "include": ["./src/**/*"]
 }

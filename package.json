@@ -60,7 +60,7 @@
     "datauri": "^4.1.0",
     "express": "^5.1.0",
     "fetch-mock": "^12.2.1",
-    "har-examples": "^4.0.2",
+    "har-examples": "^5.0.0",
     "knip": "^6.1.1",
     "msw": "^2.8.4",
     "multer": "^2.0.2",

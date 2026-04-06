@@ -62,6 +62,7 @@
     "@types/har-format": "^1.2.13"
   },
   "devDependencies": {
+    "@arethetypeswrong/core": "^0.18.2",
     "@biomejs/biome": "^2.4.10",
     "@jsdevtools/host-environment": "^2.1.2",
     "@readme/standards": "^2.4.1",

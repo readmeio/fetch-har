@@ -49,7 +49,8 @@ export default async function fetchHAR(har: Har, opts: FetchHAROptions = {}): Pr
 
   if (!globalThis.Blob) {
     try {
-      const NodeBlob = (await import('node:buffer')).Blob;
+      // biome-ignore lint/style/useNodejsImportProtocol: Old versions of Webpack don't support the `node:` protocol
+      const NodeBlob = (await import('buffer')).Blob;
       // @ts-expect-error the types don't match exactly, which is expected!
       globalThis.Blob = NodeBlob;
     } catch {
@@ -61,7 +62,8 @@ export default async function fetchHAR(har: Har, opts: FetchHAROptions = {}): Pr
 
   if (!globalThis.File) {
     try {
-      const NodeFile = (await import('node:buffer')).File;
+      // biome-ignore lint/style/useNodejsImportProtocol: Old versions of Webpack don't support the `node:` protocol
+      const NodeFile = (await import('buffer')).File;
       // @ts-expect-error the types don't match exactly, which is expected!
       globalThis.File = NodeFile;
     } catch {

@@ -3,8 +3,9 @@ import harExamples from 'har-examples';
 import { describe, expect, it } from 'vitest';
 
 import fetchHAR from '../src/index.js';
-import owlbert from './fixtures/owlbert.dataurl.json' with { type: 'json' };
+
 import owlbertShrubDataURL from './fixtures/owlbert-shrub.dataurl.json' with { type: 'json' };
+import owlbert from './fixtures/owlbert.dataurl.json' with { type: 'json' };
 
 describe.skipIf(host.node)('#fetchHAR (Browser-only quirks)', () => {
   describe('binary handling', () => {

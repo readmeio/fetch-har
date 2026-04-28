@@ -1,5 +1,4 @@
 import harExamples from 'har-examples';
-// biome-ignore lint/correctness/noUnresolvedImports: This rule is buggy
 import nock from 'nock';
 import { describe, expect, it } from 'vitest';
 

@@ -5,6 +5,7 @@ import harExamples from 'har-examples';
 import { describe, expect, it } from 'vitest';
 
 import fetchHAR from '../src/index.js';
+
 import invalidHeadersHAR from './fixtures/invalid-headers.har.json' with { type: 'json' };
 import owlbertDataURL from './fixtures/owlbert.dataurl.json' with { type: 'json' };
 import urlEncodedWithAuthHAR from './fixtures/urlencoded-with-auth.har.json' with { type: 'json' };

@@ -1,6 +1,6 @@
+import type { FetchHAROptions, RequestInitWithDuplex } from './types.js';
 import type { DataURL as npmDataURL } from '@readme/data-urls';
 import type { Har } from 'har-format';
-import type { FetchHAROptions, RequestInitWithDuplex } from './types.js';
 
 import { parse as parseDataUrl } from '@readme/data-urls';
 
@@ -42,14 +42,12 @@ function getFileFromSuppliedFiles(filename: string, files: FetchHAROptions['file
   return false;
 }
 
-// biome-ignore lint/style/noDefaultExport: This is the only export of this module so a default is fine.
 export default async function fetchHAR(har: Har, opts: FetchHAROptions = {}): Promise<Response> {
   if (!har) throw new Error('Missing HAR definition');
   if (!har.log?.entries?.length) throw new Error('Missing log.entries array');
 
   if (!globalThis.Blob) {
     try {
-      // biome-ignore lint/style/useNodejsImportProtocol: Old versions of Webpack don't support the `node:` protocol
       const NodeBlob = (await import('buffer')).Blob;
       // @ts-expect-error the types don't match exactly, which is expected!
       globalThis.Blob = NodeBlob;
@@ -62,7 +60,6 @@ export default async function fetchHAR(har: Har, opts: FetchHAROptions = {}): Pr
 
   if (!globalThis.File) {
     try {
-      // biome-ignore lint/style/useNodejsImportProtocol: Old versions of Webpack don't support the `node:` protocol
       const NodeFile = (await import('buffer')).File;
       // @ts-expect-error the types don't match exactly, which is expected!
       globalThis.File = NodeFile;

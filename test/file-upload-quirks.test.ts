@@ -1,6 +1,6 @@
+import type { Express } from 'express';
 import type { Server } from 'node:http';
 import type { AddressInfo } from 'node:net';
-import type { Express } from 'express';
 
 import fs from 'node:fs/promises';
 import os from 'node:os';
@@ -11,9 +11,10 @@ import multer from 'multer';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
 import fetchHAR from '../src/index.js';
+
 import arrayOfOwlbertsHAR from './fixtures/array-of-owlberts.har.json' with { type: 'json' };
-import owlbertDataURL from './fixtures/owlbert.dataurl.json' with { type: 'json' };
 import owlbertShrubDataURL from './fixtures/owlbert-shrub.dataurl.json' with { type: 'json' };
+import owlbertDataURL from './fixtures/owlbert.dataurl.json' with { type: 'json' };
 
 describe('#fetchHAR (Node-only quirks)', () => {
   let app: Express;
@@ -44,7 +45,6 @@ describe('#fetchHAR (Node-only quirks)', () => {
 
   it('should support sending multiple images to the same parameter', async () => {
     const har = JSON.parse(JSON.stringify(arrayOfOwlbertsHAR));
-    // biome-ignore lint/style/noNonNullAssertion: This is fine.
     har.log.entries[0].request.url = `http://localhost:${(listener.address() as AddressInfo)!.port}/`;
 
     const res = await fetchHAR(har, {

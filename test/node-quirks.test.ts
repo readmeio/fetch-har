@@ -48,6 +48,31 @@ describe('#fetchHAR (Node-only quirks)', () => {
         expect(res.url).toBe('https://httpbin.org/post');
       });
 
+      it('should support a Buffer `files` mapping override for a raw payload data URL with an encoded file name', async () => {
+        const filename = 'owlbert screen shot.png';
+        const encodedFilename = encodeURIComponent(filename);
+        const har = JSON.parse(JSON.stringify(harExamples['image-png']));
+        har.log.entries[0].request.postData.text = har.log.entries[0].request.postData.text.replace(
+          'name=owlbert.png',
+          `name=${encodedFilename}`,
+        );
+        const originalDataUrlPayload = har.log.entries[0].request.postData.text;
+
+        const owlbert = await fs.readFile(`${__dirname}/fixtures/owlbert.png`);
+        const res = await fetchHAR(har, { files: { [filename]: owlbert } }).then(r => r.json());
+
+        expect(res.args).toStrictEqual({});
+        expect(res.data).not.toBe(originalDataUrlPayload);
+        expect(res.data).not.toContain(`name=${encodedFilename}`);
+        expect(res.data).toMatch(/^data:application\/octet-stream;base64,/);
+        expect(res.files).toStrictEqual({});
+        expect(res.form).toStrictEqual({});
+        expect(parseInt(res.headers['Content-Length'], 10)).toBe(400);
+        expect(res.headers['Content-Type']).toBe('image/png');
+        expect(res.json).toBeNull();
+        expect(res.url).toBe('https://httpbin.org/post');
+      });
+
       it('should support a File `files` mapping override for a raw payload data URL', async () => {
         // In the HAR is `owlbert.png` but we want to adhoc override that with the contents of
         // `owlbert-shrub.png` here to ensure that the override works.

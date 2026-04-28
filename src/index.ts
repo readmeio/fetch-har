@@ -250,7 +250,7 @@ export default async function fetchHAR(har: Har, opts: FetchHAROptions = {}): Pr
       if (opts.files) {
         const parsed = parseDataUrl(request.postData.text) as DataURL;
         if (parsed) {
-          if (parsed?.name && parsed.name in opts.files) {
+          if (parsed?.name) {
             const fileContents = getFileFromSuppliedFiles(parsed.name, opts.files);
             if (fileContents) {
               if (isBuffer(fileContents)) {

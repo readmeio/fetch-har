@@ -2,11 +2,23 @@
   "name": "fetch-har",
   "version": "12.0.1",
   "description": "Make a fetch request from a HAR definition",
-  "main": "dist/index.cjs",
-  "types": "dist/index.d.cts",
-  "module": "dist/index.js",
+  "homepage": "https://github.com/readmeio/fetch-har#readme",
+  "bugs": {
+    "url": "https://github.com/readmeio/fetch-har/issues"
+  },
+  "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/readmeio/fetch-har.git"
+  },
+  "files": [
+    "dist"
+  ],
   "type": "module",
   "sideEffects": false,
+  "main": "dist/index.cjs",
+  "module": "dist/index.js",
+  "types": "dist/index.d.cts",
   "exports": {
     ".": {
       "import": {
@@ -30,42 +42,24 @@
     },
     "./package.json": "./package.json"
   },
-  "engines": {
-    "node": ">=22"
-  },
-  "files": [
-    "dist"
-  ],
   "scripts": {
     "build": "tsdown",
-    "format": "npm run prettier:write && npx biome check --write",
-    "lint": "knip && npm run lint:types && npm run lint:ts && npm run prettier",
-    "lint:ts": "biome check",
+    "format": "npx oxlint --fix && npx oxfmt --write",
+    "lint": "knip && npm run lint:types && npm run lint:ts && npx oxfmt",
+    "lint:ts": "npx oxlint",
     "lint:types": "tsc",
     "prebuild": "rm -rf dist/",
     "prepack": "npm run build",
-    "prettier": "prettier --check .",
-    "prettier:write": "prettier --check --write .",
     "test": "vitest --coverage"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+ssh://git@github.com/readmeio/fetch-har.git"
-  },
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/readmeio/fetch-har/issues"
-  },
-  "homepage": "https://github.com/readmeio/fetch-har#readme",
   "dependencies": {
     "@readme/data-urls": "^4.0.2",
     "@types/har-format": "^1.2.13"
   },
   "devDependencies": {
     "@arethetypeswrong/core": "^0.18.2",
-    "@biomejs/biome": "^2.4.10",
     "@jsdevtools/host-environment": "^2.1.2",
-    "@readme/standards": "^2.4.1",
+    "@readme/oxlint-config": "^1.1.2",
     "@types/express": "^5.0.2",
     "@types/multer": "^2.1.0",
     "@types/node": "^25.5.2",
@@ -78,7 +72,8 @@
     "msw": "^2.13.0",
     "multer": "^2.0.2",
     "nock": "^15.0.0",
-    "prettier": "^3.0.3",
+    "oxfmt": "^0.47.0",
+    "oxlint": "^1.62.0",
     "tsdown": "^0.21.7",
     "typescript": "^6.0.2",
     "vitest": "^4.1.2"
@@ -86,5 +81,7 @@
   "browserslist": [
     "last 2 versions"
   ],
-  "prettier": "@readme/standards/prettier"
+  "engines": {
+    "node": ">=22"
+  }
 }

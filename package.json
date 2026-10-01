@@ -63,7 +63,7 @@
     "@types/express": "^5.0.2",
     "@types/multer": "^2.1.0",
     "@types/node": "^26.1.2",
-    "@vitest/coverage-v8": "^4.1.2",
+    "@vitest/coverage-v8": "^5.0.2",
     "datauri": "^4.1.0",
     "express": "^5.1.0",
     "fetch-mock": "^12.2.1",

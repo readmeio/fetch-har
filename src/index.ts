@@ -3,6 +3,7 @@ import type { DataURL as npmDataURL } from '@readme/data-urls';
 import type { Har } from 'har-format';
 
 import { parse as parseDataUrl } from '@readme/data-urls';
+import { cookies } from 'cookies-utils';
 
 type DataURL = npmDataURL & {
   // `parse-data-url` doesn't explicitly support `name` in data URLs but if it's there it'll be
@@ -12,6 +13,11 @@ type DataURL = npmDataURL & {
 
 function isBrowser() {
   return typeof window !== 'undefined' && typeof document !== 'undefined';
+}
+
+function getDefaultCookiePath(pathname: string): string {
+  const lastSlashIndex = pathname.lastIndexOf('/');
+  return lastSlashIndex <= 0 ? '/' : pathname.slice(0, lastSlashIndex);
 }
 
 function isBuffer(value: unknown): value is Buffer {
@@ -112,9 +118,10 @@ export default async function fetchHAR(har: Har, opts: FetchHAROptions = {}): Pr
      * happen in browsers!
      */
     if (isBrowser()) {
-      request.cookies.forEach(cookie => {
-        document.cookie = `${encodeURIComponent(cookie.name)}=${encodeURIComponent(cookie.value)}`;
-      });
+      const path = getDefaultCookiePath(window.location.pathname);
+      for (const cookie of request.cookies) {
+        await cookies.set(cookie.name, cookie.value, { path });
+      }
 
       options.credentials = 'include';
     } else {

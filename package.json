@@ -63,7 +63,7 @@
     "@types/express": "^5.0.2",
     "@types/multer": "^2.1.0",
     "@types/node": "^26.1.2",
-    "@vitest/coverage-v8": "^4.1.2",
+    "@vitest/coverage-v8": "^5.0.3",
     "datauri": "^4.1.0",
     "express": "^5.1.0",
     "fetch-mock": "^12.2.1",
@@ -76,7 +76,7 @@
     "oxlint": "^1.62.0",
     "tsdown": "^0.23.0",
     "typescript": "^6.0.2",
-    "vitest": "^4.1.2"
+    "vitest": "^5.0.3"
   },
   "browserslist": [
     "last 2 versions"

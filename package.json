@@ -54,7 +54,8 @@
   },
   "dependencies": {
     "@readme/data-urls": "^4.0.2",
-    "@types/har-format": "^1.2.13"
+    "@types/har-format": "^1.2.13",
+    "cookies-utils": "^2.4.1"
   },
   "devDependencies": {
     "@arethetypeswrong/core": "^0.18.2",

@@ -80,7 +80,8 @@ describe('fetch-har', () => {
     });
 
     it('should not double encode query parameters', async () => {
-      const res = await fetchHAR(harExamples['query-encoded']).then(r => r.json());
+      const har = harExamples['query-encoded'];
+      const res = await fetchHAR(har).then(r => r.json());
 
       expect(res.args).toStrictEqual({
         array: ['something&nothing=true', 'nothing&something=false', 'another item'],
@@ -90,9 +91,10 @@ describe('fetch-har', () => {
         stringWeird: 'properties["$email"] == "testing"',
       });
 
-      expect(res.url).toBe(
-        'https://httpbin.org/anything?stringPound=something%26nothing%3Dtrue&stringHash=hash%23data&stringArray=where[4]%3D10&stringWeird=properties["%24email"] %3D%3D "testing"&array=something%26nothing%3Dtrue&array=nothing%26something%3Dfalse&array=another item',
-      );
+      // These query values are already encoded on the HAR. fetch-har passes that
+      // encoding through, and httpbin echoes the URL it actually received.
+      const query = har.log.entries[0].request.queryString.map(param => `${param.name}=${param.value}`).join('&');
+      expect(res.url).toBe(`https://httpbin.org/anything?${query}`);
     });
 
     it('should support requests with cookies', async () => {

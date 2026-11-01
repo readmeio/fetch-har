@@ -59,7 +59,7 @@
   "devDependencies": {
     "@arethetypeswrong/core": "^0.18.2",
     "@jsdevtools/host-environment": "^2.1.2",
-    "@readme/oxlint-config": "^1.1.2",
+    "@readme/oxlint-config": "^15.0.9",
     "@types/express": "^5.0.2",
     "@types/multer": "^2.1.0",
     "@types/node": "^26.1.2",
